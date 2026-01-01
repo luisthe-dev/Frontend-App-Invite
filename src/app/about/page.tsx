@@ -1,16 +1,25 @@
-import Header from "@/components/main/Header";
-import React from "react";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import AboutHero from "@/components/about/AboutHero";
+import MissionVision from "@/components/about/MissionVision";
+import CoreValues from "@/components/about/CoreValues";
+import JoinJourney from "@/components/about/JoinJourney";
+import type { Metadata } from "next";
 
-type Props = {};
-
-const page = (props: Props) => {
-  return (
-    <div className="w-full min-h-screen flex flex-col justify-start items-center">
-      <div className="w-full flex flex-col justify-start items-center">
-        <Header />
-      </div>
-    </div>
-  );
+export const metadata: Metadata = {
+  title: "About Us - MyInvite",
+  description: "Learn about our mission to revolutionize event discovery.",
 };
 
-export default page;
+export default function AboutPage() {
+  return (
+    <main className="min-h-screen bg-white">
+      <Navbar />
+      <AboutHero />
+      <MissionVision />
+      <CoreValues />
+      <JoinJourney />
+      <Footer />
+    </main>
+  );
+}
