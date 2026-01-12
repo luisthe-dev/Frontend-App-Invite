@@ -10,6 +10,7 @@ import EventCard from "@/components/ui/EventCard";
 import { eventsApi } from "@/api/events";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
+import { getPriceRange } from "@/lib/utils";
 
 // Suspense wrapper component
 function EventsContent() {
@@ -79,7 +80,7 @@ function EventsContent() {
                             title={event.title}
                             location={event.location || 'TBA'}
                             date={event.start_date}
-                            priceRange={event.price_range || "From ₦20,000"}
+                            priceRange={getPriceRange(event)}
                             category={event.category}
                             image={event.image_url || event.image || "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&q=80&w=1000"} 
                         />

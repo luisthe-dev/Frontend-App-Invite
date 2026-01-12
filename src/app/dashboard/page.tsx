@@ -1,12 +1,17 @@
 "use client";
 
-import { Plus, Calendar, DollarSign, Ticket, TrendingUp, MoreHorizontal, Clock, ArrowRight, User } from "lucide-react";
+import { Plus, Calendar, DollarSign, Ticket, TrendingUp, MoreHorizontal, Clock, ArrowRight, User, Pencil } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { authService } from "@/api/auth";
 import { hostApi } from "@/api/host";
 import { userApi } from "@/api/user";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
+import { formatCurrency } from "@/lib/utils";
+import ConfirmationModal from "@/app/components/ConfirmationModal";
+import { useRouter } from "next/navigation";
+
+
 
 export default function DashboardPage() {
   const user = authService.getCurrentUser();
@@ -16,6 +21,31 @@ export default function DashboardPage() {
   const [userHistory, setUserHistory] = useState<any[]>([]);
   const [events, setEvents] = useState<any[]>([]);
   const [chartData, setChartData] = useState<any[]>([]);
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
+  const router = useRouter();
+  const [showKycModal, setShowKycModal] = useState(false);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+      const handleClickOutside = () => setOpenDropdownId(null);
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
+
+  const toggleDropdown = (e: React.MouseEvent, id: string) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setOpenDropdownId(openDropdownId === id ? null : id);
+  };
+
+  const handleCreateEvent = (e: React.MouseEvent) => {
+      e.preventDefault();
+      if (user?.kyc_status !== 'verified') {
+          setShowKycModal(true);
+      } else {
+          router.push('/events/create');
+      }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -25,14 +55,20 @@ export default function DashboardPage() {
                 hostApi.getStats(),
                 hostApi.getRecentActivity(),
                 userApi.getHistory(),
-                hostApi.getEvents(), // Fetch user's events for the table
+                hostApi.getEvents({ limit: 5 }), // Fetch user's events for the table with limit
                 hostApi.getChart()
             ]);
             setStats(statsRes);
             setRecentActivity(activityRes);
             setUserHistory(historyRes.data);
-            setEvents(eventsRes || []);
-            setChartData(chartRes || []);
+            setEvents(eventsRes.data || eventsRes || []); // Handle paginated response structure if applicable
+            
+            // Map chart data to ensure correct format for Recharts
+            const mappedChartData = (chartRes || []).map((item: any) => ({
+                name: item.date || item.name || '',  // Fallback to date if name is missing
+                sales: item.total_sales || item.sales || item.amount || 0 // Fallback for various metric names
+            }));
+            setChartData(mappedChartData);
         } catch (e) {
             console.error(e);
         } finally {
@@ -44,7 +80,7 @@ export default function DashboardPage() {
     } else {
         setLoading(false); 
     }
-  }, [user]);
+  }, []);
 
   if (loading) {
       return (
@@ -99,10 +135,10 @@ export default function DashboardPage() {
                 <p className="text-gray-500 text-sm">Here's what's happening with your events today.</p>
             </div>
             <div className="flex items-center gap-3">
-                <Link href="/events/create" className="flex items-center gap-2 px-6 py-2.5 bg-violet-600 text-white font-medium rounded-lg hover:bg-violet-700 transition-colors shadow-sm text-sm">
+                <button onClick={handleCreateEvent} className="flex items-center gap-2 px-6 py-2.5 bg-violet-600 text-white font-medium rounded-lg hover:bg-violet-700 transition-colors shadow-sm text-sm">
                     <Plus className="w-4 h-4" />
                     Create Event
-                </Link>
+                </button>
                 <Link href="/dashboard/events" className="flex items-center gap-2 px-6 py-2.5 bg-white border border-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors shadow-sm text-sm">
                     <Calendar className="w-4 h-4" />
                     View My Events
@@ -114,36 +150,36 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <StatCard 
                 title="Total Earnings" 
-                value={`₦${stats?.earnings?.toLocaleString() || '0'}`} 
-                trend="up" 
-                trendValue="12.5%" // TODO: Calculate real trend
+                value={formatCurrency(stats?.earnings?.value || 0)} 
+                trend={stats?.earnings?.trend} 
+                trendValue={stats?.earnings?.trend_value} 
                 icon={DollarSign} 
                 bgClass="bg-violet-50" 
                 colorClass="text-violet-600" 
             />
             <StatCard 
                 title="Active Events" 
-                value={stats?.active_events || 0} 
-                trend="up" 
-                trendValue="2 new" // TODO: Calculate real trend
+                value={stats?.active_events?.value || 0} 
+                trend={stats?.active_events?.trend} 
+                trendValue={stats?.active_events?.trend_value} 
                 icon={Calendar} 
                 bgClass="bg-blue-50" 
                 colorClass="text-blue-600" 
             />
             <StatCard 
                 title="Tickets Sold" 
-                value={stats?.tickets_sold?.toLocaleString() || 0} 
-                trend="up" 
-                trendValue="18.2%" // TODO: Calculate real trend
+                value={stats?.tickets_sold?.value?.toLocaleString() || 0} 
+                trend={stats?.tickets_sold?.trend} 
+                trendValue={stats?.tickets_sold?.trend_value} 
                 icon={Ticket} 
                 bgClass="bg-green-50" 
                 colorClass="text-green-600" 
             />
              <StatCard 
                 title="Avg. Ticket Price" 
-                value={`₦${stats?.avg_ticket_price || '0'}`} 
-                trend="down" 
-                trendValue="3.1%" // TODO: Calculate real trend
+                value={formatCurrency(stats?.avg_ticket_price?.value || 0)} 
+                trend={stats?.avg_ticket_price?.trend} 
+                trendValue={stats?.avg_ticket_price?.trend_value} 
                 icon={TrendingUp} 
                 bgClass="bg-orange-50" 
                 colorClass="text-orange-600" 
@@ -188,7 +224,7 @@ export default function DashboardPage() {
                                 <Tooltip 
                                     contentStyle={{backgroundColor: '#1e293b', border: 'none', borderRadius: '8px', color: '#fff'}}
                                     itemStyle={{color: '#fff'}}
-                                    formatter={(value: any) => [`₦${value.toLocaleString()}`, 'Sales']}
+                                    formatter={(value: any) => [formatCurrency(value), 'Sales']}
                                 />
                                 <Area 
                                     type="monotone" 
@@ -258,13 +294,16 @@ export default function DashboardPage() {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                        {events.slice(0, 5).map((event) => {
-                            const sold = event.tickets_count || 0; 
-                            const total = 100; // Hardcoded capacity for now as it's not in DB yet
-                            const percent = Math.min((sold / total) * 100, 100);
+                        {events.map((event) => {
+                            if (!event) return null; // Skip undefined events
+                            
+                            const sold = event?.tickets_sold || event?.tickets_count || 0; 
+                            // Calculate total capacity from tickets if available, otherwise 0
+                            const total = event?.capacity || event?.total_tickets || (event?.tickets ? event.tickets.reduce((acc: number, t: any) => acc + (parseInt(t.quantity) || 0), 0) : 0);
+                            const percent = total > 0 ? Math.min((sold / total) * 100, 100) : 0;
                             
                             return (
-                                <tr key={event.id} className="hover:bg-gray-50/50 transition-colors group">
+                                <tr key={event.id} className="hover:bg-gray-50/50 transition-colors group relative">
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-3">
                                             <div className="w-10 h-10 rounded-lg bg-gray-200 shrink-0 overflow-hidden relative">
@@ -284,37 +323,58 @@ export default function DashboardPage() {
                                     </td>
                                     <td className="px-6 py-4 font-medium text-gray-900">
                                         <div className="flex flex-col">
-                                            <span>{new Date(event.start_date).toLocaleDateString()}</span>
-                                            <span className="text-xs text-gray-500">{new Date(event.start_date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                                            <span>{event.start_date ? new Date(event.start_date).toLocaleDateString() : 'TBA'}</span>
+                                            <span className="text-xs text-gray-500">{event.start_date ? new Date(event.start_date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'TBA'}</span>
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 font-medium text-gray-900">
                                         {event.location || 'Online'}
-                                        <div className="text-xs text-gray-500">New York, NY</div>
+                                        <div className="text-xs text-gray-500">{event.city || 'Location'}</div>
                                     </td>
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-2 mb-1">
-                                            <span className="font-bold text-gray-900 text-xs">{sold} / {total}</span>
+                                            <span className="font-bold text-gray-900 text-xs">
+                                                {sold} {total > 0 ? `/ ${total}` : 'Sold'}
+                                            </span>
                                         </div>
-                                        <div className="w-24 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                                            <div className="h-full bg-violet-600 rounded-full" style={{width: `${percent}%`}}></div>
-                                        </div>
+                                        {total > 0 && (
+                                            <div className="w-24 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                                <div className="h-full bg-violet-600 rounded-full" style={{width: `${percent}%`}}></div>
+                                            </div>
+                                        )}
                                     </td>
                                     <td className="px-6 py-4">
                                         <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase ${event.status === 'published' ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
                                             {event.status === 'published' ? 'On Sale' : 'Draft'}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4 text-center">
-                                         <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                             <button className="p-1.5 hover:bg-gray-100 rounded text-gray-500 hover:text-violet-600">
-                                                 <User className="w-4 h-4" />
-                                             </button>
-                                             <button className="p-1.5 hover:bg-gray-100 rounded text-gray-500 hover:text-gray-900">
+                                     <td className="px-6 py-4 text-center relative">
+                                         <div className="flex items-center justify-center gap-2 transition-opacity">
+                                             <Link href={`/events/${event.slug}/edit`} className="p-1.5 hover:bg-gray-100 rounded text-gray-500 hover:text-violet-600" title="Edit Event">
+                                                 <Pencil className="w-4 h-4" />
+                                             </Link>
+                                             <button 
+                                                onClick={(e) => toggleDropdown(e, event.id)}
+                                                className={`p-1.5 rounded hover:bg-gray-100 ${openDropdownId === event.id ? 'bg-gray-100 text-gray-900' : 'text-gray-500 hover:text-gray-900'}`}
+                                             >
                                                  <MoreHorizontal className="w-4 h-4" />
                                              </button>
                                          </div>
-                                    </td>
+                                         
+                                         {/* Dropdown */}
+                                         {openDropdownId === event.id && (
+                                            <div className="absolute top-10 right-0 w-40 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden origin-top-right text-left">
+                                                <div className="py-1">
+                                                    <Link href={`/events/${event.slug}`} className="flex items-center gap-2 px-4 py-2.5 text-xs font-medium text-gray-700 hover:bg-gray-50">
+                                                        View Event
+                                                    </Link>
+                                                    <Link href={`/events/${event.slug}/edit`} className="flex items-center gap-2 px-4 py-2.5 text-xs font-medium text-gray-700 hover:bg-gray-50">
+                                                        Edit Details
+                                                    </Link>
+                                                </div>
+                                            </div>
+                                         )}
+                                     </td>
                                 </tr>
                             );
                         })}
@@ -324,6 +384,17 @@ export default function DashboardPage() {
         </div>
 
       </div>
+      
+        {/* KYC Modal */}
+        <ConfirmationModal
+            isOpen={showKycModal}
+            onClose={() => setShowKycModal(false)}
+            onConfirm={() => router.push('/dashboard/settings')}
+            title="Identity Verification Required"
+            message="You need to verify your identity before creating events. Please go to Settings to complete the verification process."
+            isDestructive={false}
+            confirmText="Go to Settings"
+        />
     </div>
   );
 }

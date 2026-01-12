@@ -5,6 +5,7 @@ import { eventsApi } from "@/api/events";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { formatCurrency, getPriceRange } from "@/lib/utils";
 
 const FALLBACK_EVENTS = [
   {
@@ -92,7 +93,7 @@ export default function FeaturedEvents() {
                 title={event.title}
                 location={event.location ?? 'Online'}
                 date={event.start_date || event.date}
-                priceRange={event.price_range || "₦50,000"}
+                priceRange={getPriceRange(event)}
                 category={event.category}
                 image={event.image_url || event.image || "https://images.unsplash.com/photo-1531058020387-3be344556be6?auto=format&fit=crop&q=80&w=1000"}
             />

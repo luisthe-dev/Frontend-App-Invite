@@ -1,16 +1,22 @@
 "use client";
 
-import { Clock, Ticket, CheckCircle2, ShieldCheck, Lock, CreditCard, Building2, Globe, HelpCircle, MessageCircle } from "lucide-react";
+import { Clock, Ticket, CheckCircle2, ShieldCheck, Lock, CreditCard, Building2, Globe, HelpCircle, MessageCircle, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { eventsApi } from "@/api/events";
 import { paymentApi } from "@/api/payment";
 import { authService } from "@/api/auth";
+import { userApi } from "@/api/user";
+import { Wallet } from "lucide-react";
+import { formatCurrency } from "@/lib/utils";
+
+import { useToast } from "@/context/ToastContext";
 
 function PaymentContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { error } = useToast();
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
   const [event, setEvent] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -20,7 +26,19 @@ function PaymentContent() {
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
-    setUser(authService.getCurrentUser());
+    const fetchUser = async () => {
+        const currentUser = authService.getCurrentUser();
+        if (currentUser) {
+            try {
+                const res = await userApi.getUser();
+                setUser(res.data);
+            } catch (err) {
+                 console.error("Failed to fetch fresh user data", err);
+                 setUser(currentUser); // Fallback
+            }
+        }
+    };
+    fetchUser();
   }, []);
 
   const eventSlug = searchParams.get('event');
@@ -74,8 +92,16 @@ function PaymentContent() {
   const tax = subtotal * 0.08; // 8% tax
   const total = subtotal + serviceFee + tax;
 
+  const finalTotal = total;
+  const wallet = user?.wallets?.find((w: any) => w.label == 'Main Wallet') || user?.wallets?.[0];
+  const walletBalance = wallet?.balance || 0;
+  const walletSufficient = walletBalance >= finalTotal;
+
+  const [processing, setProcessing] = useState(false);
+
   const handlePayment = async () => {
       if (!selectedMethod) return;
+      setProcessing(true);
       
       try {
           const data = await paymentApi.initCheckout({
@@ -83,6 +109,7 @@ function PaymentContent() {
               tickets: ticketCounts,
               guest_name: !user ? guestDetails.name : undefined,
               guest_email: !user ? guestDetails.email : undefined,
+              payment_method: selectedMethod
           });
           
           if (data.redirect_url) {
@@ -93,7 +120,8 @@ function PaymentContent() {
           
       } catch (err: any) {
           console.error("Payment failed", err);
-          alert(err.response?.data?.message || "Payment failed. Please try again.");
+          error(err.response?.data?.message || "Payment failed. Please try again.");
+          setProcessing(false);
       }
   };
 
@@ -186,7 +214,7 @@ function PaymentContent() {
                     {ticketDetails.length > 0 ? ticketDetails.map(ticket => (
                         <div key={ticket.id} className="flex justify-between text-sm">
                             <span className="text-gray-600">{ticket.title} (x{ticketCounts[ticket.id]})</span>
-                            <span className="text-gray-900 font-medium">₦{(ticket.price * ticketCounts[ticket.id]).toFixed(2)}</span>
+                            <span className="text-gray-900 font-medium">{formatCurrency(ticket.price * ticketCounts[ticket.id])}</span>
                         </div>
                     )) : (
                         <div className="text-sm text-red-500">No tickets selected</div>
@@ -197,22 +225,22 @@ function PaymentContent() {
                 <div className="space-y-2 py-4 border-b border-gray-100">
                    <div className="flex justify-between text-sm">
                         <span className="text-gray-500">Subtotal</span>
-                        <span className="text-gray-900 font-medium">₦{subtotal.toFixed(2)}</span>
+                        <span className="text-gray-900 font-medium">{formatCurrency(subtotal)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                         <span className="text-gray-500">Service Fee (5%)</span>
-                        <span className="text-gray-900 font-medium">₦{serviceFee.toFixed(2)}</span>
+                        <span className="text-gray-900 font-medium">{formatCurrency(serviceFee)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                         <span className="text-gray-500">Tax (8%)</span>
-                        <span className="text-gray-900 font-medium">₦{tax.toFixed(2)}</span>
+                        <span className="text-gray-900 font-medium">{formatCurrency(tax)}</span>
                     </div> 
                 </div>
 
                 {/* Total */}
                 <div className="flex justify-between items-center pt-4">
                     <span className="font-bold text-gray-900">Total</span>
-                    <span className="font-bold text-xl text-violet-600">₦{total.toFixed(2)}</span>
+                    <span className="font-bold text-xl text-violet-600">{formatCurrency(total)}</span>
                 </div>
             </div>
         </div>
@@ -246,37 +274,32 @@ function PaymentContent() {
                     <p className="text-xs text-gray-500">Credit/Debit Card, USSD, QR Code</p>
                 </button>
 
-                {/* Monnify */}
-                <button 
-                    onClick={() => setSelectedMethod('monnify')}
-                    className={`text-left p-4 rounded-xl border transition-all ${selectedMethod === 'monnify' ? 'border-violet-600 bg-violet-50/50 ring-1 ring-violet-600' : 'border-gray-200 hover:border-violet-200 hover:bg-gray-50'}`}
-                >
-                    <div className="flex justify-between items-start mb-2">
-                        <span className="font-bold text-gray-900">Monnify</span>
-                        <Building2 className="w-5 h-5 text-gray-400" />
-                    </div>
-                    <p className="text-xs text-gray-500">Direct Bank Transfer, USSD</p>
-                </button>
-
-                 {/* Stripe */}
-                 <button 
-                    onClick={() => setSelectedMethod('stripe')}
-                    className={`text-left p-4 rounded-xl border transition-all ${selectedMethod === 'stripe' ? 'border-violet-600 bg-violet-50/50 ring-1 ring-violet-600' : 'border-gray-200 hover:border-violet-200 hover:bg-gray-50'}`}
-                >
-                    <div className="flex justify-between items-start mb-2">
-                        <span className="font-bold text-gray-900">Stripe</span>
-                        <CreditCard className="w-5 h-5 text-gray-400" />
-                    </div>
-                    <p className="text-xs text-gray-500">International Cards, Apple Pay</p>
-                </button>
+                {/* Wallet Payment */}
+                 {user && (
+                    <button 
+                        onClick={() => setSelectedMethod('wallet')}
+                        disabled={!walletSufficient}
+                        className={`text-left p-4 rounded-xl border transition-all ${selectedMethod === 'wallet' ? 'border-violet-600 bg-violet-50/50 ring-1 ring-violet-600' : 'border-gray-200 hover:border-violet-200 hover:bg-gray-50'} ${!walletSufficient ? 'opacity-50 cursor-not-allowed bg-gray-50' : ''}`}
+                    >
+                        <div className="flex justify-between items-start mb-2">
+                            <span className="font-bold text-gray-900">My Wallet</span>
+                            <Wallet className="w-5 h-5 text-gray-400" />
+                        </div>
+                        <p className="text-xs text-gray-500 mb-1">Pay with your wallet balance</p>
+                        <p className={`text-sm font-bold ${walletSufficient ? 'text-green-600' : 'text-red-500'}`}>
+                            Balance: {formatCurrency(walletBalance)}
+                        </p>
+                        {!walletSufficient && <p className="text-[10px] text-red-500 mt-1">Insufficient funds</p>}
+                    </button>
+                 )}
             </div>
 
             <button 
                 onClick={handlePayment}
-                disabled={!selectedMethod || (!user && (!guestDetails.name || !guestDetails.email))} 
-                className="w-full py-3.5 bg-gray-200 hover:bg-violet-600 hover:text-white hover:shadow-lg hover:shadow-violet-200 text-gray-500 font-bold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed data-[state=active]:bg-violet-600 data-[state=active]:text-white"
+                disabled={!selectedMethod || (!user && (!guestDetails.name || !guestDetails.email)) || processing} 
+                className="w-full py-3.5 bg-gray-200 hover:bg-violet-600 hover:text-white hover:shadow-lg hover:shadow-violet-200 text-gray-500 font-bold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed data-[state=active]:bg-violet-600 data-[state=active]:text-white flex justify-center items-center gap-2"
             >
-                Proceed to Payment
+                {processing ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Proceed to Payment'}
             </button>
         </div>
 

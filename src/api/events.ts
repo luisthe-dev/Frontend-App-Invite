@@ -21,6 +21,11 @@ export const eventsApi = {
         return response.data;
     },
 
+    async update(id: string, data: any) {
+        const response = await client.put(`/user/events/${id}`, data);
+        return response.data;
+    },
+
     async uploadImage(file: File) {
         const formData = new FormData();
         formData.append('asset', file);
@@ -31,6 +36,16 @@ export const eventsApi = {
                 'Content-Type': 'multipart/form-data',
             },
         });
+        return response.data;
+    },
+
+    async publish(id: string) {
+        const response = await client.post(`/user/events/${id}/publish`);
+        return response.data;
+    },
+
+    async delete(id: string) {
+        const response = await client.delete(`/user/events/${id}`);
         return response.data;
     }
 };

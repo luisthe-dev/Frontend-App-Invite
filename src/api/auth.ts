@@ -18,15 +18,18 @@ export const authService = {
     },
 
     async login(email: string, password: string) {
-        const response = await client.post('/user/signin', { 
+        const response = await client.post('/user/signin', {    
             email_address: email,
             password,
-            recognized: false
+            recognized: true
         });
-        if (response.data.token) {
-            Cookies.set('token', response.data.token, { expires: 30 });
-             if (response.data.user) {
-                Cookies.set('user', JSON.stringify(response.data.user), { expires: 30 });
+
+        const responseData = response.data;
+        
+        if (responseData.data.access_token) {
+            Cookies.set('token', responseData.data.access_token, { expires: 30 });
+             if (responseData.data.UserDetails) {
+                Cookies.set('user', JSON.stringify(responseData.data.UserDetails), { expires: 30 });
             }
         }
         return response.data;
@@ -44,7 +47,7 @@ export const authService = {
     },
 
     async forgotPassword(email: string) {
-         return await client.post('/password/forgot', { email_address: email });
+         return await client.post('/user/password/forgot', { email_address: email });
     },
 
     verifyToken: async (token: string, email: string | null) => {
@@ -53,6 +56,10 @@ export const authService = {
 
     async resetPassword(token: string, email: string | null, newPassword: string) {
         return await client.post('/user/token', { one_time_token: token, email, new_password: newPassword });
+    },
+
+    async changePassword(passwordData: any) {
+        return await client.post('/user/password/update', passwordData);
     },
     
     socialLogin(provider: string) {
@@ -68,6 +75,12 @@ export const authService = {
             if (userStr) return JSON.parse(userStr);
         }
         return null;
+    },
+
+    updateUser(user: any) {
+        if (typeof window !== 'undefined') {
+            Cookies.set('user', JSON.stringify(user), { expires: 30 });
+        }
     },
 
     isAuthenticated() {

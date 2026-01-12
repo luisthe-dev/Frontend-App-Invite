@@ -29,7 +29,7 @@ client.interceptors.response.use(
                 Cookies.remove('token');
                 Cookies.remove('user');
                 // Optional: Redirect to login or show modal
-                // window.location.href = '/signin'; 
+                window.location.href = '/signin'; 
             }
         }
         return Promise.reject(error);

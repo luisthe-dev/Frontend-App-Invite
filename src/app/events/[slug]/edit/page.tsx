@@ -1,15 +1,22 @@
 "use client";
 
-import { Upload, Calendar, MapPin, Plus, Trash2, Image as ImageIcon, CheckCircle2, ChevronRight, Hash, Clock, Globe, Loader2, X } from "lucide-react";
+import { Upload, Calendar, MapPin, Plus, Trash2, Image as ImageIcon, CheckCircle2, ChevronRight, Hash, Clock, Globe, Loader2, X, ArrowLeft } from "lucide-react";
 import Image from "next/image";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { eventsApi } from "@/api/events";
-import { useRouter } from "next/navigation";
-export default function CreateEventPage() {
+import { useRouter, useParams } from "next/navigation";
+import Link from "next/link";
+
+export default function EditEventPage() {
   const router = useRouter();
+  const params = useParams();
+  const slug = params.slug as string;
+  
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
+  const [eventId, setEventId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
       title: '',
@@ -27,21 +34,66 @@ export default function CreateEventPage() {
   });
 
   const [tickets, setTickets] = useState([
-    { type: 'General Admission', price: '0', quantity: '100' }
+    { type: 'General Admission', price: '0', quantity: '100', description: '' }
   ]);
 
   const [tagInput, setTagInput] = useState('');
+
+  // Fetch Event Data
+  useEffect(() => {
+      const fetchEvent = async () => {
+          try {
+              const data = await eventsApi.getBySlug(slug);
+              setEventId(data.id);
+              
+              // Parse dates
+              const startDateObj = new Date(data.start_date);
+              const endDateObj = data.end_date ? new Date(data.end_date) : null;
+
+              setFormData({
+                  title: data.title,
+                  category: data.category,
+                  description: data.description,
+                  start_date: startDateObj.toISOString().split('T')[0],
+                  start_time: startDateObj.toTimeString().slice(0, 5),
+                  end_date: endDateObj ? endDateObj.toISOString().split('T')[0] : '',
+                  end_time: endDateObj ? endDateObj.toTimeString().slice(0, 5) : '',
+                  location: data.location,
+                  lat: data.lat ? parseFloat(data.lat) : null,
+                  lng: data.lng ? parseFloat(data.lng) : null,
+                  image_url: data.image_url || '',
+                  tags: data.tags || [] // Assuming tags are part of the model now or we just map them if they exist
+              });
+
+              if (data.tickets && data.tickets.length > 0) {
+                  setTickets(data.tickets.map((t: any) => ({
+                      id: t.id, // Keep ID for updates
+                      type: t.title, // Map title back to type
+                      price: t.price,
+                      quantity: t.quantity || t.available_count, // Fallback
+                      description: t.description || ''
+                  })));
+              }
+
+          } catch (err) {
+              console.error("Failed to fetch event", err);
+              setError("Failed to load event details.");
+          } finally {
+              setFetching(false);
+          }
+      };
+
+      if (slug) {
+          fetchEvent();
+      }
+  }, [slug]);
 
   const handleChange = (e: any) => {
       setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleAddressSelect = (address: string, lat: number, lng: number) => {
-      setFormData({ ...formData, location: address, lat, lng });
-  };
-
   const addTicket = () => {
-    setTickets([...tickets, { type: '', price: '', quantity: '' }]);
+    setTickets([...tickets, { type: '', price: '', quantity: '', description: '' }]);
   };
 
   const removeTicket = (index: number) => {
@@ -79,23 +131,23 @@ export default function CreateEventPage() {
       }
   };
 
-  const removeTag = (tagToRemove: string) => {
-      setFormData({ ...formData, tags: formData.tags.filter(tag => tag !== tagToRemove) });
-  };
-
   const handleTagPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
       e.preventDefault();
       const paste = e.clipboardData.getData('text');
       const newTags = paste.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
       
       if (newTags.length > 0) {
-          // Add new tags avoiding duplicates
           const uniqueNewTags = newTags.filter(tag => !formData.tags.includes(tag));
           setFormData({ ...formData, tags: [...formData.tags, ...uniqueNewTags] });
       }
   };
 
+  const removeTag = (tagToRemove: string) => {
+      setFormData({ ...formData, tags: formData.tags.filter(tag => tag !== tagToRemove) });
+  };
+
   const handleSubmit = async () => {
+      if (!eventId) return;
       setLoading(true);
       setError('');
 
@@ -115,26 +167,23 @@ export default function CreateEventPage() {
               lng: formData.lng,
               image_url: formData.image_url,
               tickets: tickets.map(t => ({
+                  // id: t.id, // TODO: Backend needs to handle ticket updates by ID if we want to preserve them
                   type: t.type,
                   price: parseFloat(t.price),
-                  quantity: parseInt(t.quantity)
+                  quantity: parseInt(t.quantity),
+                  description: t.description
               }))
           };
 
-          await eventsApi.create(payload);
-          router.push('/dashboard');
+          await eventsApi.update(eventId, payload);
+          router.push('/dashboard/events');
       } catch (err: any) {
-          console.error("Create failed", err);
-          setError(err.response?.data?.message || "Failed to create event. Please check all fields.");
+          console.error("Update failed", err);
+          setError(err.response?.data?.message || "Failed to update event. Please check all fields.");
       } finally {
           setLoading(false);
       }
   };
-
-  // Calculate min start date (1 week from today)
-  const today = new Date();
-  today.setDate(today.getDate() + 7);
-  const minStartDate = today.toISOString().split('T')[0];
 
   const isFormValid = useMemo(() => {
     return (
@@ -145,9 +194,17 @@ export default function CreateEventPage() {
         formData.start_time !== '' &&
         formData.location.trim() !== '' &&
         tickets.length > 0 &&
-        tickets.every(t => t.type.trim() !== '' && t.quantity.trim() !== '')
+        tickets.every(t => t.type.trim() !== '' && t.quantity.toString().trim() !== '')
     );
   }, [formData, tickets]);
+
+  if (fetching) {
+      return (
+          <div className="min-h-screen flex items-center justify-center bg-gray-50">
+              <Loader2 className="w-8 h-8 text-violet-600 animate-spin" />
+          </div>
+      );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
@@ -155,8 +212,11 @@ export default function CreateEventPage() {
         
         {/* Header */}
         <div className="mb-8">
-            <h1 className="text-2xl font-bold text-gray-900">Create New Event</h1>
-            <p className="text-gray-500 text-sm">Fill in the details below to publish your event.</p>
+            <Link href="/dashboard/events" className="inline-flex items-center text-sm text-gray-500 hover:text-gray-900 mb-4">
+                <ArrowLeft className="w-4 h-4 mr-1" /> Back to Events
+            </Link>
+            <h1 className="text-2xl font-bold text-gray-900">Edit Event</h1>
+            <p className="text-gray-500 text-sm">Update the details of your event.</p>
         </div>
 
         {error && (
@@ -241,7 +301,7 @@ export default function CreateEventPage() {
                          <div>
                             <label className="block text-sm font-semibold text-gray-900 mb-1.5">Start Date <span className="text-red-500">*</span></label>
                             <div className="relative">
-                                <input name="start_date" min={minStartDate} value={formData.start_date} onChange={handleChange} type="date" className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-violet-600/20 focus:border-violet-600 transition-all text-gray-900 text-sm" />
+                                <input name="start_date" value={formData.start_date} onChange={handleChange} type="date" className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-violet-600/20 focus:border-violet-600 transition-all text-gray-900 text-sm" />
                             </div>
                         </div>
                         <div>
@@ -294,18 +354,22 @@ export default function CreateEventPage() {
                             <button onClick={() => removeTicket(index)} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors">
                                 <Trash2 className="w-4 h-4" />
                             </button>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                <div className="md:col-span-2 lg:col-span-1">
                                     <label className="block text-xs font-semibold text-gray-700 mb-1">Ticket Name</label>
                                     <input type="text" placeholder="e.g. VIP" value={ticket.type} onChange={(e) => updateTicket(index, 'type', e.target.value)} className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:border-violet-600 text-sm bg-white" />
                                 </div>
-                                <div>
+                                <div className="md:col-span-2 lg:col-span-1">
                                     <label className="block text-xs font-semibold text-gray-700 mb-1">Price (₦)</label>
                                     <input type="number" placeholder="0.00" value={ticket.price} onChange={(e) => updateTicket(index, 'price', e.target.value)} className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:border-violet-600 text-sm bg-white" />
                                 </div>
-                                <div>
+                                <div className="md:col-span-2 lg:col-span-1">
                                     <label className="block text-xs font-semibold text-gray-700 mb-1">Quantity</label>
                                     <input type="number" placeholder="100" value={ticket.quantity} onChange={(e) => updateTicket(index, 'quantity', e.target.value)} className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:border-violet-600 text-sm bg-white" />
+                                </div>
+                                <div className="md:col-span-2 lg:col-span-1">
+                                    <label className="block text-xs font-semibold text-gray-700 mb-1">Description</label>
+                                    <input type="text" placeholder="Short description" value={ticket.description} onChange={(e) => updateTicket(index, 'description', e.target.value)} className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:border-violet-600 text-sm bg-white" />
                                 </div>
                             </div>
                         </div>
@@ -335,7 +399,7 @@ export default function CreateEventPage() {
                     <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 text-gray-400">
                         {uploading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Upload className="w-6 h-6" />}
                     </div>
-                    <p className="font-medium text-gray-900">{uploading ? 'Uploading...' : 'Click to upload or drag and drop'}</p>
+                    <p className="font-medium text-gray-900">{uploading ? 'Uploading...' : 'Click to update image or drag and drop'}</p>
                     <p className="text-xs text-gray-500 mt-1">SVG, PNG, JPG or GIF (max. 800x400px)</p>
                 </div>
 
@@ -352,45 +416,9 @@ export default function CreateEventPage() {
                 )}
             </div>
 
-            {/* Preview Card Section */}
-            <div>
-                 <h2 className="text-lg font-bold text-gray-900 mb-4">Preview Event</h2>
-                 <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden md:flex">
-                     <div className="md:w-1/3 bg-gray-100 h-48 md:h-auto relative">
-                        {formData.image_url ? (
-                            <img src={formData.image_url} alt="Preview" className="w-full h-full object-cover" />
-                        ) : (
-                            <div className="absolute inset-0 flex items-center justify-center text-gray-400 font-medium">Event Image</div>
-                        )}
-                     </div>
-                     <div className="p-6 md:w-2/3">
-                        <div className="flex justify-between items-start mb-2">
-                             <div>
-                                <h3 className="font-bold text-gray-900 text-lg">{formData.title || 'Event Title'}</h3>
-                                <p className="text-violet-600 text-sm font-medium">
-                                    {formData.start_date ? new Date(formData.start_date).toLocaleDateString() : 'Date'} • {formData.start_time || 'Time'}
-                                </p>
-                            </div>
-                            <span className="bg-green-50 text-green-700 px-2 py-1 rounded text-xs font-bold uppercase">Draft</span>
-                        </div>
-                        <div className="space-y-1 text-sm text-gray-500 mb-4">
-                            <p className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" /> {formData.location || 'Location'}</p>
-                            <p className="flex items-center gap-1.5"><Globe className="w-3.5 h-3.5" /> {formData.category || 'Category'}</p>
-                        </div>
-                        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                             <span className="font-bold text-gray-900">
-                                 {tickets.length > 0 
-                                     ? `₦${Math.min(...tickets.map(t => parseFloat(t.price) || 0))} - ₦${Math.max(...tickets.map(t => parseFloat(t.price) || 0))}`
-                                     : 'Price Range'}
-                             </span>
-                        </div>
-                     </div>
-                 </div>
-            </div>
-
             {/* Action Buttons */}
             <div className="flex items-center justify-end gap-3 pt-4">
-                 <button onClick={() => router.push('/dashboard')} className="px-6 py-3 font-bold text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
+                 <button onClick={() => router.push('/dashboard/events')} className="px-6 py-3 font-bold text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
                     Cancel
                 </button>
                 <button 
@@ -399,7 +427,7 @@ export default function CreateEventPage() {
                     className="px-6 py-3 font-bold text-white bg-violet-600 rounded-xl shadow-lg shadow-violet-200 hover:bg-violet-700 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
                 >
                     {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-                    Publish Event
+                    Update Event
                 </button>
             </div>
 

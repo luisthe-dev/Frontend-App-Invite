@@ -7,7 +7,7 @@ export const paymentApi = {
     },
 
     async verifyTransaction(reference: string) {
-        const response = await client.get(`/transactions/${reference}`);
+        const response = await client.get(`/user/transactions/${reference}`);
         return response.data;
     }
 };

@@ -1,8 +1,8 @@
 import client from './client';
 
 export const hostApi = {
-    async getEvents() {
-        const response = await client.get('/user/host/events');
+    async getEvents(params?: any) {
+        const response = await client.get('/user/host/events', { params });
         return response.data;
     },
 

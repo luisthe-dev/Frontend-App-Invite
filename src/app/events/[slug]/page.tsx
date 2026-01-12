@@ -6,7 +6,6 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { eventsApi } from "@/api/events";
-import EventMap from "@/components/ui/EventMap";
 
 export default function EventDetailsPage() {
   const { slug } = useParams();
@@ -163,14 +162,26 @@ export default function EventDetailsPage() {
                     <h2 className="text-xl font-bold text-gray-900 mb-6">Host</h2>
                     <div className="flex items-start gap-4">
                         <div className="w-14 h-14 bg-gray-200 rounded-full shrink-0 overflow-hidden flex items-center justify-center text-xl font-bold text-gray-500">
-                            {event.user_id}
+                            {event.user ? (
+                                <>
+                                    {(event.user.first_name?.[0] || '') + (event.user.last_name?.[0] || '') || event.user.user_name?.[0]?.toUpperCase() || 'H'}
+                                </>
+                            ) : (
+                                <Users className="w-6 h-6" />
+                            )}
                         </div>
                         <div>
                             <div className="flex items-center gap-2 mb-1">
-                                <h3 className="font-bold text-gray-900">Event Organizer</h3>
+                                <h3 className="font-bold text-gray-900">
+                                    {event.user ? (
+                                        `${event.user.first_name || ''} ${event.user.last_name || ''}`.trim() || event.user.user_name
+                                    ) : (
+                                        'Event Organizer'
+                                    )}
+                                </h3>
                                 <Check className="w-4 h-4 text-white bg-blue-500 rounded-full p-0.5" />
                             </div>
-                            <p className="text-xs text-gray-500 mb-3">Verified Organizer</p>
+                            <p className="text-xs text-gray-500 mb-3">@{event.user?.user_name || 'organizer'} • Verified Host</p>
                             <p className="text-sm text-gray-600">
                                 This event is organized by a verified host on MyInvite.
                             </p>
@@ -222,12 +233,10 @@ export default function EventDetailsPage() {
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                     <h3 className="font-bold text-gray-900 mb-4">Location</h3>
                     <div className="bg-gray-100 rounded-xl h-48 w-full mb-4 relative overflow-hidden flex items-center justify-center">
-                         <EventMap 
-                            lat={parseFloat(event.lat)} 
-                            lng={parseFloat(event.lng)} 
-                            locationName={event.location}
-                            className="w-full h-full"
-                        />
+                         <div className="flex flex-col items-center gap-2 text-gray-400">
+                            <MapPin className="w-8 h-8 opacity-50" />
+                            <span className="text-sm font-medium">Map View Unavailable</span>
+                         </div>
                     </div>
                     <p className="font-semibold text-gray-900 text-sm mb-4">{event.location || 'Online'}</p>
                     <div className="flex gap-4">

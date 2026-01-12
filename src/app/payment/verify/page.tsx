@@ -115,6 +115,8 @@ function VerifyContent() {
         )
     }
 
+    console.log(transaction);
+
     // Prepare data for display
     const event = transaction?.purchased_tickets[0]?.event;
     // Group tickets by title to show quantity
