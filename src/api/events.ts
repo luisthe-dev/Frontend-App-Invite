@@ -17,7 +17,9 @@ export const eventsApi = {
     },
 
     async create(data: any) {
-        const response = await client.post('/user/events', data);
+        const isFormData = data instanceof FormData;
+        const headers = isFormData ? { 'Content-Type': 'multipart/form-data' } : {};
+        const response = await client.post('/user/events', data, { headers });
         return response.data;
     },
 
