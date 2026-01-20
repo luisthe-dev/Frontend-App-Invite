@@ -45,11 +45,59 @@ export const adminApi = {
 
   // Tickets
   restockTicket: async (id: string, quantity: number) => {
-    const response = await adminClient.post(`/admin/tickets/${id}/restock`, { quantity });
+    const response = await adminClient.post(`/admin/tickets/${id}/restock`, {
+      quantity,
+    });
     return response.data;
   },
   updateTicket: async (id: string, data: any) => {
     const response = await adminClient.put(`/admin/tickets/${id}`, data);
+    return response.data;
+  },
+
+  // Users
+  getUsers: async (params?: any) => {
+    const response = await adminClient.get("/admin/users", { params });
+    return response.data;
+  },
+  getUser: async (id: string) => {
+    const response = await adminClient.get(`/admin/users/${id}`);
+    return response.data;
+  },
+  getUserEvents: async (id: string, params?: any) => {
+    const response = await adminClient.get(`/admin/users/${id}/events`, {
+      params,
+    });
+    return response.data;
+  },
+
+  // Finance
+  getFinanceStats: async () => {
+    const response = await adminClient.get("/admin/finance/stats");
+    return response.data;
+  },
+  getPayouts: async (params?: any) => {
+    const response = await adminClient.get("/admin/finance/payouts", {
+      params,
+    });
+    return response.data;
+  },
+  getTransactions: async (params?: any) => {
+    const response = await adminClient.get("/admin/finance/transactions", {
+      params,
+    });
+    return response.data;
+  },
+  processPayout: async (id: string) => {
+    const response = await adminClient.post(
+      `/admin/finance/payouts/${id}/process`,
+    );
+    return response.data;
+  },
+  rejectPayout: async (id: string) => {
+    const response = await adminClient.post(
+      `/admin/finance/payouts/${id}/reject`,
+    );
     return response.data;
   },
 };
