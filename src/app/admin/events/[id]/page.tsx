@@ -8,7 +8,8 @@ import { adminApi } from "@/api/admin";
 import { Loader2, ArrowLeft, Calendar, MapPin, User, Mail, DollarSign, CheckCircle, XCircle, Trash2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import RestockModal from "../../components/RestockModal";
-import ConfirmationModal from "../../components/ConfirmationModal";
+import ConfirmationModal from "@/components/ui/ConfirmationModal";
+import Modal from "@/components/ui/Modal";
 
 export default function AdminEventDetailsPage() {
   const router = useRouter();

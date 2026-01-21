@@ -2,7 +2,14 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { LayoutDashboard, Calendar, Wallet, Settings, LogOut } from "lucide-react";
+import {
+  LayoutDashboard,
+  Calendar,
+  Wallet,
+  Settings,
+  LogOut,
+  MessageSquare,
+} from "lucide-react";
 import { authService } from "@/api/auth";
 import clsx from "clsx";
 
@@ -11,10 +18,11 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
     const router = useRouter();
 
     const links = [
-        { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
-        { name: "My Events", href: "/dashboard/events", icon: Calendar },
-        { name: "Wallet", href: "/dashboard/wallet", icon: Wallet },
-        { name: "Settings", href: "/dashboard/settings", icon: Settings },
+      { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
+      { name: "My Events", href: "/dashboard/events", icon: Calendar },
+      { name: "Wallet", href: "/dashboard/wallet", icon: Wallet },
+      { name: "Support", href: "/dashboard/support", icon: MessageSquare },
+      { name: "Settings", href: "/dashboard/settings", icon: Settings },
     ];
 
     const handleLogout = async () => {

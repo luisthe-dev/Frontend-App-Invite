@@ -59,35 +59,31 @@ export default function SupportPage() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 pb-20">
+        <div className="space-y-6">
             {/* Header */}
-            <div className="bg-white border-b border-slate-200">
-                <div className="max-w-5xl mx-auto px-6 py-8">
-                    <div className="flex justify-between items-center">
-                        <div>
-                            <h1 className="text-2xl font-bold text-slate-900">Support Center</h1>
-                            <p className="text-slate-500">Track your inquiries and disputes</p>
-                        </div>
-                        <button 
-                            onClick={() => setShowModal(true)}
-                            className="bg-violet-600 hover:bg-violet-700 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors"
-                        >
-                            <Plus className="w-5 h-5" />
-                            New Ticket
-                        </button>
-                    </div>
+            <div className="flex justify-between items-center">
+                <div>
+                    <h1 className="text-2xl font-bold text-gray-900">Support Center</h1>
+                    <p className="text-gray-500">Track your inquiries and disputes</p>
                 </div>
+                <button 
+                    onClick={() => setShowModal(true)}
+                    className="bg-violet-600 hover:bg-violet-700 text-white px-4 py-2 rounded-xl font-medium flex items-center gap-2 transition-colors shadow-sm shadow-violet-200"
+                >
+                    <Plus className="w-5 h-5" />
+                    New Ticket
+                </button>
             </div>
 
             {/* Content */}
-            <div className="max-w-5xl mx-auto px-6 py-8">
+            <div>
                 {loading ? (
-                    <div className="text-center py-20 text-slate-400">Loading tickets...</div>
+                    <div className="text-center py-20 text-gray-400">Loading tickets...</div>
                 ) : tickets.length === 0 ? (
-                    <div className="text-center py-20 bg-white rounded-2xl border border-slate-200 shadow-sm">
-                        <MessageSquare className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-slate-900 mb-2">No tickets yet</h3>
-                        <p className="text-slate-500 mb-6">Need help? Open a new support ticket to get started.</p>
+                    <div className="text-center py-20 bg-white rounded-2xl border border-gray-100 shadow-sm">
+                        <MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">No tickets yet</h3>
+                        <p className="text-gray-500 mb-6">Need help? Open a new support ticket to get started.</p>
                         <button 
                             onClick={() => setShowModal(true)}
                             className="text-violet-600 font-medium hover:underline"
@@ -96,24 +92,24 @@ export default function SupportPage() {
                         </button>
                     </div>
                 ) : (
-                    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                        <div className="divide-y divide-slate-100">
+                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                        <div className="divide-y divide-gray-100">
                             {tickets.map(ticket => (
-                                <Link key={ticket.id} href={`/support/${ticket.id}`} className="block hover:bg-slate-50 transition-colors">
+                                <Link key={ticket.id} href={`/dashboard/support/${ticket.id}`} className="block hover:bg-gray-50 transition-colors group">
                                     <div className="p-6 flex items-center justify-between">
                                         <div className="flex items-center gap-4">
                                             <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                                                ticket.status === 'closed' ? 'bg-slate-100 text-slate-400' : 
+                                                ticket.status === 'closed' ? 'bg-gray-100 text-gray-400' : 
                                                 ticket.category === 'dispute' ? 'bg-red-50 text-red-500' : 'bg-blue-50 text-blue-500'
                                             }`}>
                                                 {ticket.category === 'dispute' ? <AlertCircle className="w-5 h-5" /> : <MessageSquare className="w-5 h-5" />}
                                             </div>
                                             <div>
                                                 <div className="flex items-center gap-2 mb-1">
-                                                    <h3 className="font-semibold text-slate-900">{ticket.subject}</h3>
+                                                    <h3 className="font-bold text-gray-900 group-hover:text-violet-600 transition-colors">{ticket.subject}</h3>
                                                     {getStatusBadge(ticket.status)}
                                                 </div>
-                                                <div className="flex items-center gap-4 text-xs text-slate-500">
+                                                <div className="flex items-center gap-4 text-xs text-gray-500">
                                                     <span className="capitalize">{ticket.category}</span>
                                                     <span>•</span>
                                                     <span className="flex items-center gap-1">
@@ -123,13 +119,13 @@ export default function SupportPage() {
                                                     {ticket.transaction_id && (
                                                         <>
                                                             <span>•</span>
-                                                            <span className="font-mono">Ref: {ticket.transaction_id.substring(0,8)}...</span>
+                                                            <span className="font-mono bg-gray-100 px-1.5 py-0.5 rounded text-gray-600">Ref: {ticket.transaction_id.substring(0,8)}...</span>
                                                         </>
                                                     )}
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="text-slate-400">
+                                        <div className="text-gray-400 group-hover:transform group-hover:translate-x-1 transition-transform">
                                             &rarr;
                                         </div>
                                     </div>

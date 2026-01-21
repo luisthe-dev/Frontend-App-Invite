@@ -95,7 +95,9 @@ export const adminApi = {
     return response.data;
   },
   rejectPayout: async (id: string) => {
-    const response = await adminClient.post(`/admin/finance/payouts/${id}/reject`);
+    const response = await adminClient.post(
+      `/admin/finance/payouts/${id}/reject`,
+    );
     return response.data;
   },
 
@@ -113,7 +115,25 @@ export const adminApi = {
     return response.data;
   },
   updateTicketStatus: async (id: string, status: string) => {
-    const response = await adminClient.put(`/admin/support/${id}/status`, { status });
+    const response = await adminClient.put(`/admin/support/${id}/status`, {
+      status,
+    });
     return response.data;
   },
+  // Settings - Categories
+  getCategories: () => adminClient.get("/admin/settings/categories"),
+  createCategory: (data: any) =>
+    adminClient.post("/admin/settings/categories", data),
+  updateCategory: (id: number, data: any) =>
+    adminClient.put(`/admin/settings/categories/${id}`, data),
+  deleteCategory: (id: number) =>
+    adminClient.delete(`/admin/settings/categories/${id}`),
+
+  // Settings - Security
+  updatePassword: (data: any) =>
+    adminClient.post("/admin/update-password", data),
+
+  // Settings - Config
+  getConfig: () => adminClient.get("/admin/settings/config"),
+  updateConfig: (data: any) => adminClient.post("/admin/settings/config", data),
 };
