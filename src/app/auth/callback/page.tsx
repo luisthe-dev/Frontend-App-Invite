@@ -24,18 +24,23 @@ const  AuthCallbackContent = () => {
 
         if (token && userStr) {
             try {
-                const user = JSON.parse(decodeURIComponent(userStr));
-                
-                // Store in Cookies
-                Cookies.set('token', token, { expires: 30 }); // 30 days
-                Cookies.set('user', JSON.stringify(user), { expires: 30 });
+              const user = JSON.parse(decodeURIComponent(userStr));
 
-                setStatus('Login successful! Redirecting...');
-                
-                // Redirect to dashboard
-                setTimeout(() => {
-                    router.push('/dashboard');
-                }, 1000);
+              // Store in Cookies
+              Cookies.set("token", token, { expires: 30 }); // 30 days
+              Cookies.set("user", JSON.stringify(user), { expires: 30 });
+
+              setStatus("Login successful! Redirecting...");
+
+              // Redirect based on new user status
+              setTimeout(() => {
+                const isNew = searchParams.get("is_new") === "true";
+                if (isNew) {
+                  router.push("/auth/setup-profile");
+                } else {
+                  router.push("/dashboard");
+                }
+              }, 1000);
             } catch (e) {
                 console.error("Failed to parse user data", e);
                 router.push('/signin?error=parsing_error');

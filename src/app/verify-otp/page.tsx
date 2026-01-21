@@ -5,6 +5,7 @@ import { useState, useRef, useEffect, Suspense } from 'react';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { authService } from '@/api/auth';
+import Cookies from "js-cookie";
 
 const VerifyOtpContent = () => {
     const router = useRouter();
@@ -18,6 +19,18 @@ const VerifyOtpContent = () => {
     const [error, setError] = useState('');
     
     const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+    const [resendLoading, setResendLoading] = useState(false);
+    const [timeLeft, setTimeLeft] = useState(30);
+
+    /* Timer Logic */
+    useEffect(() => {
+      if (!timeLeft) return;
+      const intervalId = setInterval(() => {
+        setTimeLeft(timeLeft - 1);
+      }, 1000);
+      return () => clearInterval(intervalId);
+    }, [timeLeft]);
   
     useEffect(() => {
       if (inputRefs.current[0]) {
@@ -71,13 +84,27 @@ const VerifyOtpContent = () => {
       }
   
       try {
-        await authService.verifyToken(token, email);
+        const response = await authService.verifyToken(token, email);
         setSuccess(true);
-        
+
+        // If the backend returns a new token (upgraded to 'User' scope), update cookies
+        if (response.data && response.data.access_token) {
+          Cookies.set("token", response.data.access_token, { expires: 30 });
+          if (response.data.user) {
+            Cookies.set("user", JSON.stringify(response.data.user), {
+              expires: 30,
+            });
+          }
+        }
+
         setTimeout(() => {
-            router.push(`/reset-password?token=${token}&email=${email}`); 
+          const flow = searchParams.get("flow");
+          if (flow === "signup") {
+            router.push("/auth/setup-profile");
+          } else {
+            router.push(`/reset-password?token=${token}&email=${email}`);
+          }
         }, 1500);
-        
       } catch (err: any) {
         setError(err.response?.data?.message || 'Verification failed. Invalid or expired token.');
       } finally {
@@ -86,76 +113,160 @@ const VerifyOtpContent = () => {
     };
   
     const handleResend = async () => {
-        // Implement resend logic
+        if (timeLeft > 0) return;
+
+        setResendLoading(true);
+        setError("");
+
+        try {
+          await authService.resendToken();
+          setSuccess(false); // Reset success state if any
+          setTimeLeft(30); // Reset timer
+          setError(""); // Clear errors
+          // Optional: Show toast or success message for resend
+        } catch (err: any) {
+          setError(err.response?.data?.message || "Failed to resend code");
+        } finally {
+          setResendLoading(false);
+        }
     };
   
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-[480px]">
           <div className="bg-white py-10 px-6 shadow-xl sm:rounded-2xl sm:px-12 border border-gray-100">
-            
             <div className="flex flex-col items-center mb-8">
               <div className="w-12 h-12 bg-violet-100 rounded-xl flex items-center justify-center mb-4 text-violet-600">
-                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-shield-check"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="lucide lucide-shield-check"
+                >
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
+                  <path d="m9 12 2 2 4-4" />
+                </svg>
               </div>
-              <h2 className="text-2xl font-bold text-gray-900">Enter Verification Code</h2>
+              <h2 className="text-2xl font-bold text-gray-900">
+                Enter Verification Code
+              </h2>
               <p className="mt-2 text-sm text-gray-500 text-center">
-                 We sent a 6-digit code to <span className="font-medium text-gray-900">{email || 'your email'}</span>
+                We sent a 6-digit code to{" "}
+                <span className="font-medium text-gray-900">
+                  {email || "your email"}
+                </span>
               </p>
             </div>
-  
+
             <form className="space-y-6" onSubmit={handleSubmit}>
               {error && (
-                  <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg border border-red-100 flex items-center gap-2">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
-                      {error}
-                  </div>
+                <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg border border-red-100 flex items-center gap-2">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" x2="12" y1="8" y2="12" />
+                    <line x1="12" x2="12.01" y1="16" y2="16" />
+                  </svg>
+                  {error}
+                </div>
               )}
-              
+
               {success && (
-                  <div className="bg-green-50 text-green-600 text-sm p-3 rounded-lg border border-green-100 flex items-center gap-2">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                      Verified successfully! Redirecting...
-                  </div>
+                <div className="bg-green-50 text-green-600 text-sm p-3 rounded-lg border border-green-100 flex items-center gap-2">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                    <polyline points="22 4 12 14.01 9 11.01" />
+                  </svg>
+                  Verified successfully! Redirecting...
+                </div>
               )}
-  
+
               <div className="flex justify-center gap-2 my-4">
-                  {otp.map((digit, index) => (
-                      <input
-                          key={index}
-                          ref={(el) => { if (el) inputRefs.current[index] = el; }} 
-                          type="text"
-                          maxLength={1}
-                          value={digit}
-                          onChange={(e) => handleChange(index, e.target.value)}
-                          onKeyDown={(e) => handleKeyDown(index, e)}
-                          onPaste={handlePaste}
-                          className="w-12 h-14 text-center text-2xl font-bold border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
-                      />
-                  ))}
+                {otp.map((digit, index) => (
+                  <input
+                    key={index}
+                    ref={(el) => {
+                      if (el) inputRefs.current[index] = el;
+                    }}
+                    type="text"
+                    maxLength={1}
+                    value={digit}
+                    onChange={(e) => handleChange(index, e.target.value)}
+                    onKeyDown={(e) => handleKeyDown(index, e)}
+                    onPaste={handlePaste}
+                    className="w-12 h-14 text-center text-2xl font-bold border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
+                  />
+                ))}
               </div>
-  
+
               <div>
                 <button
                   type="submit"
                   disabled={loading || success}
                   className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-violet-600 hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 disabled:opacity-70 disabled:cursor-not-allowed transition-all"
                 >
-                  {loading ? <Loader2 className="animate-spin h-5 w-5" /> : "Verify Code"}
+                  {loading ? (
+                    <Loader2 className="animate-spin h-5 w-5" />
+                  ) : (
+                    "Verify Code"
+                  )}
                 </button>
               </div>
-  
+
               <p className="text-center text-sm text-gray-500">
-                  Didn't receive the code? <button type="button" onClick={handleResend} className="font-semibold text-violet-600 hover:text-violet-500 transition-colors">Resend</button>
+                Didn't receive the code?{" "}
+                <button
+                  type="button"
+                  onClick={handleResend}
+                  disabled={timeLeft > 0 || resendLoading}
+                  className="font-semibold text-violet-600 hover:text-violet-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {resendLoading ? (
+                    <span className="flex items-center gap-1">
+                      <Loader2 className="w-3 h-3 animate-spin" /> Resending...
+                    </span>
+                  ) : timeLeft > 0 ? (
+                    `Resend in ${timeLeft}s`
+                  ) : (
+                    "Resend"
+                  )}
+                </button>
               </p>
             </form>
-            
-             <div className="mt-8 flex items-center justify-center border-t border-gray-100 pt-6">
-                  <Link href="/signin" className="flex items-center text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
-                      <ArrowLeft className="w-4 h-4 mr-2" /> Back to sign in
-                  </Link>
-              </div>
-  
+
+            <div className="mt-8 flex items-center justify-center border-t border-gray-100 pt-6">
+              <Link
+                href="/signin"
+                className="flex items-center text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" /> Back to sign in
+              </Link>
+            </div>
           </div>
         </div>
       </div>
