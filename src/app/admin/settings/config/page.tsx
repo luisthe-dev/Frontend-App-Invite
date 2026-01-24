@@ -15,7 +15,7 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (checked: b
         <button
             type="button"
             className={`${
-                checked ? 'bg-emerald-500' : 'bg-slate-200'
+                checked ? 'bg-emerald-500' : 'bg-muted-foreground/30'
             } relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2`}
             role="switch"
             aria-checked={checked}
@@ -49,8 +49,8 @@ export default function ConfigPage() {
     const fetchSettings = async () => {
         setLoading(true);
         try {
-            const { data } = await adminApi.getConfig();
-            setSettings(data);
+            const config = await adminApi.getConfig();
+            setSettings(config);
         } catch (err) {
             console.error(err);
             error("Failed to fetch settings");
@@ -100,7 +100,7 @@ export default function ConfigPage() {
             return (
                 <div className="flex items-center gap-3">
                     <Toggle checked={isChecked} onChange={(checked) => handleChange(setting.group, setting.key, checked)} />
-                    <span className="text-sm text-slate-500">{isChecked ? 'Enabled' : 'Disabled'}</span>
+                    <span className="text-sm text-muted-foreground">{isChecked ? 'Enabled' : 'Disabled'}</span>
                 </div>
             );
         }
@@ -137,15 +137,15 @@ export default function ConfigPage() {
         <div className="p-8 max-w-[1600px] mx-auto w-full">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">System Configuration</h1>
-                    <p className="text-slate-500 mt-1">Manage global system settings and defaults.</p>
+                    <h1 className="text-2xl font-bold text-foreground tracking-tight">System Configuration</h1>
+                    <p className="text-muted-foreground mt-1">Manage global system settings and defaults.</p>
                 </div>
                 <div className="flex items-center gap-3">
                     <Button variant="outline" onClick={fetchSettings} disabled={loading || saving} className="shadow-sm hover:shadow-md transition-all">
                         <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                         Refresh
                     </Button>
-                    <Button onClick={handleSave} loading={saving} className="flex items-center gap-2 bg-violet-600 hover:bg-violet-700 text-white shadow-md hover:shadow-lg transition-all">
+                    <Button onClick={handleSave} loading={saving} className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all">
                         <Save className="w-4 h-4" /> Save Changes
                     </Button>
                 </div>
@@ -154,11 +154,11 @@ export default function ConfigPage() {
             {loading ? (
                 <div className="grid gap-6">
                     {[1, 2, 3].map(i => (
-                        <Card key={i} className="p-6 animate-pulse">
-                            <div className="h-6 bg-slate-200 rounded w-1/4 mb-4"></div>
+                        <Card key={i} className="p-6 animate-pulse bg-card border-border">
+                            <div className="h-6 bg-muted rounded w-1/4 mb-4"></div>
                             <div className="space-y-4">
-                                <div className="h-10 bg-slate-200 rounded"></div>
-                                <div className="h-10 bg-slate-200 rounded"></div>
+                                <div className="h-10 bg-muted rounded"></div>
+                                <div className="h-10 bg-muted rounded"></div>
                             </div>
                         </Card>
                     ))}
@@ -166,16 +166,16 @@ export default function ConfigPage() {
             ) : (
                 <div className="grid gap-8">
                     {Object.entries(settings).map(([group, groupItems]) => (
-                        <Card key={group} className="p-0 border border-slate-200 shadow-sm rounded-xl overflow-hidden hover:shadow-md transition-shadow duration-200">
-                             <div className="px-6 py-4 bg-slate-50/50 border-b border-slate-100 flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-violet-600 shadow-sm">
+                        <Card key={group} className="p-0 border border-border shadow-sm rounded-xl overflow-hidden hover:shadow-md transition-shadow duration-200 bg-card">
+                             <div className="px-6 py-4 bg-muted/30 border-b border-border flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-background border border-border flex items-center justify-center text-primary shadow-sm">
                                     <Sliders className="w-5 h-5" />
                                 </div>
                                 <div>
-                                    <h2 className="text-lg font-bold text-slate-900 capitalize tracking-tight">
+                                    <h2 className="text-lg font-bold text-foreground capitalize tracking-tight">
                                         {groupTitles[group] || group}
                                     </h2>
-                                    <p className="text-xs text-slate-500">Configure {group} settings</p>
+                                    <p className="text-xs text-muted-foreground">Configure {group} settings</p>
                                 </div>
                             </div>
 
@@ -183,11 +183,11 @@ export default function ConfigPage() {
                                 {groupItems.map(setting => (
                                     <div key={setting.key} className="grid sm:grid-cols-3 gap-2 sm:gap-8 items-start group">
                                         <div className="sm:col-span-1 pt-2">
-                                            <label className="block text-sm font-semibold text-slate-800 mb-1 group-hover:text-violet-600 transition-colors">
+                                            <label className="block text-sm font-semibold text-foreground mb-1 group-hover:text-primary transition-colors">
                                                 {setting.key.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
                                             </label>
                                             {setting.description && (
-                                                <p className="text-xs text-slate-500 leading-relaxed">{setting.description}</p>
+                                                <p className="text-xs text-muted-foreground leading-relaxed">{setting.description}</p>
                                             )}
                                         </div>
                                         <div className="sm:col-span-2">

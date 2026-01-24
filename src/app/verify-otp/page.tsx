@@ -88,10 +88,10 @@ const VerifyOtpContent = () => {
         setSuccess(true);
 
         // If the backend returns a new token (upgraded to 'User' scope), update cookies
-        if (response.data && response.data.access_token) {
-          Cookies.set("token", response.data.access_token, { expires: 30 });
-          if (response.data.user) {
-            Cookies.set("user", JSON.stringify(response.data.user), {
+        if (response && response.access_token) {
+          Cookies.set("token", response.access_token, { expires: 30 });
+          if (response.user) {
+            Cookies.set("user", JSON.stringify(response.user), {
               expires: 30,
             });
           }
@@ -132,11 +132,11 @@ const VerifyOtpContent = () => {
     };
   
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 transition-colors">
         <div className="sm:mx-auto sm:w-full sm:max-w-[480px]">
-          <div className="bg-white py-10 px-6 shadow-xl sm:rounded-2xl sm:px-12 border border-gray-100">
+          <div className="bg-white dark:bg-slate-900 py-10 px-6 shadow-xl sm:rounded-2xl sm:px-12 border border-gray-100 dark:border-slate-800">
             <div className="flex flex-col items-center mb-8">
-              <div className="w-12 h-12 bg-violet-100 rounded-xl flex items-center justify-center mb-4 text-violet-600">
+              <div className="w-12 h-12 bg-violet-100 dark:bg-violet-900/30 rounded-xl flex items-center justify-center mb-4 text-violet-600 dark:text-violet-400">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="24"
@@ -153,12 +153,12 @@ const VerifyOtpContent = () => {
                   <path d="m9 12 2 2 4-4" />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold text-gray-900">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100">
                 Enter Verification Code
               </h2>
-              <p className="mt-2 text-sm text-gray-500 text-center">
+              <p className="mt-2 text-sm text-gray-500 dark:text-slate-400 text-center">
                 We sent a 6-digit code to{" "}
-                <span className="font-medium text-gray-900">
+                <span className="font-medium text-gray-900 dark:text-slate-200">
                   {email || "your email"}
                 </span>
               </p>
@@ -166,7 +166,7 @@ const VerifyOtpContent = () => {
 
             <form className="space-y-6" onSubmit={handleSubmit}>
               {error && (
-                <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg border border-red-100 flex items-center gap-2">
+                <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm p-3 rounded-lg border border-red-100 dark:border-red-900/30 flex items-center gap-2">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="16"
@@ -187,7 +187,7 @@ const VerifyOtpContent = () => {
               )}
 
               {success && (
-                <div className="bg-green-50 text-green-600 text-sm p-3 rounded-lg border border-green-100 flex items-center gap-2">
+                <div className="bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 text-sm p-3 rounded-lg border border-green-100 dark:border-green-900/30 flex items-center gap-2">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="16"
@@ -219,7 +219,7 @@ const VerifyOtpContent = () => {
                     onChange={(e) => handleChange(index, e.target.value)}
                     onKeyDown={(e) => handleKeyDown(index, e)}
                     onPaste={handlePaste}
-                    className="w-12 h-14 text-center text-2xl font-bold border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
+                    className="w-12 h-14 text-center text-2xl font-bold border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
                   />
                 ))}
               </div>
@@ -238,13 +238,13 @@ const VerifyOtpContent = () => {
                 </button>
               </div>
 
-              <p className="text-center text-sm text-gray-500">
+              <p className="text-center text-sm text-gray-500 dark:text-slate-400">
                 Didn't receive the code?{" "}
                 <button
                   type="button"
                   onClick={handleResend}
                   disabled={timeLeft > 0 || resendLoading}
-                  className="font-semibold text-violet-600 hover:text-violet-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="font-semibold text-violet-600 dark:text-violet-400 hover:text-violet-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {resendLoading ? (
                     <span className="flex items-center gap-1">
@@ -259,10 +259,10 @@ const VerifyOtpContent = () => {
               </p>
             </form>
 
-            <div className="mt-8 flex items-center justify-center border-t border-gray-100 pt-6">
+            <div className="mt-8 flex items-center justify-center border-t border-gray-100 dark:border-slate-800 pt-6">
               <Link
                 href="/signin"
-                className="flex items-center text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+                className="flex items-center text-sm font-medium text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-200 transition-colors"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" /> Back to sign in
               </Link>

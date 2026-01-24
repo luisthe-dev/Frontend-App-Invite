@@ -1,12 +1,15 @@
 "use client";
 
-import { Upload, Calendar, MapPin, Plus, Trash2, Image as ImageIcon, CheckCircle2, ChevronRight, Hash, Clock, Globe, Loader2, X } from "lucide-react";
-import Image from "next/image";
+import { Upload, Calendar, MapPin, Plus, Trash2, CheckCircle2, ChevronRight, Hash, Loader2, X, ArrowLeft } from "lucide-react";
 import { useState, useMemo } from "react";
 import { eventsApi } from "@/api/events";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useToast } from "@/context/ToastContext";
+
 export default function CreateEventPage() {
   const router = useRouter();
+  const { success, error: toastError } = useToast();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -40,10 +43,6 @@ export default function CreateEventPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleAddressSelect = (address: string, lat: number, lng: number) => {
-    setFormData({ ...formData, location: address, lat, lng });
-  };
-
   const addTicket = () => {
     setTickets([...tickets, { type: "", price: "", quantity: "" }]);
   };
@@ -66,10 +65,6 @@ export default function CreateEventPage() {
     const remainingSlots = 8 - mediaFiles.length;
     const filesToAdd = files.slice(0, remainingSlots);
 
-    if (files.length > remainingSlots) {
-      // Optional: Notify user about limit
-    }
-
     const newPreviews = filesToAdd.map((file) => ({
       url: URL.createObjectURL(file),
       type: file.type.startsWith("video/")
@@ -88,7 +83,6 @@ export default function CreateEventPage() {
     setMediaFiles(newFiles);
     setMediaPreviews(newPreviews);
 
-    // Adjust cover index if needed
     if (index === coverIndex) setCoverIndex(0);
     else if (index < coverIndex) setCoverIndex(coverIndex - 1);
   };
@@ -147,12 +141,10 @@ export default function CreateEventPage() {
 
       submissionData.append("cover_index", String(coverIndex));
 
-      // Append array of files
       mediaFiles.forEach((file) => {
         submissionData.append("media[]", file);
       });
 
-      // Append tickets manually as array of objects for PHP
       tickets.forEach((ticket, index) => {
         submissionData.append(`tickets[${index}][type]`, ticket.type);
         submissionData.append(`tickets[${index}][price]`, ticket.price);
@@ -160,13 +152,15 @@ export default function CreateEventPage() {
       });
 
       await eventsApi.create(submissionData);
-      router.push("/dashboard");
+      success("Event created successfully!");
+      router.push("/dashboard/events");
     } catch (err: any) {
       console.error("Create failed", err);
       setError(
         err.response?.data?.message ||
           "Failed to create event. Please check all fields."
       );
+      toastError("Failed to create event");
     } finally {
       setLoading(false);
     }
@@ -191,26 +185,30 @@ export default function CreateEventPage() {
   }, [formData, tickets, mediaFiles]);
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div className="min-h-screen bg-muted/10 pb-20">
       <div className="max-w-4xl mx-auto px-4 md:px-0 py-8">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">Create New Event</h1>
-          <p className="text-gray-500 text-sm">
+           <Link href="/dashboard/events" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-4 transition-colors">
+                <ArrowLeft className="w-4 h-4 mr-1" /> Back to Dashboard
+           </Link>
+          <h1 className="text-2xl font-bold text-foreground">Create New Event</h1>
+          <p className="text-muted-foreground text-sm mt-1">
             Fill in the details below to publish your event.
           </p>
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 text-red-600 rounded-xl border border-red-100 text-sm font-medium">
+          <div className="mb-6 p-4 bg-destructive/10 text-destructive rounded-xl border border-destructive/20 text-sm font-medium flex items-center gap-2">
+            <X className="w-4 h-4" />
             {error}
           </div>
         )}
 
         <div className="space-y-6">
           {/* 1. Basic Information */}
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 md:p-8">
-            <div className="flex items-center gap-2 mb-6 text-violet-600 font-medium">
-              <div className="w-8 h-8 rounded-full bg-violet-50 flex items-center justify-center text-sm font-bold">
+          <div className="bg-card rounded-2xl border border-border shadow-sm p-6 md:p-8">
+            <div className="flex items-center gap-2 mb-6 text-primary font-medium">
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold">
                 1
               </div>
               <h2>Basic Information</h2>
@@ -218,8 +216,8 @@ export default function CreateEventPage() {
 
             <div className="space-y-5">
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-1.5">
-                  Event Title <span className="text-red-500">*</span>
+                <label className="block text-sm font-semibold text-foreground mb-1.5">
+                  Event Title <span className="text-destructive">*</span>
                 </label>
                 <input
                   name="title"
@@ -227,13 +225,13 @@ export default function CreateEventPage() {
                   onChange={handleChange}
                   type="text"
                   placeholder="e.g. Annual Tech Conference 2025"
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-violet-600/20 focus:border-violet-600 transition-all placeholder:text-gray-400 text-gray-900 text-sm"
+                  className="w-full px-4 py-2.5 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-muted-foreground text-foreground text-sm"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-1.5">
-                  Description <span className="text-red-500">*</span>
+                <label className="block text-sm font-semibold text-foreground mb-1.5">
+                  Description <span className="text-destructive">*</span>
                 </label>
                 <textarea
                   name="description"
@@ -241,21 +239,21 @@ export default function CreateEventPage() {
                   onChange={handleChange}
                   rows={4}
                   placeholder="Describe your event..."
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-violet-600/20 focus:border-violet-600 transition-all placeholder:text-gray-400 text-gray-900 text-sm"
+                  className="w-full px-4 py-2.5 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-muted-foreground text-foreground text-sm"
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-1.5">
-                    Category <span className="text-red-500">*</span>
+                  <label className="block text-sm font-semibold text-foreground mb-1.5">
+                    Category <span className="text-destructive">*</span>
                   </label>
                   <div className="relative">
                     <select
                       name="category"
                       value={formData.category}
                       onChange={handleChange}
-                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-violet-600/20 focus:border-violet-600 transition-all text-gray-900 text-sm appearance-none bg-white"
+                      className="w-full px-4 py-2.5 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-foreground text-sm appearance-none"
                     >
                       <option value="">Select Category</option>
                       <option value="Music">Music</option>
@@ -266,19 +264,19 @@ export default function CreateEventPage() {
                       <option value="Sports">Sports</option>
                       <option value="Wellness">Wellness</option>
                     </select>
-                    <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 rotate-90" />
+                    <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground rotate-90" />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-1.5">
+                  <label className="block text-sm font-semibold text-foreground mb-1.5">
                     Tags
                   </label>
-                  <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-gray-200 focus-within:ring-2 focus-within:ring-violet-600/20 focus-within:border-violet-600 transition-all bg-white">
-                    <Hash className="w-4 h-4 text-gray-400" />
+                  <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-input bg-background focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all">
+                    <Hash className="w-4 h-4 text-muted-foreground" />
                     <input
                       type="text"
                       placeholder="Add tags (Press Enter)..."
-                      className="flex-1 focus:outline-none text-sm placeholder:text-gray-400"
+                      className="flex-1 focus:outline-none text-sm placeholder:text-muted-foreground bg-transparent text-foreground"
                       value={tagInput}
                       onChange={(e) => setTagInput(e.target.value)}
                       onKeyDown={handleAddTag}
@@ -289,11 +287,11 @@ export default function CreateEventPage() {
                     {formData.tags.map((tag) => (
                       <span
                         key={tag}
-                        className="flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md"
+                        className="flex items-center gap-1 px-2 py-1 bg-muted text-muted-foreground text-xs rounded-md"
                       >
                         {tag}
                         <button onClick={() => removeTag(tag)}>
-                          <X className="w-3 h-3 hover:text-red-500" />
+                          <X className="w-3 h-3 hover:text-destructive" />
                         </button>
                       </span>
                     ))}
@@ -304,9 +302,9 @@ export default function CreateEventPage() {
           </div>
 
           {/* 2. Time & Venue */}
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 md:p-8">
-            <div className="flex items-center gap-2 mb-6 text-violet-600 font-medium">
-              <div className="w-8 h-8 rounded-full bg-violet-50 flex items-center justify-center text-sm font-bold">
+          <div className="bg-card rounded-2xl border border-border shadow-sm p-6 md:p-8">
+            <div className="flex items-center gap-2 mb-6 text-primary font-medium">
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold">
                 2
               </div>
               <h2>Time & Venue</h2>
@@ -315,8 +313,8 @@ export default function CreateEventPage() {
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-1.5">
-                    Start Date <span className="text-red-500">*</span>
+                  <label className="block text-sm font-semibold text-foreground mb-1.5">
+                    Start Date <span className="text-destructive">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -325,13 +323,13 @@ export default function CreateEventPage() {
                       value={formData.start_date}
                       onChange={handleChange}
                       type="date"
-                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-violet-600/20 focus:border-violet-600 transition-all text-gray-900 text-sm"
+                      className="w-full px-4 py-2.5 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-foreground text-sm"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-1.5">
-                    Start Time <span className="text-red-500">*</span>
+                  <label className="block text-sm font-semibold text-foreground mb-1.5">
+                    Start Time <span className="text-destructive">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -339,12 +337,12 @@ export default function CreateEventPage() {
                       value={formData.start_time}
                       onChange={handleChange}
                       type="time"
-                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-violet-600/20 focus:border-violet-600 transition-all text-gray-900 text-sm"
+                      className="w-full px-4 py-2.5 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-foreground text-sm"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-1.5">
+                  <label className="block text-sm font-semibold text-foreground mb-1.5">
                     End Date
                   </label>
                   <div className="relative">
@@ -354,12 +352,12 @@ export default function CreateEventPage() {
                       value={formData.end_date}
                       onChange={handleChange}
                       type="date"
-                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-violet-600/20 focus:border-violet-600 transition-all text-gray-900 text-sm"
+                      className="w-full px-4 py-2.5 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-foreground text-sm"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-1.5">
+                  <label className="block text-sm font-semibold text-foreground mb-1.5">
                     End Time
                   </label>
                   <div className="relative">
@@ -368,25 +366,25 @@ export default function CreateEventPage() {
                       value={formData.end_time}
                       onChange={handleChange}
                       type="time"
-                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-violet-600/20 focus:border-violet-600 transition-all text-gray-900 text-sm"
+                      className="w-full px-4 py-2.5 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-foreground text-sm"
                     />
                   </div>
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-1.5">
-                  Location <span className="text-red-500">*</span>
+                <label className="block text-sm font-semibold text-foreground mb-1.5">
+                  Location <span className="text-destructive">*</span>
                 </label>
                 <div className="relative mb-3">
-                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <input
                     name="location"
                     value={formData.location}
                     onChange={handleChange}
                     type="text"
                     placeholder="Enter event location or address"
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-violet-600/20 focus:border-violet-600 transition-all text-gray-900 text-sm"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-foreground text-sm"
                   />
                 </div>
               </div>
@@ -394,9 +392,9 @@ export default function CreateEventPage() {
           </div>
 
           {/* 3. Tickets */}
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 md:p-8">
-            <div className="flex items-center gap-2 mb-6 text-violet-600 font-medium">
-              <div className="w-8 h-8 rounded-full bg-violet-50 flex items-center justify-center text-sm font-bold">
+          <div className="bg-card rounded-2xl border border-border shadow-sm p-6 md:p-8">
+            <div className="flex items-center gap-2 mb-6 text-primary font-medium">
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold">
                 3
               </div>
               <h2>Tickets</h2>
@@ -406,17 +404,17 @@ export default function CreateEventPage() {
               {tickets.map((ticket, index) => (
                 <div
                   key={index}
-                  className="p-4 rounded-xl border border-gray-200 bg-gray-50/50 relative group"
+                  className="p-4 rounded-xl border border-border bg-muted/30 relative group"
                 >
                   <button
                     onClick={() => removeTicket(index)}
-                    className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors"
+                    className="absolute top-4 right-4 text-muted-foreground hover:text-destructive transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-1">
+                      <label className="block text-xs font-semibold text-muted-foreground mb-1">
                         Ticket Name
                       </label>
                       <input
@@ -426,11 +424,11 @@ export default function CreateEventPage() {
                         onChange={(e) =>
                           updateTicket(index, "type", e.target.value)
                         }
-                        className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:border-violet-600 text-sm bg-white"
+                        className="w-full px-3 py-2 rounded-lg border border-input bg-background focus:outline-none focus:border-primary text-sm text-foreground"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-1">
+                      <label className="block text-xs font-semibold text-muted-foreground mb-1">
                         Price (₦)
                       </label>
                       <input
@@ -440,11 +438,11 @@ export default function CreateEventPage() {
                         onChange={(e) =>
                           updateTicket(index, "price", e.target.value)
                         }
-                        className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:border-violet-600 text-sm bg-white"
+                        className="w-full px-3 py-2 rounded-lg border border-input bg-background focus:outline-none focus:border-primary text-sm text-foreground"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-gray-700 mb-1">
+                      <label className="block text-xs font-semibold text-muted-foreground mb-1">
                         Quantity
                       </label>
                       <input
@@ -454,7 +452,7 @@ export default function CreateEventPage() {
                         onChange={(e) =>
                           updateTicket(index, "quantity", e.target.value)
                         }
-                        className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:border-violet-600 text-sm bg-white"
+                        className="w-full px-3 py-2 rounded-lg border border-input bg-background focus:outline-none focus:border-primary text-sm text-foreground"
                       />
                     </div>
                   </div>
@@ -463,7 +461,7 @@ export default function CreateEventPage() {
 
               <button
                 onClick={addTicket}
-                className="w-full py-3 border-2 border-dashed border-gray-200 rounded-xl text-gray-500 font-medium hover:border-violet-400 hover:text-violet-600 transition-all flex items-center justify-center gap-2"
+                className="w-full py-3 border-2 border-dashed border-border rounded-xl text-muted-foreground font-medium hover:border-primary/50 hover:text-primary transition-all flex items-center justify-center gap-2"
               >
                 <Plus className="w-4 h-4" /> Add Ticket Type
               </button>
@@ -471,15 +469,15 @@ export default function CreateEventPage() {
           </div>
 
           {/* 4. Media */}
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 md:p-8">
-            <div className="flex items-center gap-2 mb-6 text-violet-600 font-medium">
-              <div className="w-8 h-8 rounded-full bg-violet-50 flex items-center justify-center text-sm font-bold">
+          <div className="bg-card rounded-2xl border border-border shadow-sm p-6 md:p-8">
+            <div className="flex items-center gap-2 mb-6 text-primary font-medium">
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold">
                 4
               </div>
               <h2>Media (Max 8)</h2>
             </div>
 
-            <div className="border-2 border-dashed border-gray-200 rounded-2xl p-8 text-center hover:bg-gray-50 transition-colors cursor-pointer relative">
+            <div className="border-2 border-dashed border-border rounded-2xl p-8 text-center hover:bg-muted/30 transition-colors cursor-pointer relative">
               <input
                 type="file"
                 accept="image/*,video/*"
@@ -488,13 +486,13 @@ export default function CreateEventPage() {
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 disabled={mediaFiles.length >= 8}
               />
-              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 text-gray-400">
+              <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto mb-3 text-muted-foreground">
                 <Upload className="w-6 h-6" />
               </div>
-              <p className="font-medium text-gray-900">
+              <p className="font-medium text-foreground">
                 Click or drag images/videos here
               </p>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 First image is the cover. Max 8 files.
               </p>
             </div>
@@ -507,8 +505,8 @@ export default function CreateEventPage() {
                     key={index}
                     className={`relative rounded-xl overflow-hidden aspect-square border-2 ${
                       index === coverIndex
-                        ? "border-violet-600 ring-2 ring-violet-200"
-                        : "border-gray-100"
+                        ? "border-primary ring-2 ring-primary/20"
+                        : "border-border"
                     }`}
                   >
                     {preview.type === "video" ? (
@@ -527,7 +525,7 @@ export default function CreateEventPage() {
                     <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors group">
                       <button
                         onClick={() => removeMedia(index)}
-                        className="absolute top-2 right-2 p-1.5 bg-white/90 rounded-full text-red-600 hover:bg-white shadow-sm opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all"
+                        className="absolute top-2 right-2 p-1.5 bg-white/90 rounded-full text-destructive hover:bg-white shadow-sm opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all"
                       >
                         <Trash2 className="w-3 h-3" />
                       </button>
@@ -537,7 +535,7 @@ export default function CreateEventPage() {
                           onClick={() => setCoverIndex(index)}
                           className={`text-xs px-2 py-1 rounded-md font-medium shadow-sm ${
                             index === coverIndex
-                              ? "bg-violet-600 text-white"
+                              ? "bg-primary text-primary-foreground"
                               : "bg-white text-gray-700 hover:bg-gray-50"
                           }`}
                         >
@@ -548,7 +546,7 @@ export default function CreateEventPage() {
                       </div>
                     </div>
                     {index === coverIndex && (
-                      <div className="absolute top-2 left-2 bg-violet-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
+                      <div className="absolute top-2 left-2 bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
                         COVER
                       </div>
                     )}
@@ -558,80 +556,18 @@ export default function CreateEventPage() {
             )}
           </div>
 
-          {/* Preview Card Section */}
-          <div>
-            <h2 className="text-lg font-bold text-gray-900 mb-4">
-              Preview Event
-            </h2>
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden md:flex">
-              <div className="md:w-1/3 bg-gray-100 h-48 md:h-auto relative">
-                {mediaPreviews.length > 0 &&
-                mediaPreviews[coverIndex]?.type === "image" ? (
-                  <img
-                    src={mediaPreviews[coverIndex].url}
-                    alt="Preview"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center text-gray-400 font-medium">
-                    Event Image
-                  </div>
-                )}
-              </div>
-              <div className="p-6 md:w-2/3">
-                <div className="flex justify-between items-start mb-2">
-                  <div>
-                    <h3 className="font-bold text-gray-900 text-lg">
-                      {formData.title || "Event Title"}
-                    </h3>
-                    <p className="text-violet-600 text-sm font-medium">
-                      {formData.start_date
-                        ? new Date(formData.start_date).toLocaleDateString()
-                        : "Date"}{" "}
-                      • {formData.start_time || "Time"}
-                    </p>
-                  </div>
-                  <span className="bg-green-50 text-green-700 px-2 py-1 rounded text-xs font-bold uppercase">
-                    Draft
-                  </span>
-                </div>
-                <div className="space-y-1 text-sm text-gray-500 mb-4">
-                  <p className="flex items-center gap-1.5">
-                    <MapPin className="w-3.5 h-3.5" />{" "}
-                    {formData.location || "Location"}
-                  </p>
-                  <p className="flex items-center gap-1.5">
-                    <Globe className="w-3.5 h-3.5" />{" "}
-                    {formData.category || "Category"}
-                  </p>
-                </div>
-                <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                  <span className="font-bold text-gray-900">
-                    {tickets.length > 0
-                      ? `₦${Math.min(
-                          ...tickets.map((t) => parseFloat(t.price) || 0)
-                        )} - ₦${Math.max(
-                          ...tickets.map((t) => parseFloat(t.price) || 0)
-                        )}`
-                      : "Price Range"}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* Action Buttons */}
           <div className="flex items-center justify-end gap-3 pt-4">
             <button
-              onClick={() => router.push("/dashboard")}
-              className="px-6 py-3 font-bold text-gray-600 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
+              onClick={() => router.push("/dashboard/events")}
+              className="px-6 py-3 font-bold text-muted-foreground bg-card border border-border rounded-xl hover:bg-muted transition-colors"
             >
               Cancel
             </button>
             <button
               onClick={handleSubmit}
               disabled={loading || !isFormValid}
-              className="px-6 py-3 font-bold text-white bg-violet-600 rounded-xl shadow-lg shadow-violet-200 hover:bg-violet-700 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
+              className="px-6 py-3 font-bold text-white bg-primary rounded-xl shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
             >
               {loading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />

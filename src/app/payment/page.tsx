@@ -31,7 +31,7 @@ function PaymentContent() {
         if (currentUser) {
             try {
                 const res = await userApi.getUser();
-                setUser(res.data);
+                setUser(res);
             } catch (err) {
                  console.error("Failed to fetch fresh user data", err);
                  setUser(currentUser); // Fallback

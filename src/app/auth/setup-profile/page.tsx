@@ -22,10 +22,10 @@ export default function SetupProfilePage() {
         const fetchUser = async () => {
             try {
                 const userData = await userApi.getUser();
-                setUser(userData.data);
+                setUser(userData);
                 // Pre-fill with current auto-generated username
-                setUsername(userData.data.user_name || "");
-                setDisplayName(userData.data.display_name || `${userData.data.first_name || ''} ${userData.data.last_name || ''}`.trim());
+                setUsername(userData.user_name || "");
+                setDisplayName(userData.first_name ? `${userData.first_name} ${userData.last_name || ''}`.trim() : "");
             } catch (err) {
                 console.error("Failed to fetch user", err);
                 // If fetching fails, maybe redirect to login or dashboard

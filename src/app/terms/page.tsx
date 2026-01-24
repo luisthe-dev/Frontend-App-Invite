@@ -139,8 +139,8 @@ export default function TermsPage() {
                 </p>
                 <p>
                   <strong>Refunds:</strong> Refund policies are set by the Host.
-                  Attendees must request refunds directly from the Host, unless
-                  the event is cancelled or deemed fraudulent by MyInvite.
+                  However, standard policy dictates that tickets are generally non-refundable. 
+                  In exceptional cases where a refund is processed, Attendees are eligible to receive only up to 80% of the paid amount.
                   MyInvite fees are non-refundable.
                 </p>
 

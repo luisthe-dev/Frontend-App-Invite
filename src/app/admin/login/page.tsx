@@ -27,7 +27,8 @@ export default function AdminLoginPage() {
       // Assuming 'token' comes from response
       // We might want to separate admin token or just use 'token' if keys don't collide
       // Ideally use strictly separate cookies or names for security separation
-      Cookies.set("admin_token", response.data.token, { expires: 1 }); 
+      // Access token directly as login returns unwrapped data
+      Cookies.set("admin_token", response.token, { expires: 1 }); 
       
       toast.success("Admin logged in successfully");
       router.push("/admin/dashboard");

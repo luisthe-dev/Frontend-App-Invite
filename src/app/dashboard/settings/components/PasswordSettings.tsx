@@ -48,73 +48,93 @@ export default function PasswordSettings() {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-6 max-w-lg">
-            {message && (
-                <div className={`p-4 rounded-xl flex items-center gap-3 ${message.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
-                    {message.type === 'success' ? <CheckCircle className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
-                    <p className="text-sm font-medium">{message.text}</p>
-                </div>
+      <form onSubmit={handleSubmit} className="space-y-6 max-w-lg">
+        {message && (
+          <div
+            className={`p-4 rounded-xl flex items-center gap-3 ${message.type === "success" ? "bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400" : "bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400"}`}
+          >
+            {message.type === "success" ? (
+              <CheckCircle className="w-5 h-5" />
+            ) : (
+              <AlertCircle className="w-5 h-5" />
             )}
-            
-            <div className="bg-yellow-50 border border-yellow-100 rounded-xl p-4 mb-6">
-                <h3 className="text-sm font-bold text-yellow-800 mb-1">Secure your account</h3>
-                <p className="text-xs text-yellow-700">Make sure to use a strong password including numbers and special characters.</p>
-            </div>
+            <p className="text-sm font-medium">{message.text}</p>
+          </div>
+        )}
 
-            <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
-                <input 
-                    type="password" 
-                    required
-                    value={data.current_password}
-                    onChange={(e) => setData({...data, current_password: e.target.value})}
-                    className="w-full px-4 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none transition-all"
-                />
-            </div>
+        <div className="bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-100 dark:border-yellow-900/20 rounded-xl p-4 mb-6">
+          <h3 className="text-sm font-bold text-yellow-800 dark:text-yellow-500 mb-1">
+            Secure your account
+          </h3>
+          <p className="text-xs text-yellow-700 dark:text-yellow-600">
+            Make sure to use a strong password including numbers and special
+            characters.
+          </p>
+        </div>
 
-            <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
-                <input 
-                    type="password" 
-                    required
-                    minLength={8}
-                    value={data.new_password}
-                    onChange={(e) => setData({...data, new_password: e.target.value})}
-                    className="w-full px-4 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none transition-all"
-                />
-            </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Current Password
+          </label>
+          <input
+            type="password"
+            required
+            value={data.current_password}
+            onChange={(e) =>
+              setData({ ...data, current_password: e.target.value })
+            }
+            className="w-full px-4 py-2 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none transition-all text-gray-900 dark:text-gray-100 placeholder-gray-400"
+          />
+        </div>
 
-            <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
-                <input 
-                    type="password" 
-                    required
-                    minLength={8}
-                    value={data.confirm_password}
-                    onChange={(e) => setData({...data, confirm_password: e.target.value})}
-                    className="w-full px-4 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none transition-all"
-                />
-            </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            New Password
+          </label>
+          <input
+            type="password"
+            required
+            minLength={8}
+            value={data.new_password}
+            onChange={(e) => setData({ ...data, new_password: e.target.value })}
+            className="w-full px-4 py-2 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none transition-all text-gray-900 dark:text-gray-100 placeholder-gray-400"
+          />
+        </div>
 
-            <div className="pt-4">
-                <button 
-                    type="submit" 
-                    disabled={updating}
-                    className="px-6 py-2.5 bg-violet-600 text-white font-medium rounded-lg hover:bg-violet-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                >
-                    {updating ? (
-                        <>
-                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                            Updating...
-                        </>
-                    ) : (
-                        <>
-                            <Lock className="w-4 h-4" /> Update Password
-                        </>
-                    )}
-                </button>
-            </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Confirm New Password
+          </label>
+          <input
+            type="password"
+            required
+            minLength={8}
+            value={data.confirm_password}
+            onChange={(e) =>
+              setData({ ...data, confirm_password: e.target.value })
+            }
+            className="w-full px-4 py-2 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none transition-all text-gray-900 dark:text-gray-100 placeholder-gray-400"
+          />
+        </div>
 
-        </form>
+        <div className="pt-4">
+          <button
+            type="submit"
+            disabled={updating}
+            className="px-6 py-2.5 bg-violet-600 text-white font-medium rounded-lg hover:bg-violet-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          >
+            {updating ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Updating...
+              </>
+            ) : (
+              <>
+                <Lock className="w-4 h-4" /> Update Password
+              </>
+            )}
+          </button>
+        </div>
+      </form>
     );
 }

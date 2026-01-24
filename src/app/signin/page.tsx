@@ -35,12 +35,12 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 transition-colors">
       <div className="sm:mx-auto sm:w-full sm:max-w-[480px]">
         <Card>
           {/* Logo Section */}
           <div className="flex flex-col items-center mb-8">
-            <div className="w-12 h-12 bg-violet-100 rounded-xl flex items-center justify-center mb-4 text-violet-600 shadow-sm shadow-violet-100">
+            <div className="w-12 h-12 bg-violet-100 dark:bg-violet-900/30 rounded-xl flex items-center justify-center mb-4 text-violet-600 dark:text-violet-400 shadow-sm shadow-violet-100 dark:shadow-none">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
@@ -59,15 +59,17 @@ export default function SignInPage() {
                 <path d="M13 11v2" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-slate-900">Sign In</h2>
-            <p className="mt-2 text-sm text-slate-500">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+              Sign In
+            </h2>
+            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
               Welcome back! Please enter your details
             </p>
           </div>
 
           <form className="space-y-5" onSubmit={handleSubmit}>
             {error && (
-              <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg border border-red-100 flex items-center gap-2">
+              <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm p-3 rounded-lg border border-red-100 dark:border-red-900/30 flex items-center gap-2">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="16"
@@ -102,7 +104,7 @@ export default function SignInPage() {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-slate-700 mb-1"
+                className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
               >
                 Password
               </label>
@@ -121,7 +123,7 @@ export default function SignInPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 cursor-pointer"
                 >
                   {showPassword ? (
                     <EyeOff className="h-5 w-5" />
@@ -138,11 +140,11 @@ export default function SignInPage() {
                   id="remember-me"
                   name="remember-me"
                   type="checkbox"
-                  className="h-4 w-4 text-violet-600 focus:ring-violet-500 border-slate-300 rounded cursor-pointer"
+                  className="h-4 w-4 text-violet-600 focus:ring-violet-500 border-slate-300 dark:border-slate-600 rounded cursor-pointer bg-white dark:bg-slate-800"
                 />
                 <label
                   htmlFor="remember-me"
-                  className="ml-2 block text-sm text-slate-600 cursor-pointer select-none"
+                  className="ml-2 block text-sm text-slate-600 dark:text-slate-400 cursor-pointer select-none"
                 >
                   Remember me
                 </label>
@@ -151,7 +153,7 @@ export default function SignInPage() {
               <div className="text-sm">
                 <Link
                   href="/forgot-password"
-                  className="font-medium text-violet-600 hover:text-violet-500 transition-colors"
+                  className="font-medium text-violet-600 dark:text-violet-400 hover:text-violet-500 transition-colors"
                 >
                   Forgot password?
                 </Link>
@@ -168,10 +170,10 @@ export default function SignInPage() {
 
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-100"></div>
+                <div className="w-full border-t border-slate-100 dark:border-slate-800"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-slate-400 font-medium">
+                <span className="px-4 bg-white dark:bg-slate-900 text-slate-400 dark:text-slate-500 font-medium">
                   Or continue with
                 </span>
               </div>
@@ -181,7 +183,7 @@ export default function SignInPage() {
               <button
                 type="button"
                 onClick={() => authService.socialLogin("google")}
-                className="flex items-center justify-center px-4 py-2.5 border border-slate-200 rounded-xl shadow-sm bg-white text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+                className="flex items-center justify-center px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm bg-white dark:bg-slate-800 text-sm font-medium text-slate-600 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
               >
                 <svg className="h-5 w-5 mr-1" viewBox="0 0 24 24">
                   <path
@@ -206,10 +208,10 @@ export default function SignInPage() {
               <button
                 type="button"
                 onClick={() => authService.socialLogin("apple")}
-                className="flex items-center justify-center px-4 py-2.5 border border-slate-200 rounded-xl shadow-sm bg-white text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+                className="flex items-center justify-center px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm bg-white dark:bg-slate-800 text-sm font-medium text-slate-600 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
               >
                 <svg
-                  className="h-5 w-5 mr-1"
+                  className="h-5 w-5 mr-1 dark:text-white"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                   aria-hidden="true"
@@ -228,11 +230,11 @@ export default function SignInPage() {
             </div>
           </form>
 
-          <p className="mt-8 text-center text-sm text-slate-500">
+          <p className="mt-8 text-center text-sm text-slate-500 dark:text-slate-400">
             Don&apos;t have an account?{" "}
             <Link
               href="/signup"
-              className="font-semibold text-violet-600 hover:text-violet-500 transition-colors"
+              className="font-semibold text-violet-600 dark:text-violet-400 hover:text-violet-500 transition-colors"
             >
               Sign up
             </Link>

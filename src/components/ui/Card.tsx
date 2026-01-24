@@ -11,8 +11,8 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
       <div
         ref={ref}
         className={cn(
-          "bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden",
-          className
+          "bg-card text-card-foreground rounded-xl border border-border shadow-sm overflow-hidden",
+          className,
         )}
         {...props}
       >
@@ -24,12 +24,30 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
 
 Card.displayName = "Card";
 
-export const CardHeader = ({ className, children }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("px-6 py-4 border-b border-slate-100 flex items-center justify-between", className)}>
+export const CardHeader = ({
+  className,
+  children,
+}: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      "px-6 py-4 border-b border-border flex items-center justify-between",
+      className,
+    )}
+  >
     {children}
   </div>
 );
 
-export const CardTitle = ({ className, children }: React.HTMLAttributes<HTMLHeadingElement>) => (
-  <h3 className={cn("text-lg font-bold text-slate-900", className)}>{children}</h3>
+export const CardTitle = ({
+  className,
+  children,
+}: React.HTMLAttributes<HTMLHeadingElement>) => (
+  <h3
+    className={cn(
+      "text-lg font-bold text-foreground",
+      className,
+    )}
+  >
+    {children}
+  </h3>
 );

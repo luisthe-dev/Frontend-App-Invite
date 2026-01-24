@@ -2,8 +2,9 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { supportApi, SupportTicket, SupportMessage } from "@/api/support";
+import { supportApi } from "@/api/support";
 import { Send, ArrowLeft, Paperclip, Loader2, User } from "lucide-react";
+import { SupportMessage, SupportTicket } from "@/types/models";
 
 export default function TicketDetailPage() {
     const params = useParams();
@@ -21,8 +22,8 @@ export default function TicketDetailPage() {
         try {
             if (!ticketId) return;
             const res = await supportApi.getTicket(ticketId);
-            setTicket(res.data);
-            setMessages(res.data.messages);
+            setTicket(res);
+            setMessages(res?.messages || []);
             setLoading(false);
             scrollToBottom();
         } catch (error) {
@@ -76,7 +77,7 @@ export default function TicketDetailPage() {
                                 {ticket.status.replace(/_/g, ' ')}
                             </span>
                          </div>
-                        <p className="text-xs text-slate-500">ticket #{ticket.id.substring(0,8)}</p>
+                        <p className="text-xs text-slate-500">ticket #{ticket.id.toString().substring(0,8)}</p>
                     </div>
                 </div>
             </div>

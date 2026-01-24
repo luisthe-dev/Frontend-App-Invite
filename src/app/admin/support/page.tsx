@@ -27,7 +27,10 @@ export default function AdminSupportPage() {
             if (searchTerm) params.search = searchTerm;
             
             const res = await adminApi.getTickets(params);
-            setTickets(res.data.data);
+            setTickets(res.data);
+            // setPagination(res); // If pagination was used, access res directly. Checking if setPagination exists in context.
+            // But grep showed setTickets(res.data.data).
+            // Let's assume pagination follows.
         } catch (error) {
             console.error(error);
         } finally {
@@ -82,21 +85,21 @@ export default function AdminSupportPage() {
     };
 
     return (
-      <div className="min-h-screen bg-slate-50/50 p-8">
+      <div className="min-h-screen bg-background p-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
             <div>
-              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+              <h1 className="text-2xl font-bold text-foreground tracking-tight">
                 Support Tickets
               </h1>
-              <p className="text-slate-500 mt-1">
+              <p className="text-muted-foreground mt-1">
                 Manage and respond to user inquiries.
               </p>
             </div>
 
             <div className="flex gap-3">
               <select
-                className="bg-white border border-slate-200 text-slate-700 text-sm rounded-lg px-3 py-2.5 outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 shadow-sm transition-all"
+                className="bg-card border border-input text-foreground text-sm rounded-lg px-3 py-2.5 outline-none focus:ring-2 focus:ring-ring focus:border-ring shadow-sm transition-all"
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
               >
@@ -109,18 +112,18 @@ export default function AdminSupportPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
             {/* Toolbar */}
-            <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex items-center gap-4">
+            <div className="p-4 border-b border-border bg-muted/30 flex items-center gap-4">
               <form
                 onSubmit={handleSearch}
                 className="flex-1 relative max-w-md"
               >
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
                 <input
                   type="text"
                   placeholder="Search by ID, subject, or user..."
-                  className="w-full pl-10 pr-4 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all outline-none"
+                  className="w-full pl-10 pr-4 py-2 text-sm bg-background border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-ring transition-all outline-none text-foreground placeholder:text-muted-foreground"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -129,8 +132,8 @@ export default function AdminSupportPage() {
 
             {/* Table */}
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm text-slate-600">
-                <thead className="bg-slate-50 text-xs uppercase text-slate-500 font-semibold border-b border-slate-100">
+              <table className="w-full text-left text-sm text-muted-foreground">
+                <thead className="bg-muted/50 text-xs uppercase text-muted-foreground font-semibold border-b border-border">
                   <tr>
                     <th className="px-6 py-4">Ticket</th>
                     <th className="px-6 py-4">User</th>
@@ -140,26 +143,26 @@ export default function AdminSupportPage() {
                     <th className="px-6 py-4"></th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-border">
                   {loading ? (
                     Array(5)
                       .fill(0)
                       .map((_, i) => (
                         <tr key={i} className="animate-pulse">
                           <td className="px-6 py-4">
-                            <div className="h-4 w-32 bg-slate-100 rounded"></div>
+                            <div className="h-4 w-32 bg-muted rounded"></div>
                           </td>
                           <td className="px-6 py-4">
-                            <div className="h-4 w-24 bg-slate-100 rounded"></div>
+                            <div className="h-4 w-24 bg-muted rounded"></div>
                           </td>
                           <td className="px-6 py-4">
-                            <div className="h-4 w-20 bg-slate-100 rounded"></div>
+                            <div className="h-4 w-20 bg-muted rounded"></div>
                           </td>
                           <td className="px-6 py-4">
-                            <div className="h-4 w-16 bg-slate-100 rounded"></div>
+                            <div className="h-4 w-16 bg-muted rounded"></div>
                           </td>
                           <td className="px-6 py-4">
-                            <div className="h-4 w-24 bg-slate-100 rounded ml-auto"></div>
+                            <div className="h-4 w-24 bg-muted rounded ml-auto"></div>
                           </td>
                           <td className="px-6 py-4"></td>
                         </tr>
@@ -168,33 +171,33 @@ export default function AdminSupportPage() {
                     tickets.map((ticket) => (
                       <tr
                         key={ticket.id}
-                        className="hover:bg-slate-50/80 transition-colors group cursor-pointer"
+                        className="hover:bg-accent/50 transition-colors group cursor-pointer"
                         onClick={() =>
                           (window.location.href = `/admin/support/${ticket.id}`)
                         }
                       >
                         <td className="px-6 py-4">
                           <div className="flex flex-col">
-                            <span className="font-semibold text-slate-900 group-hover:text-violet-600 transition-colors">
-                              #{ticket.id.substring(0, 8)}
+                            <span className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                              #{String(ticket.id).padStart(6, '0')}
                             </span>
-                            <span className="text-slate-500 truncate max-w-[200px]">
+                            <span className="text-muted-foreground truncate max-w-[200px]">
                               {ticket.subject}
                             </span>
                           </div>
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center text-violet-600 font-bold text-xs uppercase">
+                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs uppercase">
                               {ticket.user?.first_name?.[0]}
                               {ticket.user?.last_name?.[0]}
                             </div>
                             <div>
-                              <div className="font-medium text-slate-900">
+                              <div className="font-medium text-foreground">
                                 {ticket.user?.first_name}{" "}
                                 {ticket.user?.last_name}
                               </div>
-                              <div className="text-xs text-slate-400">
+                              <div className="text-xs text-muted-foreground">
                                 {ticket.user?.email}
                               </div>
                             </div>
@@ -211,13 +214,13 @@ export default function AdminSupportPage() {
                         <td className="px-6 py-4">
                           {getStatusBadge(ticket.status)}
                         </td>
-                        <td className="px-6 py-4 text-right tabular-nums text-slate-500">
+                        <td className="px-6 py-4 text-right tabular-nums text-muted-foreground">
                           {new Date(ticket.updated_at).toLocaleString()}
                         </td>
                         <td className="px-6 py-4 text-right">
                           <Link
                             href={`/admin/support/${ticket.id}`}
-                            className="inline-flex items-center justify-center w-8 h-8 rounded-full hover:bg-white hover:shadow-sm hover:ring-1 hover:ring-slate-200 transition-all text-slate-400 hover:text-violet-600"
+                            className="inline-flex items-center justify-center w-8 h-8 rounded-full hover:bg-background hover:shadow-sm hover:ring-1 hover:ring-border transition-all text-muted-foreground hover:text-primary"
                           >
                             <ChevronRight className="w-5 h-5" />
                           </Link>
@@ -228,7 +231,7 @@ export default function AdminSupportPage() {
                     <tr>
                       <td
                         colSpan={6}
-                        className="px-6 py-12 text-center text-slate-400"
+                        className="px-6 py-12 text-center text-muted-foreground"
                       >
                         <MessageSquare className="w-12 h-12 mx-auto mb-3 opacity-20" />
                         <p className="font-medium">No tickets found</p>

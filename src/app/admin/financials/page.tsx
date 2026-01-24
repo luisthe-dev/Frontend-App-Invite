@@ -66,8 +66,8 @@ export default function AdminFinancePage() {
         adminApi.getFinanceStats(),
         adminApi.getTransactions({ page: 1, limit: 5 }), // Get top 5 recent
       ]);
-      setStats(statsRes.data);
-      setRecentTransactions(recentRes.data.data);
+      setStats(statsRes);
+      setRecentTransactions(recentRes.data);
     } catch (e) {
       console.error("Overview fetch failed", e);
     }
@@ -76,7 +76,7 @@ export default function AdminFinancePage() {
   const fetchPayouts = async () => {
     try {
       const res = await adminApi.getPayouts();
-      setPayouts(res.data.data);
+      setPayouts(res.data);
     } catch (e) {
       console.error("Payouts fetch failed", e);
     }
@@ -102,7 +102,7 @@ export default function AdminFinancePage() {
       }
 
       const txRes = await adminApi.getTransactions(txParams);
-      setTransactions(txRes.data.data);
+      setTransactions(txRes.data);
     } catch (error) {
       console.error("Failed to load transactions", error);
     }
@@ -179,109 +179,109 @@ export default function AdminFinancePage() {
   return (
     <div className="p-8 max-w-[1600px] mx-auto w-full">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+        <h1 className="text-2xl font-bold text-foreground tracking-tight">
           Financials
         </h1>
-        <p className="text-slate-500 text-sm mt-1">
+        <p className="text-muted-foreground text-sm mt-1">
           Monitor revenue, process payouts, and audit transactions.
         </p>
       </div>
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="p-6 bg-white rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div className="p-6 bg-card rounded-xl border border-border shadow-sm flex items-center justify-between">
           <div>
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">
               Total Volume
             </p>
-            <p className="text-2xl font-bold text-slate-900">
+            <p className="text-2xl font-bold text-foreground">
               {formatCurrency(stats?.total_volume || 0)}
             </p>
           </div>
-          <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600">
+          <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-600">
             <DollarSign className="w-5 h-5" />
           </div>
         </div>
-        <div className="p-6 bg-white rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div className="p-6 bg-card rounded-xl border border-border shadow-sm flex items-center justify-between">
           <div>
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">
               Pending Payouts
             </p>
-            <p className="text-2xl font-bold text-slate-900">
+            <p className="text-2xl font-bold text-foreground">
               {formatCurrency(stats?.pending_payouts_volume || 0)}
             </p>
             <p className="text-xs text-orange-600 mt-1 font-medium">
               {stats?.pending_payouts_count || 0} Requests
             </p>
           </div>
-          <div className="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center text-orange-600">
+          <div className="w-10 h-10 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-600">
             <Clock className="w-5 h-5" />
           </div>
         </div>
-        <div className="p-6 bg-white rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div className="p-6 bg-card rounded-xl border border-border shadow-sm flex items-center justify-between">
           <div>
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">
               Processed Payouts
             </p>
-            <p className="text-2xl font-bold text-slate-900">
+            <p className="text-2xl font-bold text-foreground">
               {formatCurrency(stats?.processed_payouts_volume || 0)}
             </p>
           </div>
-          <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
+          <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-600">
             <CheckCircle className="w-5 h-5" />
           </div>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-6 border-b border-slate-200 mb-8">
+      <div className="flex items-center gap-6 border-b border-border mb-8">
         <button
           onClick={() => setActiveTab("overview")}
-          className={`pb-3 text-sm font-medium transition-colors border-b-2 ${activeTab === "overview" ? "text-violet-600 border-violet-600" : "text-slate-500 border-transparent hover:text-slate-900"}`}
+          className={`pb-3 text-sm font-medium transition-colors border-b-2 ${activeTab === "overview" ? "text-primary border-primary" : "text-muted-foreground border-transparent hover:text-foreground"}`}
         >
           Overview & Stats
         </button>
         <button
           onClick={() => setActiveTab("payouts")}
-          className={`pb-3 text-sm font-medium transition-colors border-b-2 ${activeTab === "payouts" ? "text-violet-600 border-violet-600" : "text-slate-500 border-transparent hover:text-slate-900"}`}
+          className={`pb-3 text-sm font-medium transition-colors border-b-2 ${activeTab === "payouts" ? "text-primary border-primary" : "text-muted-foreground border-transparent hover:text-foreground"}`}
         >
           Payout Requests
           {stats?.pending_payouts_count > 0 && (
-            <span className="ml-2 px-1.5 py-0.5 rounded-full bg-orange-100 text-orange-600 text-[10px] font-bold">
+            <span className="ml-2 px-1.5 py-0.5 rounded-full bg-orange-500/10 text-orange-600 text-[10px] font-bold">
               {stats.pending_payouts_count}
             </span>
           )}
         </button>
         <button
           onClick={() => setActiveTab("transactions")}
-          className={`pb-3 text-sm font-medium transition-colors border-b-2 ${activeTab === "transactions" ? "text-violet-600 border-violet-600" : "text-slate-500 border-transparent hover:text-slate-900"}`}
+          className={`pb-3 text-sm font-medium transition-colors border-b-2 ${activeTab === "transactions" ? "text-primary border-primary" : "text-muted-foreground border-transparent hover:text-foreground"}`}
         >
           All Transactions
         </button>
       </div>
 
       {/* Content */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
         {/* PAYOUTS TAB */}
         {activeTab === "payouts" && (
           <div className="min-h-[400px]">
-            <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-              <h3 className="font-bold text-slate-900">Pending Withdrawals</h3>
+            <div className="p-6 border-b border-border flex justify-between items-center bg-muted/30">
+              <h3 className="font-bold text-foreground">Pending Withdrawals</h3>
               <button
                 onClick={fetchPayouts}
-                className="text-slate-500 hover:text-violet-600 transition-colors"
+                className="text-muted-foreground hover:text-primary transition-colors"
               >
                 <RefreshCcw className="w-4 h-4" />
               </button>
             </div>
             {payouts.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-20 text-slate-400">
-                <CheckCircle className="w-12 h-12 mb-4 text-emerald-100" />
+              <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+                <CheckCircle className="w-12 h-12 mb-4 text-emerald-500/30" />
                 <p>No pending payouts. All caught up!</p>
               </div>
             ) : (
               <table className="w-full text-left">
-                <thead className="bg-slate-50 text-xs text-slate-500 uppercase tracking-wider border-b border-slate-200">
+                <thead className="bg-muted/50 text-xs text-muted-foreground uppercase tracking-wider border-b border-border">
                   <tr>
                     <th className="px-6 py-4 font-bold">Host</th>
                     <th className="px-6 py-4 font-bold">Amount</th>
@@ -290,35 +290,35 @@ export default function AdminFinancePage() {
                     <th className="px-6 py-4 font-bold text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-border">
                   {payouts.map((tx) => (
-                    <tr key={tx.id} className="hover:bg-slate-50">
+                    <tr key={tx.id} className="hover:bg-accent/50">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-500">
+                          <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs font-bold text-muted-foreground">
                             {(tx.wallet?.user?.first_name || "U").charAt(0)}
                           </div>
                           <div>
-                            <p className="text-sm font-semibold text-slate-900">
+                            <p className="text-sm font-semibold text-foreground">
                               {tx.wallet?.user?.first_name}{" "}
                               {tx.wallet?.user?.last_name}
                             </p>
-                            <p className="text-xs text-slate-500">
+                            <p className="text-xs text-muted-foreground">
                               {tx.wallet?.user?.email}
                             </p>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 font-mono font-bold text-slate-900">
+                      <td className="px-6 py-4 font-mono font-bold text-foreground">
                         {formatCurrency(tx.total_amount)}
                       </td>
-                      <td className="px-6 py-4 text-sm text-slate-600">
+                      <td className="px-6 py-4 text-sm text-muted-foreground">
                         {/* Assuming bank details are in description or accessible via User */}
                         <p className="text-xs">
                           {tx.description || "Bank Transfer"}
                         </p>
                       </td>
-                      <td className="px-6 py-4 text-sm text-slate-500">
+                      <td className="px-6 py-4 text-sm text-muted-foreground">
                         {new Date(tx.created_at).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4 text-right space-x-2">
@@ -379,14 +379,14 @@ export default function AdminFinancePage() {
         {/* TRANSACTIONS TAB */}
         {activeTab === "transactions" && (
           <div className="min-h-[400px]">
-            <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex flex-wrap gap-4 items-center justify-between">
+            <div className="p-4 border-b border-border bg-muted/30 flex flex-wrap gap-4 items-center justify-between">
               {/* Search */}
               <div className="relative">
-                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <input
                   type="text"
                   placeholder="Search ref, user, email..."
-                  className="pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 bg-white placeholder-slate-400 text-slate-900 shadow-sm w-64"
+                  className="pl-9 pr-4 py-2 border border-input rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring bg-background placeholder-muted-foreground text-foreground shadow-sm w-64"
                   value={txSearch}
                   onChange={(e) => setTxSearch(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && fetchTransactions()}
@@ -396,7 +396,7 @@ export default function AdminFinancePage() {
               <div className="flex items-center gap-3">
                 <button
                   onClick={fetchTransactions}
-                  className="p-2 text-slate-500 hover:text-violet-600 hover:bg-violet-50 rounded-lg transition-colors"
+                  className="p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
                   title="Apply Filters"
                 >
                   <RefreshCcw className="w-4 h-4" />
@@ -404,7 +404,7 @@ export default function AdminFinancePage() {
 
                 {/* Type Filter */}
                 <select
-                  className="text-sm border-slate-200 rounded-lg px-3 py-2 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-500 shadow-sm"
+                  className="text-sm border-input rounded-lg px-3 py-2 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring shadow-sm"
                   value={txType}
                   onChange={(e) => setTxType(e.target.value)}
                 >
@@ -417,7 +417,7 @@ export default function AdminFinancePage() {
 
                 {/* Status Filter (New) */}
                 <select
-                  className="text-sm border-slate-200 rounded-lg px-3 py-2 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-500 shadow-sm"
+                  className="text-sm border-input rounded-lg px-3 py-2 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring shadow-sm"
                   value={txStatus}
                   onChange={(e) => setTxStatus(e.target.value)}
                 >
@@ -429,7 +429,7 @@ export default function AdminFinancePage() {
 
                 {/* Sort (New) */}
                 <select
-                  className="text-sm border-slate-200 rounded-lg px-3 py-2 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-500 shadow-sm"
+                  className="text-sm border-input rounded-lg px-3 py-2 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring shadow-sm"
                   value={txSort}
                   onChange={(e) => setTxSort(e.target.value)}
                 >
@@ -441,7 +441,7 @@ export default function AdminFinancePage() {
               </div>
             </div>
             <table className="w-full text-left">
-              <thead className="bg-slate-50 text-xs text-slate-500 uppercase tracking-wider border-b border-slate-200">
+              <thead className="bg-muted/50 text-xs text-muted-foreground uppercase tracking-wider border-b border-border">
                 <tr>
                   <th className="px-6 py-4 font-bold">Reference</th>
                   <th className="px-6 py-4 font-bold">User</th>
@@ -451,25 +451,26 @@ export default function AdminFinancePage() {
                   <th className="px-6 py-4 font-bold">Date</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-border">
                 {transactions.map((tx) => (
                   <tr
                     key={tx.id}
-                    className="hover:bg-slate-50 transition-colors"
+                    onClick={() => router.push(`/admin/financials/${tx.id}`)}
+                    className="hover:bg-accent/50 transition-colors cursor-pointer"
                   >
                     <td className="px-6 py-4">
-                      <p className="font-mono text-xs text-slate-500 font-medium">
+                      <p className="font-mono text-xs text-muted-foreground font-medium">
                         {tx.transaction_id || tx.reference}
                       </p>
                     </td>
-                    <td className="px-6 py-4 text-sm text-slate-900">
+                    <td className="px-6 py-4 text-sm text-foreground">
                       <div>
                         <p className="font-semibold">
                           {tx.wallet?.user
                             ? `${tx.wallet.user.first_name} ${tx.wallet.user.last_name}`
                             : "Guest/System"}
                         </p>
-                        <p className="text-xs text-slate-500">
+                        <p className="text-xs text-muted-foreground">
                           {tx.wallet?.user?.email}
                         </p>
                       </div>
@@ -478,12 +479,12 @@ export default function AdminFinancePage() {
                       <span
                         className={`px-2.5 py-1 rounded-full text-[10px] uppercase font-bold tracking-wide border ${
                           tx.type === "Purchase"
-                            ? "bg-emerald-50 text-emerald-600 border-emerald-100"
+                            ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
                             : tx.type === "Withdrawal"
-                              ? "bg-orange-50 text-orange-600 border-orange-100"
+                              ? "bg-orange-500/10 text-orange-600 border-orange-500/20"
                               : tx.type === "Refund"
-                                ? "bg-purple-50 text-purple-600 border-purple-100"
-                                : "bg-slate-100 text-slate-600 border-slate-200"
+                                ? "bg-purple-500/10 text-purple-600 border-purple-500/20"
+                                : "bg-muted text-muted-foreground border-border"
                         }`}
                       >
                         {tx.type}
@@ -493,7 +494,7 @@ export default function AdminFinancePage() {
                       className={`px-6 py-4 font-mono font-bold text-sm ${
                         ["Purchase", "Deposit", "Refund"].includes(tx.type)
                           ? "text-emerald-600"
-                          : "text-slate-900"
+                          : "text-foreground"
                       }`}
                     >
                       {["Withdrawal", "Debit"].includes(tx.type) ? "-" : "+"}
@@ -503,12 +504,12 @@ export default function AdminFinancePage() {
                       <span
                         className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold ${
                           tx.status === "payment_successful"
-                            ? "bg-emerald-50 text-emerald-700"
+                            ? "bg-emerald-500/10 text-emerald-600"
                             : ["pending_confirmation", "pending"].includes(
                                   tx.status,
                                 )
-                              ? "bg-amber-50 text-amber-700"
-                              : "bg-red-50 text-red-700"
+                              ? "bg-amber-500/10 text-amber-600"
+                              : "bg-destructive/10 text-destructive"
                         }`}
                       >
                         {tx.status === "payment_successful" ? (
@@ -525,7 +526,7 @@ export default function AdminFinancePage() {
                         </span>
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-xs text-slate-500">
+                    <td className="px-6 py-4 text-xs text-muted-foreground">
                       {new Date(tx.created_at).toLocaleString()}
                     </td>
                   </tr>
@@ -551,7 +552,7 @@ export default function AdminFinancePage() {
                   <input
                     type="text"
                     placeholder="Search all transactions by ID, User, or Email..."
-                    className="w-full pl-12 pr-4 py-4 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-white/20 shadow-lg"
+                    className="w-full pl-12 pr-4 py-4 rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-4 focus:ring-white/20 shadow-lg bg-background"
                     onKeyDown={handleQuickSearch}
                   />
                 </div>
@@ -562,7 +563,7 @@ export default function AdminFinancePage() {
             {/* Recent Activity Summary */}
             <div>
               <div className="flex items-center justify-between mb-4 px-1">
-                <h3 className="font-bold text-slate-900">Recent Activity</h3>
+                <h3 className="font-bold text-foreground">Recent Activity</h3>
                 <button
                   onClick={() => setActiveTab("transactions")}
                   className="text-sm text-violet-600 hover:text-violet-700 font-medium"
@@ -570,9 +571,9 @@ export default function AdminFinancePage() {
                   View All &rarr;
                 </button>
               </div>
-              <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+            <div className="bg-card rounded-xl border border-border overflow-hidden">
                 <table className="w-full text-left">
-                  <thead className="bg-slate-50 text-xs text-slate-500 uppercase tracking-wider border-b border-slate-200">
+                  <thead className="bg-muted/50 text-xs text-muted-foreground uppercase tracking-wider border-b border-border">
                     <tr>
                       <th className="px-6 py-3 font-semibold">User</th>
                       <th className="px-6 py-3 font-semibold">Type</th>
@@ -581,19 +582,23 @@ export default function AdminFinancePage() {
                       <th className="px-6 py-3 font-semibold">Date</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
+                  <tbody className="divide-y divide-border">
                     {recentTransactions.map((tx) => (
-                      <tr key={tx.id} className="hover:bg-slate-50">
-                        <td className="px-6 py-3 text-sm font-medium text-slate-900">
+                      <tr
+                        key={tx.id}
+                        onClick={() => router.push(`/admin/financials/${tx.id}`)}
+                        className="hover:bg-accent/50 transition-colors cursor-pointer"
+                      >
+                        <td className="px-6 py-3 text-sm font-medium text-foreground">
                           {tx.wallet?.user?.first_name || "System"}
                         </td>
-                        <td className="px-6 py-3 text-sm text-slate-500">
+                        <td className="px-6 py-3 text-sm text-muted-foreground">
                           {tx.type}
                         </td>
                         <td
                           className={`px-6 py-3 text-sm font-mono font-bold ${
                             ["Withdrawal", "Debit"].includes(tx.type)
-                              ? "text-slate-900"
+                              ? "text-foreground"
                               : "text-emerald-600"
                           }`}
                         >
@@ -603,14 +608,14 @@ export default function AdminFinancePage() {
                           <span
                             className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide ${
                               tx.status === "payment_successful"
-                                ? "bg-emerald-50 text-emerald-700"
-                                : "bg-slate-100 text-slate-600"
+                                ? "bg-emerald-500/10 text-emerald-600"
+                                : "bg-muted text-muted-foreground"
                             }`}
                           >
                             {tx.status.replace(/_/g, " ")}
                           </span>
                         </td>
-                        <td className="px-6 py-3 text-xs text-slate-400">
+                        <td className="px-6 py-3 text-xs text-muted-foreground">
                           {new Date(tx.created_at).toLocaleDateString()}
                         </td>
                       </tr>

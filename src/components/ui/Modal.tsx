@@ -36,17 +36,17 @@ export default function Modal({
   if (!mounted || !isOpen) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm transition-all duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm transition-all duration-200">
       <div
-        className={`bg-white rounded-xl shadow-xl w-full ${maxWidth} transform transition-all duration-200 scale-100 opacity-100`}
+        className={`bg-card text-card-foreground border border-border rounded-xl shadow-xl w-full ${maxWidth} transform transition-all duration-200 scale-100 opacity-100`}
         role="dialog"
         aria-modal="true"
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-          <h3 className="font-bold text-lg text-slate-900">{title}</h3>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+          <h3 className="font-bold text-lg text-foreground">{title}</h3>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 transition-colors p-1 hover:bg-slate-50 rounded-lg"
+            className="text-muted-foreground hover:text-foreground transition-colors p-1 hover:bg-accent rounded-lg"
           >
             <X className="w-5 h-5" />
           </button>

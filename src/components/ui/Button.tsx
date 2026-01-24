@@ -11,11 +11,16 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "primary", size = "md", loading, children, disabled, ...props }, ref) => {
     const variants = {
-      primary: "bg-violet-600 text-white hover:bg-violet-700 shadow-sm shadow-violet-200 border border-transparent",
-      secondary: "bg-slate-100 text-slate-900 hover:bg-slate-200 border border-transparent",
-      outline: "bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:border-slate-300",
-      ghost: "bg-transparent text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-transparent",
-      danger: "bg-red-50 text-red-600 hover:bg-red-100 border border-transparent",
+      primary:
+        "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm border border-transparent",
+      secondary:
+        "bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-transparent",
+      outline:
+        "bg-background text-foreground border border-input hover:bg-accent hover:text-accent-foreground",
+      ghost:
+        "bg-transparent text-foreground hover:bg-accent hover:text-accent-foreground border border-transparent",
+      danger:
+        "bg-destructive text-destructive-foreground hover:bg-destructive/90 border border-transparent",
     };
 
     const sizes = {
@@ -29,7 +34,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         disabled={loading || disabled}
         className={cn(
-          "inline-flex items-center justify-center rounded-xl font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-violet-500/20 active:scale-[0.98]",
+          "inline-flex items-center justify-center rounded-xl font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-ring/20 active:scale-[0.98]",
           variants[variant],
           sizes[size],
           (loading || disabled) && "opacity-50 cursor-not-allowed pointer-events-none",

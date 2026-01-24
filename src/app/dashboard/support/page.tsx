@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from 'next/link';
-import { supportApi, SupportTicket } from "@/api/support";
+import { supportApi } from "@/api/support";
 import { Plus, MessageSquare, AlertCircle, CheckCircle, Clock } from "lucide-react";
+import { SupportTicket } from "@/types/models";
 
 export default function SupportPage() {
     const [tickets, setTickets] = useState<SupportTicket[]>([]);
@@ -23,7 +24,7 @@ export default function SupportPage() {
         setLoading(true);
         try {
             const res = await supportApi.getTickets();
-            setTickets(res.data.data); // Pagination data inside 'data'
+            setTickets(res.data);
         } catch (error) {
             console.error(error);
         } finally {
@@ -119,7 +120,7 @@ export default function SupportPage() {
                                                     {ticket.transaction_id && (
                                                         <>
                                                             <span>•</span>
-                                                            <span className="font-mono bg-gray-100 px-1.5 py-0.5 rounded text-gray-600">Ref: {ticket.transaction_id.substring(0,8)}...</span>
+                                                            <span className="font-mono bg-gray-100 px-1.5 py-0.5 rounded text-gray-600">Ref: {ticket.transaction_id.toString().substring(0,8)}...</span>
                                                         </>
                                                     )}
                                                 </div>

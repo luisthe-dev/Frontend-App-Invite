@@ -40,11 +40,11 @@ export default function ConfirmationModal({
   const getVariantStyles = () => {
     switch (variant) {
       case "danger":
-        return "bg-red-600 hover:bg-red-700 text-white";
+        return "bg-destructive hover:bg-destructive/90 text-destructive-foreground";
       case "warning":
-        return "bg-orange-500 hover:bg-orange-600 text-white";
+        return "bg-orange-500 hover:bg-orange-600 text-white"; // Keep orange for now or define warning var
       default:
-        return "bg-violet-600 hover:bg-violet-700 text-white";
+        return "bg-primary hover:bg-primary/90 text-primary-foreground";
     }
   };
 
@@ -53,18 +53,18 @@ export default function ConfirmationModal({
       <div className="space-y-6">
         <div className="flex gap-4">
            {variant === 'danger' && (
-               <div className="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
-                   <AlertTriangle className="w-5 h-5 text-red-600" />
+               <div className="flex-shrink-0 w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center">
+                   <AlertTriangle className="w-5 h-5 text-destructive" />
                </div>
            )}
-           <p className="text-slate-600 leading-relaxed pt-2">{message}</p>
+           <p className="text-muted-foreground leading-relaxed pt-2">{message}</p>
         </div>
 
         <div className="flex justify-end gap-3 pt-2">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-slate-600 hover:bg-slate-50 rounded-lg font-medium transition-colors"
+            className="px-4 py-2 text-muted-foreground hover:bg-accent hover:text-accent-foreground rounded-lg font-medium transition-colors"
             disabled={loading}
           >
             Cancel

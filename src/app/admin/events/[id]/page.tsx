@@ -30,7 +30,7 @@ export default function AdminEventDetailsPage() {
     if (!id) return;
     try {
       const data = await adminApi.getEvent(id);
-      setEvent(data.data);
+      setEvent(data);
     } catch (error) {
       console.error("Failed to fetch event", error);
       // router.push("/admin/events");
@@ -69,18 +69,18 @@ export default function AdminEventDetailsPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-violet-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
 
   if (!event) {
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center text-gray-500">
+        <div className="min-h-screen flex flex-col items-center justify-center text-muted-foreground">
             <p className="mb-4">Event not found</p>
             <button 
                 onClick={() => router.push("/admin/events")}
-                className="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 text-gray-900"
+                className="px-4 py-2 bg-muted rounded-lg hover:bg-muted/80 text-foreground"
             >
                 Back to Events
             </button>
@@ -137,7 +137,7 @@ export default function AdminEventDetailsPage() {
 
       <button
         onClick={() => router.back()}
-        className="flex items-center gap-2 text-slate-500 hover:text-slate-900 mb-6 transition-colors"
+        className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to Events
@@ -146,20 +146,20 @@ export default function AdminEventDetailsPage() {
       <header className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8">
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
+            <h1 className="text-3xl font-bold text-foreground tracking-tight">
               {event.title}
             </h1>
             <span
               className={`px-3 py-1 rounded-full text-sm font-bold tracking-wide border 
-                        ${event.status === "published" ? "bg-emerald-50 text-emerald-700 border-emerald-100" : ""}
-                        ${event.status === "draft" ? "bg-slate-100 text-slate-700 border-slate-200" : ""}
-                        ${event.status === "suspended" ? "bg-red-50 text-red-700 border-red-100" : ""}
+                        ${event.status === "published" ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" : ""}
+                        ${event.status === "draft" ? "bg-muted text-muted-foreground border-border" : ""}
+                        ${event.status === "suspended" ? "bg-destructive/10 text-destructive border-destructive/20" : ""}
                     `}
             >
               {event.status}
             </span>
           </div>
-          <div className="flex items-center gap-6 text-slate-500 text-sm font-medium">
+          <div className="flex items-center gap-6 text-muted-foreground text-sm font-medium">
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4" />
               {new Date(event.start_date).toLocaleDateString()}
@@ -192,7 +192,7 @@ export default function AdminEventDetailsPage() {
           )}
           <button
             onClick={() => openActionModal("delete")}
-            className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors font-medium border border-red-200"
+            className="flex items-center gap-2 px-4 py-2 bg-destructive/10 text-destructive rounded-lg hover:bg-destructive/20 transition-colors font-medium border border-destructive/20"
           >
             <Trash2 className="w-4 h-4" />
             Delete
@@ -204,7 +204,7 @@ export default function AdminEventDetailsPage() {
         {/* Main Details */}
         <div className="lg:col-span-2 space-y-8">
           {/* Image */}
-          <div className="aspect-video bg-slate-100 rounded-2xl overflow-hidden relative border border-slate-200 shadow-sm group">
+          <div className="aspect-video bg-muted/50 rounded-2xl overflow-hidden relative border border-border shadow-sm group">
             {event.image_url ? (
               <img
                 src={event.image_url}
@@ -212,31 +212,31 @@ export default function AdminEventDetailsPage() {
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
             ) : (
-              <div className="flex items-center justify-center h-full text-slate-400 font-medium">
+              <div className="flex items-center justify-center h-full text-muted-foreground font-medium">
                 No Cover Image
               </div>
             )}
           </div>
 
           {/* Description */}
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-            <h3 className="font-bold text-slate-900 mb-4 text-lg">
+          <div className="bg-card p-6 rounded-xl border border-border shadow-sm">
+            <h3 className="font-bold text-foreground mb-4 text-lg">
               Description
             </h3>
-            <div className="prose prose-sm text-slate-600 max-w-none leading-relaxed">
+            <div className="prose prose-sm prose-slate dark:prose-invert max-w-none leading-relaxed text-muted-foreground">
               {event.description}
             </div>
           </div>
 
           {/* Tickets Table */}
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
-              <h3 className="font-bold text-slate-900 text-sm uppercase tracking-wide">
+          <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-border bg-muted/30">
+              <h3 className="font-bold text-foreground text-sm uppercase tracking-wide">
                 Tickets
               </h3>
             </div>
             <table className="w-full text-left text-sm">
-              <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
+              <thead className="bg-muted/50 text-muted-foreground font-semibold border-b border-border">
                 <tr>
                   <th className="px-6 py-3 text-xs uppercase tracking-wider">
                     Type
@@ -255,7 +255,7 @@ export default function AdminEventDetailsPage() {
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-border">
                 {event.tickets?.map((ticket: any) => {
                   const sold = ticket.purchased_tickets_count || 0;
                   const remaining = ticket.quantity;
@@ -263,23 +263,23 @@ export default function AdminEventDetailsPage() {
                   return (
                     <tr
                       key={ticket.id}
-                      className="hover:bg-slate-50 transition-colors group"
+                      className="hover:bg-accent/50 transition-colors group"
                     >
                       <td className="px-6 py-4">
-                        <p className="font-semibold text-slate-900">
+                        <p className="font-semibold text-foreground">
                           {ticket.title}
                         </p>
-                        <p className="text-xs text-slate-500 truncate max-w-[150px]">
+                        <p className="text-xs text-muted-foreground truncate max-w-[150px]">
                           {ticket.description}
                         </p>
                       </td>
-                      <td className="px-6 py-4 font-medium text-slate-700">
+                      <td className="px-6 py-4 font-medium text-foreground">
                         {formatCurrency(ticket.price)}
                       </td>
-                      <td className="px-6 py-4 text-slate-600">{sold}</td>
+                      <td className="px-6 py-4 text-muted-foreground">{sold}</td>
                       <td className="px-6 py-4">
                         <span
-                          className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${remaining > 0 ? "bg-emerald-50 text-emerald-700 border-emerald-100" : "bg-red-50 text-red-700 border-red-100"}`}
+                          className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${remaining > 0 ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" : "bg-destructive/10 text-destructive border-destructive/20"}`}
                         >
                           {remaining} left
                         </span>
@@ -288,7 +288,7 @@ export default function AdminEventDetailsPage() {
                         <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
                             onClick={() => setRestockTicket(ticket)}
-                            className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg hover:shadow-sm border border-transparent hover:border-blue-100 transition-all"
+                            className="p-1.5 text-primary hover:bg-primary/10 rounded-lg hover:shadow-sm border border-transparent hover:border-primary/20 transition-all"
                             title="Restock"
                           >
                             <DollarSign className="w-4 h-4" />
@@ -302,7 +302,7 @@ export default function AdminEventDetailsPage() {
                   <tr>
                     <td
                       colSpan={5}
-                      className="px-6 py-12 text-center text-slate-400"
+                      className="px-6 py-12 text-center text-muted-foreground"
                     >
                       No tickets created for this event.
                     </td>
@@ -316,23 +316,23 @@ export default function AdminEventDetailsPage() {
         {/* Sidebar Info */}
         <div className="space-y-6">
           {/* Host Info */}
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-            <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2">
-              <User className="w-4 h-4 text-violet-600" />
+          <div className="bg-card p-6 rounded-xl border border-border shadow-sm">
+            <h3 className="font-bold text-foreground mb-4 flex items-center gap-2">
+              <User className="w-4 h-4 text-primary" />
               Host Details
             </h3>
             <Link
               href={`/admin/users/${event.user?.id}`}
-              className="flex items-start gap-4 group hover:bg-slate-50 -m-2 p-2 rounded-lg transition-colors"
+              className="flex items-start gap-4 group hover:bg-accent/50 -m-2 p-2 rounded-lg transition-colors"
             >
-              <div className="w-12 h-12 rounded-full bg-violet-100 flex items-center justify-center text-violet-700 font-bold text-lg border-2 border-white shadow-sm group-hover:bg-white transition-colors">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg border-2 border-background shadow-sm group-hover:bg-background transition-colors">
                 {(event.user?.name || "U").charAt(0)}
               </div>
               <div>
-                <p className="font-bold text-slate-900 group-hover:text-violet-700 transition-colors">
+                <p className="font-bold text-foreground group-hover:text-primary transition-colors">
                   {event.user?.name || "Unknown"}
                 </p>
-                <div className="flex items-center gap-2 text-xs text-slate-500 mt-1">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
                   <Mail className="w-3 h-3" />
                   {event.user?.email}
                 </div>
@@ -341,26 +341,26 @@ export default function AdminEventDetailsPage() {
           </div>
 
           {/* Sales Summary */}
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-            <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2">
+          <div className="bg-card p-6 rounded-xl border border-border shadow-sm">
+            <h3 className="font-bold text-foreground mb-4 flex items-center gap-2">
               <DollarSign className="w-4 h-4 text-emerald-600" />
               Performance
             </h3>
             <div className="grid grid-cols-2 gap-4">
-              <div className="p-4 bg-slate-50 rounded-xl text-center border border-slate-100">
-                <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">
+              <div className="p-4 bg-muted/50 rounded-xl text-center border border-border">
+                <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-1">
                   Sold
                 </p>
-                <p className="text-2xl font-bold text-slate-900">
+                <p className="text-2xl font-bold text-foreground">
                   {event.purchased_tickets_count || 0}
                 </p>
               </div>
               {/* We'd need total sales amount from backend to make this accurate per event */}
-              <div className="p-4 bg-emerald-50 rounded-xl text-center border border-emerald-100">
+              <div className="p-4 bg-emerald-500/10 rounded-xl text-center border border-emerald-500/20">
                 <p className="text-[10px] text-emerald-600/70 uppercase font-bold tracking-wider mb-1">
                   Revenue
                 </p>
-                <p className="text-xl font-bold text-emerald-700">
+                <p className="text-xl font-bold text-emerald-700 dark:text-emerald-500">
                   {formatCurrency(event.total_revenue || 0)}
                 </p>
               </div>

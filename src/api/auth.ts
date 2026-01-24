@@ -1,48 +1,53 @@
 import client from './client';
 import Cookies from 'js-cookie';
+import { ApiResponse } from '@/types/api';
 
 export const authService = {
-  async register(userData: any) {
+  async register(userData: any): Promise<{ access_token: string; UserDetails: any }> {
     const payload = {
       ...userData,
       email_address: userData.email,
     };
-    const response = await client.post("/user/signup", payload);
+    const response = await client.post<ApiResponse<{ access_token: string; UserDetails: any }>>("/user/signup", payload);
     console.log("response", response.data);
-    if (response.data.data.access_token) {
-      Cookies.set("token", response.data.data.access_token, { expires: 30 });
-      if (response.data.data.UserDetails) {
-        Cookies.set("user", JSON.stringify(response.data.data.UserDetails), {
+    
+    // Logic extraction: response.data is ApiResponse
+    const data = response.data.data; 
+
+    if (data.access_token) {
+      Cookies.set("token", data.access_token, { expires: 30 });
+      if (data.UserDetails) {
+        Cookies.set("user", JSON.stringify(data.UserDetails), {
           expires: 30,
         });
       }
     }
-    return response.data;
+    return data;
   },
 
-  async login(email: string, password: string) {
-    const response = await client.post("/user/signin", {
+  async login(email: string, password: string): Promise<{ access_token: string; UserDetails: any }> {
+    const response = await client.post<ApiResponse<{ access_token: string; UserDetails: any }>>("/user/signin", {
       email_address: email,
       password,
       recognized: true,
     });
 
-    const responseData = response.data;
+    const data = response.data.data;
 
-    if (responseData.data.access_token) {
-      Cookies.set("token", responseData.data.access_token, { expires: 30 });
-      if (responseData.data.UserDetails) {
-        Cookies.set("user", JSON.stringify(responseData.data.UserDetails), {
+    if (data.access_token) {
+      Cookies.set("token", data.access_token, { expires: 30 });
+      if (data.UserDetails) {
+        Cookies.set("user", JSON.stringify(data.UserDetails), {
           expires: 30,
         });
       }
     }
-    return response.data;
+    return data;
   },
 
-  async logout() {
+  async logout(): Promise<void> {
     try {
-      await client.post("/logout");
+      await client.post<ApiResponse<void>>("/logout");
     } catch (error) {
       console.error(error);
     } finally {
@@ -51,32 +56,37 @@ export const authService = {
     }
   },
 
-  async forgotPassword(email: string) {
-    return await client.post("/user/password/forgot", { email_address: email });
+  async forgotPassword(email: string): Promise<{ message: string }> {
+    const response = await client.post<ApiResponse<{ message: string }>>("/user/password/forgot", { email_address: email });
+    return response.data.data;
   },
 
-  verifyToken: async (token: string, email: string | null) => {
-    return await client.post("/user/token", { one_time_token: token, email });
+  async verifyToken(token: string, email: string | null): Promise<{ message: string; access_token?: string; user?: any }> {
+    const response = await client.post<ApiResponse<{ message: string; access_token?: string; user?: any }>>("/user/token", { one_time_token: token, email });
+    return response.data.data;
   },
 
   async resetPassword(
     token: string,
     email: string | null,
     newPassword: string,
-  ) {
-    return await client.post("/user/token", {
+  ): Promise<{ message: string }> {
+    const response = await client.post<ApiResponse<{ message: string }>>("/user/token", {
       one_time_token: token,
       email,
       new_password: newPassword,
     });
+    return response.data.data;
   },
 
-  async resendToken() {
-    return await client.post("/user/token/renew");
+  async resendToken(): Promise<{ message: string }> {
+    const response = await client.post<ApiResponse<{ message: string }>>("/user/token/renew");
+    return response.data.data;
   },
 
-  async changePassword(passwordData: any) {
-    return await client.post("/user/password/update", passwordData);
+  async changePassword(passwordData: any): Promise<{ message: string }> {
+    const response = await client.post<ApiResponse<{ message: string }>>("/user/password/update", passwordData);
+    return response.data.data;
   },
 
   socialLogin(provider: string) {

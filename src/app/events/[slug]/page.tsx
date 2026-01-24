@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { eventsApi } from "@/api/events";
+import { formatCurrency } from "@/lib/utils";
 
 export default function EventDetailsPage() {
   const { slug } = useParams();
@@ -104,9 +105,9 @@ export default function EventDetailsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div className="min-h-screen bg-background pb-20 transition-colors">
       {/* Hero Gallery */}
-      <div className="relative w-full h-[500px] md:h-[600px] bg-gray-900 group">
+      <div className="relative w-full h-[500px] md:h-[600px] bg-muted/20 group">
         {event.media && event.media.length > 0 ? (
           <>
             {/* Active Media */}
@@ -134,7 +135,7 @@ export default function EventDetailsPage() {
                     onClick={() => setActiveMediaIndex(index)}
                     className={`relative w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
                       activeMediaIndex === index
-                        ? "border-violet-500 scale-110"
+                        ? "border-primary scale-110"
                         : "border-white/50 hover:border-white"
                     }`}
                   >
@@ -167,51 +168,51 @@ export default function EventDetailsPage() {
                 className="object-cover opacity-60"
               />
             ) : (
-              <div className="absolute inset-0 bg-gradient-to-r from-violet-900 to-indigo-900 opacity-80"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/80 to-primary/40 opacity-80"></div>
             )}
           </>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-transparent to-transparent z-10 pointer-events-none"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-10 pointer-events-none"></div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 relative z-20">
         {/* Header Card */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 mb-8">
+        <div className="bg-card rounded-2xl shadow-sm border border-border p-6 md:p-8 mb-8">
           <div className="flex flex-col md:flex-row justify-between items-start gap-6">
             <div className="flex-1">
-              <div className="flex flex-wrap gap-2 mb-3 text-xs font-medium uppercase tracking-wider text-violet-600">
-                <span className="bg-violet-50 px-3 py-1 rounded-full">
+              <div className="flex flex-wrap gap-2 mb-3 text-xs font-medium uppercase tracking-wider text-primary">
+                <span className="bg-primary/10 px-3 py-1 rounded-full">
                   {event.category}
                 </span>
                 {event.status === "published" && (
-                  <span className="bg-green-50 text-green-700 px-3 py-1 rounded-full">
+                  <span className="bg-emerald-500/10 text-emerald-600 px-3 py-1 rounded-full">
                     Live
                   </span>
                 )}
               </div>
-              <h1 className="text-2xl md:text-4xl font-bold text-gray-900 mb-4">
+              <h1 className="text-2xl md:text-4xl font-bold text-foreground mb-4">
                 {event.title}
               </h1>
-              <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
+              <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-1.5">
-                  <Calendar className="w-4 h-4 text-violet-600" />
+                  <Calendar className="w-4 h-4 text-primary" />
                   <span>
                     {new Date(event.start_date).toLocaleDateString()} -{" "}
                     {new Date(event.end_date).toLocaleDateString()}
                   </span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <MapPin className="w-4 h-4 text-violet-600" />
+                  <MapPin className="w-4 h-4 text-primary" />
                   <span>{event.location || "Online"}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <Users className="w-4 h-4 text-violet-600" />
+                  <Users className="w-4 h-4 text-primary" />
                   <span>1,500+ Expected</span>
                 </div>
               </div>
             </div>
             <div>
-              <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors shadow-sm">
+              <button className="flex items-center gap-2 px-4 py-2.5 bg-background border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors shadow-sm">
                 <Share2 className="w-4 h-4" />
                 Share
               </button>
@@ -223,20 +224,22 @@ export default function EventDetailsPage() {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
             {/* About */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">
+            <div className="bg-card rounded-2xl shadow-sm border border-border p-6 md:p-8">
+              <h2 className="text-xl font-bold text-foreground mb-4">
                 About This Event
               </h2>
-              <div className="prose prose-violet max-w-none text-gray-600 text-sm leading-relaxed whitespace-pre-line">
+              <div className="prose prose-sm prose-slate dark:prose-invert max-w-none text-muted-foreground leading-relaxed whitespace-pre-line">
                 <p>{event.description}</p>
               </div>
             </div>
 
             {/* Host */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">Host</h2>
+            <div className="bg-card rounded-2xl shadow-sm border border-border p-6 md:p-8">
+              <h2 className="text-xl font-bold text-foreground mb-6">
+                Host
+              </h2>
               <div className="flex items-start gap-4">
-                <div className="w-14 h-14 bg-gray-200 rounded-full shrink-0 overflow-hidden flex items-center justify-center text-xl font-bold text-gray-500">
+                <div className="w-14 h-14 bg-muted rounded-full shrink-0 overflow-hidden flex items-center justify-center text-xl font-bold text-muted-foreground">
                   {event.user ? (
                     <>
                       {(event.user.first_name?.[0] || "") +
@@ -250,7 +253,7 @@ export default function EventDetailsPage() {
                 </div>
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-bold text-gray-900">
+                    <h3 className="font-bold text-foreground">
                       {event.user
                         ? `${event.user.first_name || ""} ${
                             event.user.last_name || ""
@@ -259,10 +262,10 @@ export default function EventDetailsPage() {
                     </h3>
                     <Check className="w-4 h-4 text-white bg-blue-500 rounded-full p-0.5" />
                   </div>
-                  <p className="text-xs text-gray-500 mb-3">
+                  <p className="text-xs text-muted-foreground mb-3">
                     @{event.user?.user_name || "organizer"} • Verified Host
                   </p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-muted-foreground">
                     This event is organized by a verified host on MyInvite.
                   </p>
                 </div>
@@ -270,31 +273,31 @@ export default function EventDetailsPage() {
             </div>
 
             {/* FAQ */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">
+            <div className="bg-card rounded-2xl shadow-sm border border-border p-6 md:p-8">
+              <h2 className="text-xl font-bold text-foreground mb-6">
                 Frequently Asked Questions
               </h2>
               <div className="space-y-4">
                 {faqs.map((faq, i) => (
                   <div
                     key={i}
-                    className="border border-gray-100 rounded-xl overflow-hidden"
+                    className="border border-border rounded-xl overflow-hidden"
                   >
                     <div
                       onClick={() => toggleFAQ(i)}
-                      className="px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors flex justify-between items-center group"
+                      className="px-4 py-3 hover:bg-muted/50 cursor-pointer transition-colors flex justify-between items-center group"
                     >
-                      <span className="text-sm font-medium text-gray-700">
+                      <span className="text-sm font-medium text-foreground">
                         {faq.q}
                       </span>
                       <ChevronDown
-                        className={`w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-transform ${
+                        className={`w-4 h-4 text-muted-foreground group-hover:text-foreground transition-transform ${
                           openFAQ === i ? "rotate-180" : ""
                         }`}
                       />
                     </div>
                     {openFAQ === i && (
-                      <div className="px-4 pb-4 pt-0 text-sm text-gray-600 bg-gray-50/50">
+                      <div className="px-4 pb-4 pt-0 text-sm text-muted-foreground bg-muted/30">
                         {faq.a}
                       </div>
                     )}
@@ -307,78 +310,84 @@ export default function EventDetailsPage() {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Date & Time */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-              <h3 className="font-bold text-gray-900 mb-4">Date & Time</h3>
+            <div className="bg-card rounded-2xl shadow-sm border border-border p-6">
+              <h3 className="font-bold text-foreground mb-4">
+                Date & Time
+              </h3>
               <div className="mb-4">
-                <p className="font-semibold text-gray-900">
+                <p className="font-semibold text-foreground">
                   {new Date(event.start_date).toLocaleDateString()}
                 </p>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground">
                   {new Date(event.start_date).toLocaleTimeString()} -{" "}
                   {new Date(event.end_date).toLocaleDateString()}
                 </p>
               </div>
-              <button className="text-violet-600 text-sm font-medium hover:underline flex items-center gap-1.5">
+              <button className="text-primary text-sm font-medium hover:underline flex items-center gap-1.5">
                 <Calendar className="w-4 h-4" /> Add to Calendar
               </button>
             </div>
 
             {/* Location */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-              <h3 className="font-bold text-gray-900 mb-4">Location</h3>
-              <div className="bg-gray-100 rounded-xl h-48 w-full mb-4 relative overflow-hidden flex items-center justify-center">
-                <div className="flex flex-col items-center gap-2 text-gray-400">
+            <div className="bg-card rounded-2xl shadow-sm border border-border p-6">
+              <h3 className="font-bold text-foreground mb-4">
+                Location
+              </h3>
+              <div className="bg-muted rounded-xl h-48 w-full mb-4 relative overflow-hidden flex items-center justify-center">
+                <div className="flex flex-col items-center gap-2 text-muted-foreground">
                   <MapPin className="w-8 h-8 opacity-50" />
                   <span className="text-sm font-medium">
                     Map View Unavailable
                   </span>
                 </div>
               </div>
-              <p className="font-semibold text-gray-900 text-sm mb-4">
+              <p className="font-semibold text-foreground text-sm mb-4">
                 {event.location || "Online"}
               </p>
               <div className="flex gap-4">
-                <button className="text-violet-600 text-sm font-medium hover:underline flex items-center gap-1.5">
+                <button className="text-primary text-sm font-medium hover:underline flex items-center gap-1.5">
                   <Share2 className="w-4 h-4" /> Copy Address
                 </button>
-                <button className="text-violet-600 text-sm font-medium hover:underline flex items-center gap-1.5">
+                <button className="text-primary text-sm font-medium hover:underline flex items-center gap-1.5">
                   <MapPin className="w-4 h-4" /> Get Directions
                 </button>
               </div>
             </div>
 
             {/* Tickets */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-              <h3 className="font-bold text-gray-900 mb-6">Tickets</h3>
+            <div className="bg-card rounded-2xl shadow-sm border border-border p-6">
+              <h3 className="font-bold text-foreground mb-6">
+                Tickets
+              </h3>
 
               <div className="space-y-6">
                 {event.tickets && event.tickets.length > 0 ? (
                   event.tickets.map((ticket: any) => (
                     <div key={ticket.id}>
                       <div className="flex justify-between items-start mb-1">
-                        <span className="font-semibold text-gray-900">
+                        <span className="font-semibold text-foreground">
                           {ticket.title}
                         </span>
-                        <span className="font-bold text-gray-900">
-                          ₦{ticket.price}
+                        <span className="font-bold text-foreground">
+                          {formatCurrency(ticket.price)}
                         </span>
                       </div>
-                      <p className="text-xs text-gray-500 mb-3">
+                      <p className="text-xs text-muted-foreground mb-3">
                         {ticket.description}
                       </p>
-                      <div className="flex items-center justify-between bg-gray-50 rounded-lg p-1">
+                      <div className="flex items-center justify-between bg-muted rounded-lg p-1">
                         <button
                           onClick={() => updateCount(ticket.id, -1)}
-                          className="w-8 h-8 flex items-center justify-center bg-white rounded shadow-sm text-gray-600 hover:text-gray-900"
+                          className="w-8 h-8 flex items-center justify-center bg-card rounded shadow-sm text-muted-foreground hover:text-foreground hover:shadow-md transition-all"
                         >
                           -
                         </button>
-                        <span className="font-medium text-sm w-8 text-center">
+                        <span className="font-medium text-sm w-8 text-center text-foreground">
                           {ticketCounts[ticket.id] || 0}
                         </span>
                         <button
                           onClick={() => updateCount(ticket.id, 1)}
-                          className="w-8 h-8 flex items-center justify-center bg-white rounded shadow-sm text-gray-600 hover:text-gray-900"
+                          className="w-8 h-8 flex items-center justify-center bg-card rounded shadow-sm text-muted-foreground hover:text-foreground hover:shadow-md transition-all"
                         >
                           +
                         </button>
@@ -386,22 +395,24 @@ export default function EventDetailsPage() {
                     </div>
                   ))
                 ) : (
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-muted-foreground">
                     No tickets available for this event.
                   </p>
                 )}
               </div>
 
-              <div className="mt-8 pt-6 border-t border-gray-100">
+              <div className="mt-8 pt-6 border-t border-border">
                 <div className="flex justify-between items-center mb-4">
-                  <span className="text-gray-600 font-medium">Total</span>
-                  <span className="text-2xl font-bold text-violet-600">
-                    ₦{total.toLocaleString()}
+                  <span className="text-muted-foreground font-medium">
+                    Total
+                  </span>
+                  <span className="text-2xl font-bold text-primary">
+                    {`₦${total.toLocaleString()}`}
                   </span>
                 </div>
                 <Link
                   href={paymentUrl}
-                  className={`block w-full py-3.5 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl text-center shadow-lg shadow-violet-200 transition-all active:scale-[0.98] ${
+                  className={`block w-full py-3.5 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-xl text-center shadow-lg shadow-primary/20 transition-all active:scale-[0.98] ${
                     total === 0 ? "opacity-50 pointer-events-none" : ""
                   }`}
                 >
@@ -414,17 +425,17 @@ export default function EventDetailsPage() {
       </div>
 
       {/* Sticky Mobile Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 lg:hidden z-50">
+      <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border p-4 lg:hidden z-50">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
           <div>
-            <p className="text-xs text-gray-500">Total</p>
-            <p className="text-xl font-bold text-gray-900">
-              ₦{total.toLocaleString()}
+            <p className="text-xs text-muted-foreground">Total</p>
+            <p className="text-xl font-bold text-foreground">
+              {`₦${total.toLocaleString()}`}
             </p>
           </div>
           <Link
             href={paymentUrl}
-            className={`px-8 py-3 bg-violet-600 text-white font-bold rounded-xl shadow-lg shadow-violet-200 ${
+            className={`px-8 py-3 bg-primary text-primary-foreground font-bold rounded-xl shadow-lg shadow-primary/20 ${
               total === 0 ? "opacity-50 pointer-events-none" : ""
             }`}
           >

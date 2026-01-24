@@ -25,7 +25,7 @@ export default function MyEventsPage() {
         if (currentUser?.kyc_status !== 'verified') {
             setShowKycModal(true);
         } else {
-             router.push('/events/create');
+             router.push('/dashboard/events/create');
         }
     };
 
@@ -49,7 +49,7 @@ export default function MyEventsPage() {
     const fetchEvents = async () => {
         try {
             const data = await hostApi.getEvents();
-            setEvents(data);
+            setEvents(data.data);
         } catch (error) {
             console.error("Failed to fetch host events", error);
         } finally {
@@ -70,7 +70,7 @@ export default function MyEventsPage() {
 
     const toggleDropdown = (e: MouseEvent, id: string) => {
         e.preventDefault();
-        e.nativeEvent.stopImmediatePropagation();
+        e.stopPropagation();
         setOpenDropdownId(openDropdownId === id ? null : id);
     };
 
@@ -120,38 +120,40 @@ export default function MyEventsPage() {
     };
 
     return (
-      <div className="min-h-screen bg-gray-50 pb-20">
+      <div className="min-h-screen bg-muted/10 pb-20 transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">My Events</h1>
-              <p className="text-gray-500 text-sm mt-1">
+              <h1 className="text-2xl font-bold text-foreground">
+                My Events
+              </h1>
+              <p className="text-muted-foreground text-sm mt-1">
                 Manage your upcoming and past events.
               </p>
             </div>
             <button
               onClick={handleCreateEvent}
-              className="flex items-center gap-2 px-4 py-2 bg-violet-600 text-white font-medium rounded-lg hover:bg-violet-700 transition-colors shadow-sm"
+              className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition-colors shadow-sm"
             >
               <Plus className="w-4 h-4" /> Create Event
             </button>
           </div>
 
           {/* Filters */}
-          <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm mb-6 flex flex-col md:flex-row items-center gap-4">
+          <div className="bg-card p-4 rounded-xl border border-border shadow-sm mb-6 flex flex-col md:flex-row items-center gap-4">
             <div className="relative flex-1 w-full">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
                 type="text"
                 placeholder="Search events..."
-                className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500"
+                className="w-full pl-9 pr-4 py-2 bg-muted/50 border border-input rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-foreground placeholder:text-muted-foreground"
               />
             </div>
             <div className="flex items-center gap-3 w-full md:w-auto">
-              <button className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
+              <button className="flex items-center gap-2 px-3 py-2 bg-card border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors">
                 <Filter className="w-4 h-4" /> Filter
               </button>
-              <select className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none">
+              <select className="px-3 py-2 bg-card border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted focus:outline-none">
                 <option>All Statuses</option>
                 <option>Published</option>
                 <option>Draft</option>
@@ -166,7 +168,7 @@ export default function MyEventsPage() {
               {[1, 2, 3].map((i) => (
                 <div
                   key={i}
-                  className="h-24 bg-white rounded-xl animate-pulse"
+                  className="h-24 bg-card rounded-xl animate-pulse"
                 ></div>
               ))}
             </div>
@@ -175,9 +177,10 @@ export default function MyEventsPage() {
               {events.map((event) => (
                 <div
                   key={event.id}
-                  className="relative bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col md:flex-row items-center gap-6 hover:border-violet-100 transition-colors"
+                  onClick={() => router.push(`/dashboard/events/${event.id}`)}
+                  className="relative bg-card p-4 rounded-xl border border-border shadow-sm flex flex-col md:flex-row items-center gap-6 hover:border-primary/20 transition-colors cursor-pointer group"
                 >
-                  <div className="w-full md:w-24 h-24 bg-gray-100 rounded-lg shrink-0 overflow-hidden relative">
+                  <div className="w-full md:w-24 h-24 bg-muted rounded-lg shrink-0 overflow-hidden relative">
                     {event.image_url ? (
                       <img
                         src={event.image_url}
@@ -185,30 +188,30 @@ export default function MyEventsPage() {
                         className="object-cover w-full h-full"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-violet-50 text-violet-300">
+                      <div className="w-full h-full flex items-center justify-center bg-primary/10 text-primary">
                         <Calendar className="w-8 h-8" />
                       </div>
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-1">
-                      <h3 className="text-lg font-bold text-gray-900 truncate">
+                      <h3 className="text-lg font-bold text-foreground truncate group-hover:text-primary transition-colors">
                         {event.title}
                       </h3>
                       <span
                         className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           event.status === "published"
-                            ? "bg-green-100 text-green-800"
+                            ? "bg-green-500/10 text-green-600"
                             : event.status === "draft"
-                              ? "bg-gray-100 text-gray-800"
-                              : "bg-red-100 text-red-800"
+                              ? "bg-muted text-muted-foreground"
+                              : "bg-destructive/10 text-destructive"
                         }`}
                       >
                         {event.status.charAt(0).toUpperCase() +
                           event.status.slice(1)}
                       </span>
                     </div>
-                    <div className="flex items-center gap-4 text-sm text-gray-500 mb-2">
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
                       <span className="flex items-center gap-1.5">
                         <Calendar className="w-4 h-4" />{" "}
                         {new Date(event.start_date).toLocaleDateString()}
@@ -225,33 +228,36 @@ export default function MyEventsPage() {
                   </div>
                   <div className="flex items-center gap-2 w-full md:w-auto mt-4 md:mt-0 relative">
                     <Link
-                      href={`/events/${event.slug || event.id}/edit`}
-                      className="flex-1 md:flex-none px-4 py-2 border border-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-50 text-sm text-center"
+                      href={`/dashboard/events/${event.id}/edit`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex-1 md:flex-none px-4 py-2 border border-border text-foreground font-medium rounded-lg hover:bg-muted text-sm text-center transition-colors"
                     >
                       Edit
                     </Link>
                     <button
                       onClick={(e) => toggleDropdown(e, event.id)}
-                      className={`p-2 rounded-lg hover:bg-gray-50 ${openDropdownId === event.id ? "bg-gray-100 text-gray-900" : "text-gray-400 hover:text-gray-600"}`}
+                      className={`p-2 rounded-lg transition-colors ${openDropdownId === event.id ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
                     >
                       <MoreVertical className="w-5 h-5" />
                     </button>
 
-                    {/* Dropdown Menu */}
                     {openDropdownId === event.id && (
-                      <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden transform origin-top-right">
+                      <div 
+                        onClick={(e) => e.stopPropagation()}
+                        className="absolute top-full right-0 mt-2 w-48 bg-card rounded-xl shadow-xl border border-border z-50 overflow-hidden transform origin-top-right">
                         <div className="py-1">
                           <Link
                             href={`/events/${event.slug}`}
                             target="_blank"
-                            className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+                            className="flex items-center gap-2 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
                           >
-                            <Eye className="w-4 h-4 text-gray-400" /> View Event
+                            <Eye className="w-4 h-4 text-muted-foreground" />{" "}
+                            View Event
                           </Link>
                           {event.status !== "published" ? (
                             <button
                               onClick={() => confirmAction("publish", event.id)}
-                              className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 text-left"
+                              className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-foreground hover:bg-muted text-left transition-colors"
                             >
                               <CheckCircle className="w-4 h-4 text-green-500" />{" "}
                               Publish Event
@@ -259,7 +265,7 @@ export default function MyEventsPage() {
                           ) : (
                             <button
                               onClick={() => confirmAction("draft", event.id)}
-                              className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 text-left"
+                              className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-foreground hover:bg-muted text-left transition-colors"
                             >
                               <Ban className="w-4 h-4 text-orange-500" />{" "}
                               Unpublish
@@ -267,7 +273,7 @@ export default function MyEventsPage() {
                           )}
                           <button
                             onClick={() => confirmAction("delete", event.id)}
-                            className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 text-left border-t border-gray-50"
+                            className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-destructive hover:bg-destructive/10 text-left border-t border-border transition-colors"
                           >
                             <Trash2 className="w-4 h-4" /> Delete Event
                           </button>
@@ -279,19 +285,19 @@ export default function MyEventsPage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-20 bg-white rounded-xl border border-gray-100 border-dashed">
-              <div className="w-16 h-16 bg-violet-50 text-violet-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="text-center py-20 bg-card rounded-xl border border-border border-dashed">
+              <div className="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-4">
                 <Calendar className="w-8 h-8" />
               </div>
-              <h3 className="text-lg font-bold text-gray-900">
+              <h3 className="text-lg font-bold text-foreground">
                 No events found
               </h3>
-              <p className="text-gray-500 mt-2 mb-6">
+              <p className="text-muted-foreground mt-2 mb-6">
                 You haven't created any events yet.
               </p>
               <Link
-                href="/events/create"
-                className="px-6 py-2 bg-violet-600 text-white font-medium rounded-lg hover:bg-violet-700 transition-colors"
+                href="/dashboard/events/create"
+                className="px-6 py-2 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition-colors"
               >
                 Create API Event
               </Link>
