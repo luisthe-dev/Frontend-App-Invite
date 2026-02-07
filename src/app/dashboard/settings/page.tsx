@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { userApi } from "@/api/user";
 import { User, Lock, Bell, ShieldCheck } from "lucide-react"; // ShieldCheck Added
 import { useRouter, useSearchParams } from "next/navigation";
@@ -10,7 +10,7 @@ import PasswordSettings from "./components/PasswordSettings";
 import PinSettings from "./components/PinSettings";
 import KycSettings from "./components/KycSettings";
 
-export default function SettingsPage() {
+function SettingsContent() {
     const router = useRouter();
     const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'notifications' | 'verification'>('profile');
     const [user, setUser] = useState<any>(null);
@@ -20,7 +20,6 @@ export default function SettingsPage() {
 
     useEffect(() => {
         const fetchUser = async () => {
-             // ... existing fetch logic
             try {
                 const res = await userApi.getUser();
                 setUser(res);
@@ -143,5 +142,17 @@ export default function SettingsPage() {
           </div>
         </div>
       </div>
+    );
+}
+
+export default function SettingsPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-600"></div>
+            </div>
+        }>
+            <SettingsContent />
+        </Suspense>
     );
 }
