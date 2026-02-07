@@ -172,9 +172,9 @@ export default function MyEventsPage() {
                 ></div>
               ))}
             </div>
-          ) : events.length > 0 ? (
+          ) : events?.length > 0 ? (
             <div className="space-y-4">
-              {events.map((event) => (
+              {events?.map((event) => (
                 <div
                   key={event.id}
                   onClick={() => router.push(`/dashboard/events/${event.id}`)}

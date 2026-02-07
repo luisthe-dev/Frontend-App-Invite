@@ -3,7 +3,7 @@ import { kycApi } from "@/api/kyc";
 import { authService } from "@/api/auth";
 import { BadgeCheck, ShieldAlert, Loader2, UserCheck } from "lucide-react";
 // @ts-ignore
-import Dojah from 'react-dojah';
+import Dojah from 'dojah-kyc-sdk-react';
 
 interface KycSettingsProps {
     user: any;
@@ -20,7 +20,7 @@ export default function KycSettings({ user, onUserUpdate }: KycSettingsProps) {
             setLoadingConfig(true);
             try {
                 const res = await kycApi.getWidgetConfig();
-                setConfig(res.data);
+                setConfig(res);
             } catch (error) {
                 console.error("Failed to load KYC config", error);
             } finally {
@@ -33,33 +33,31 @@ export default function KycSettings({ user, onUserUpdate }: KycSettingsProps) {
         }
     }, [user]);
 
-    const handleSuccess = async (response: any) => {
-        console.log('Dojah Success', response);
-        setVerifying(true);
-        try {
-            // response usually contains reference_id
-            await kycApi.handleVerificationSuccess({
-                reference_id: response.reference_id || 'manual_ref', // Adjust based on actual Dojah response
-                status: 'success', // or response.status
-                ...response
-            });
-            
-            const updatedUser = { ...user, kyc_status: 'verified' };
-            onUserUpdate(updatedUser);
-            authService.updateUser(updatedUser);
-        } catch (error) {
-            console.error("Failed to update backend", error);
-        } finally {
-            setVerifying(false);
+    const handleDojahResponse = async (type: string, data: any) => {
+        console.log('Dojah Response:', type, data);
+        
+        if (type === 'success') {
+            setVerifying(true);
+            try {
+                await kycApi.handleVerificationSuccess({
+                    reference_id: data.reference_id || 'manual_ref', // Adjust based on actual Dojah response
+                    status: 'success', 
+                    ...data
+                });
+                
+                const updatedUser = { ...user, kyc_status: 'verified' };
+                onUserUpdate(updatedUser);
+                authService.updateUser(updatedUser);
+            } catch (error) {
+                console.error("Failed to update backend", error);
+            } finally {
+                setVerifying(false);
+            }
+        } else if (type === 'error') {
+            console.error("Dojah Verification Error", data);
+        } else if (type === 'close') {
+            console.log("Dojah Widget Closed");
         }
-    };
-
-    const handleClose = () => {
-        console.log('Dojah Closed');
-    };
-
-    const handleError = (error: any) => {
-        console.log('Dojah Error', error);
     };
 
     if (user?.kyc_status === 'verified') {
@@ -104,26 +102,22 @@ export default function KycSettings({ user, onUserUpdate }: KycSettingsProps) {
           <div className="flex justify-end">
             {config ? (
               <Dojah
-                response={handleSuccess}
+                response={handleDojahResponse}
                 appID={config.app_id}
                 publicKey={config.p_key}
+                type="custom"
+                config={{
+                  widget_id: "697a2490d386e257813646f7"
+                }}
                 userData={{
                   first_name: config.first_name,
                   last_name: config.last_name,
-                  dob: "", // Optional
-                  residence_country: "NG", // Dynamic if needed
+                  dob: "", 
                 }}
-                config={{
-                  debug: true,
-                  // select specific services if needed, e.g.
-                  // widget_id: "..."
+                metadata={{
+                    user_id: user?.id
                 }}
-              >
-                <button className="px-6 py-2.5 bg-violet-600 text-white font-medium rounded-lg hover:bg-violet-700 transition-colors shadow-sm hover:shadow-md flex items-center gap-2">
-                  <ShieldAlert className="w-4 h-4" />
-                  Verify Identity
-                </button>
-              </Dojah>
+              />
             ) : (
               <p className="text-red-500 text-sm">
                 Unable to load verification service.

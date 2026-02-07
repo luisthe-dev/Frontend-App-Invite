@@ -162,6 +162,13 @@ const VerifyOtpContent = () => {
                   {email || "your email"}
                 </span>
               </p>
+              {process.env.NODE_ENV === 'development' && (
+                <div className="mt-2 flex justify-center">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                    Dev Mode: Use 123456
+                  </span>
+                </div>
+              )}
             </div>
 
             <form className="space-y-6" onSubmit={handleSubmit}>

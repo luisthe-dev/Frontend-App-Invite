@@ -9,11 +9,17 @@ interface ProfileSettingsProps {
 
 export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsProps) {
     const [phone, setPhone] = useState(user?.phone || "");
+    const [displayName, setDisplayName] = useState(user?.display_name || "");
+    const [userName, setUserName] = useState(user?.user_name || "");
     const [updating, setUpdating] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
     useEffect(() => {
-        if (user?.phone) setPhone(user.phone);
+        if (user) {
+            setPhone(user.phone || "");
+            setDisplayName(user.display_name || "");
+            setUserName(user.user_name || "");
+        }
     }, [user]);
 
     const handleProfileUpdate = async (e: React.FormEvent) => {
@@ -22,9 +28,13 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
         setUpdating(true);
 
         try {
-            await userApi.updateProfile({ phone });
+            await userApi.updateProfile({ 
+                phone,
+                display_name: displayName,
+                user_name: userName
+            });
             setMessage({ type: 'success', text: 'Profile updated successfully' });
-            onUserUpdate({ ...user, phone });
+            onUserUpdate({ ...user, phone, display_name: displayName, user_name: userName });
         } catch (error: any) {
             setMessage({ type: 'error', text: error.response?.data?.message || 'Failed to update profile' });
         } finally {
@@ -53,10 +63,10 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
           </div>
           <div>
             <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
-              {user?.first_name} {user?.last_name}
+              {user?.display_name || `${user?.first_name} ${user?.last_name}`}
             </h2>
             <p className="text-gray-500 dark:text-gray-400 text-sm">
-              @{user?.user_name}
+              @{userName || user?.user_name}
             </p>
           </div>
         </div>
@@ -84,6 +94,41 @@ export default function ProfileSettings({ user, onUserUpdate }: ProfileSettingsP
               className="w-full px-4 py-2 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg text-gray-500 dark:text-gray-400 cursor-not-allowed"
             />
           </div>
+        </div>
+
+        <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Display Name
+            </label>
+            <input
+              type="text"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              placeholder="Enter your display name"
+              className="w-full px-4 py-2 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none transition-all text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+            />
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                Visible to other users on the platform.
+            </p>
+        </div>
+
+        <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Username
+            </label>
+            <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">@</span>
+                <input
+                type="text"
+                value={userName}
+                onChange={(e) => setUserName(e.target.value)}
+                placeholder="username"
+                className="w-full pl-8 pr-4 py-2 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 outline-none transition-all text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 font-mono"
+                />
+            </div>
+             <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                Unique identifier for your profile url.
+            </p>
         </div>
 
         <div>
