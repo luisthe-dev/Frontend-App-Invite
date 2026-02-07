@@ -64,10 +64,14 @@ export default function DashboardPage() {
 
   const handleCreateEvent = (e: React.MouseEvent) => {
       e.preventDefault();
-      if (user?.kyc_status === 'unverified') {
-          setShowKycModal(true);
+      if (
+      user?.kyc_status == null ||
+      user?.kyc_status?.trim() == "" ||
+      user?.kyc_status == "unverified"
+    ) {
+        setShowKycModal(true);
       } else {
-          router.push('/dashboard/events/create');
+        router.push("/dashboard/events/create");
       }
   };
 
@@ -208,7 +212,7 @@ export default function DashboardPage() {
         {/* Stats Row */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
           <div className="md:col-span-2 lg:col-span-2">
-             <TrustScoreWidget />
+            <TrustScoreWidget />
           </div>
           <StatCard
             title="Total Earnings"
@@ -256,21 +260,21 @@ export default function DashboardPage() {
                 Ticket Sales Performance
               </h2>
               <div className="flex gap-2">
-                <button 
-                    onClick={() => setChartPeriod('daily')}
-                    className={`px-3 py-1 text-xs font-bold rounded-lg transition-colors ${chartPeriod === 'daily' ? 'bg-violet-600 text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+                <button
+                  onClick={() => setChartPeriod("daily")}
+                  className={`px-3 py-1 text-xs font-bold rounded-lg transition-colors ${chartPeriod === "daily" ? "bg-violet-600 text-white" : "bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700"}`}
                 >
                   Daily
                 </button>
                 <button
-                    onClick={() => setChartPeriod('weekly')}
-                    className={`px-3 py-1 text-xs font-bold rounded-lg transition-colors ${chartPeriod === 'weekly' ? 'bg-violet-600 text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+                  onClick={() => setChartPeriod("weekly")}
+                  className={`px-3 py-1 text-xs font-bold rounded-lg transition-colors ${chartPeriod === "weekly" ? "bg-violet-600 text-white" : "bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700"}`}
                 >
                   Weekly
                 </button>
                 <button
-                    onClick={() => setChartPeriod('monthly')}
-                    className={`px-3 py-1 text-xs font-bold rounded-lg transition-colors ${chartPeriod === 'monthly' ? 'bg-violet-600 text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+                  onClick={() => setChartPeriod("monthly")}
+                  className={`px-3 py-1 text-xs font-bold rounded-lg transition-colors ${chartPeriod === "monthly" ? "bg-violet-600 text-white" : "bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700"}`}
                 >
                   Monthly
                 </button>
@@ -545,17 +549,17 @@ export default function DashboardPage() {
                               >
                                 Edit Details
                               </Link>
-                                <button
-                                    onClick={() => {
-                                        setSelectedWithdrawalEventId(event.id);
-                                        setWithdrawalModalOpen(true);
-                                        setOpenDropdownId(null);
-                                    }}
-                                    className="w-full flex items-center gap-2 px-4 py-2.5 text-xs font-medium text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 text-left"
-                                >
-                                    <DollarSign className="w-3 h-3 text-violet-600" />
-                                    Early Withdrawal
-                                </button>
+                              <button
+                                onClick={() => {
+                                  setSelectedWithdrawalEventId(event.id);
+                                  setWithdrawalModalOpen(true);
+                                  setOpenDropdownId(null);
+                                }}
+                                className="w-full flex items-center gap-2 px-4 py-2.5 text-xs font-medium text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 text-left"
+                              >
+                                <DollarSign className="w-3 h-3 text-violet-600" />
+                                Early Withdrawal
+                              </button>
                             </div>
                           </div>
                         )}
@@ -573,17 +577,19 @@ export default function DashboardPage() {
       <ConfirmationModal
         isOpen={showKycModal}
         onClose={() => setShowKycModal(false)}
-        onConfirm={async () => router.push("/dashboard/settings")}
+        onConfirm={async () =>
+          router.push("/dashboard/settings?tab=verification")
+        }
         title="Identity Verification Required"
         message="You need to verify your identity before creating events. Please go to Settings to complete the verification process."
         variant="primary"
         confirmLabel="Go to Settings"
       />
-      
-      <WithdrawalLimitModal 
-         isOpen={withdrawalModalOpen} 
-         onClose={() => setWithdrawalModalOpen(false)} 
-         eventId={selectedWithdrawalEventId} 
+
+      <WithdrawalLimitModal
+        isOpen={withdrawalModalOpen}
+        onClose={() => setWithdrawalModalOpen(false)}
+        eventId={selectedWithdrawalEventId}
       />
     </div>
   );

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { userApi } from "@/api/user";
 import { User, Lock, Bell, ShieldCheck } from "lucide-react"; // ShieldCheck Added
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import ProfileSettings from "./components/ProfileSettings";
 import NotificationSettings from "./components/NotificationSettings";
 import PasswordSettings from "./components/PasswordSettings";
@@ -15,6 +15,8 @@ export default function SettingsPage() {
     const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'notifications' | 'verification'>('profile');
     const [user, setUser] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+
+    const searchParams = useSearchParams();
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -30,6 +32,19 @@ export default function SettingsPage() {
         };
         fetchUser();
     }, []);
+
+    // Sync tab with URL
+    useEffect(() => {
+        const tab = searchParams.get('tab');
+        if (tab && ['profile', 'security', 'notifications', 'verification'].includes(tab)) {
+            setActiveTab(tab as any);
+        }
+    }, [searchParams]);
+
+    const handleTabChange = (tab: 'profile' | 'security' | 'notifications' | 'verification') => {
+        setActiveTab(tab);
+        router.push(`/dashboard/settings?tab=${tab}`);
+    };
 
     if (loading) {
         return (
@@ -50,7 +65,7 @@ export default function SettingsPage() {
             {/* Tabs */}
             <div className="flex border-b border-gray-100 dark:border-slate-800 overflow-x-auto overflow-y-hidden bg-slate-50/50 dark:bg-slate-800/50 px-2 pt-2 gap-1">
               <button
-                onClick={() => setActiveTab("profile")}
+                onClick={() => handleTabChange("profile")}
                 className={`flex-1 min-w-[120px] py-4 text-sm font-bold text-center transition-all bg-white dark:bg-slate-900 rounded-t-xl border-x border-t border-transparent relative top-[1px] ${activeTab === "profile" ? "text-violet-600 border-gray-200 dark:border-slate-800 !bg-white dark:!bg-slate-900 shadow-[0_-2px_10px_rgba(0,0,0,0.02)]" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 !bg-transparent border-transparent"}`}
               >
                 <div className="flex items-center justify-center gap-2.5">
@@ -61,7 +76,7 @@ export default function SettingsPage() {
                 </div>
               </button>
               <button
-                onClick={() => setActiveTab("notifications")}
+                onClick={() => handleTabChange("notifications")}
                 className={`flex-1 min-w-[120px] py-4 text-sm font-bold text-center transition-all bg-white dark:bg-slate-900 rounded-t-xl border-x border-t border-transparent relative top-[1px] ${activeTab === "notifications" ? "text-violet-600 border-gray-200 dark:border-slate-800 !bg-white dark:!bg-slate-900 shadow-[0_-2px_10px_rgba(0,0,0,0.02)]" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 !bg-transparent border-transparent"}`}
               >
                 <div className="flex items-center justify-center gap-2.5">
@@ -72,7 +87,7 @@ export default function SettingsPage() {
                 </div>
               </button>
               <button
-                onClick={() => setActiveTab("security")}
+                onClick={() => handleTabChange("security")}
                 className={`flex-1 min-w-[120px] py-4 text-sm font-bold text-center transition-all bg-white dark:bg-slate-900 rounded-t-xl border-x border-t border-transparent relative top-[1px] ${activeTab === "security" ? "text-violet-600 border-gray-200 dark:border-slate-800 !bg-white dark:!bg-slate-900 shadow-[0_-2px_10px_rgba(0,0,0,0.02)]" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 !bg-transparent border-transparent"}`}
               >
                 <div className="flex items-center justify-center gap-2.5">
@@ -83,7 +98,7 @@ export default function SettingsPage() {
                 </div>
               </button>
               <button
-                onClick={() => setActiveTab("verification")}
+                onClick={() => handleTabChange("verification")}
                 className={`flex-1 min-w-[120px] py-4 text-sm font-bold text-center transition-all bg-white dark:bg-slate-900 rounded-t-xl border-x border-t border-transparent relative top-[1px] ${activeTab === "verification" ? "text-violet-600 border-gray-200 dark:border-slate-800 !bg-white dark:!bg-slate-900 shadow-[0_-2px_10px_rgba(0,0,0,0.02)]" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 !bg-transparent border-transparent"}`}
               >
                 <div className="flex items-center justify-center gap-2.5">
