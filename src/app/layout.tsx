@@ -3,6 +3,7 @@ import { Outfit } from "next/font/google";
 import "./globals.css";
 import ToastProvider from "./components/ToastProvider";
 import { ThemeProvider } from "@/components/theme-provider";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -79,6 +80,7 @@ export default function RootLayout({
           </ThemeProvider>
         </ToastProvider>
       </body>
+      <GoogleAnalytics gaId="G-VQC67WDFQQ" />
     </html>
   );
 }
