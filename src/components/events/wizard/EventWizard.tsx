@@ -120,7 +120,7 @@ export default function EventWizard({
     setTickets(tickets.filter((_, i) => i !== index));
   };
 
-  const updateTicket = (index: number, field: string, value: string) => {
+  const updateTicket = (index: number, field: string, value: string | boolean) => {
     const newTickets = [...tickets];
     // @ts-ignore
     newTickets[index][field] = value;

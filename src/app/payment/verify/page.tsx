@@ -36,6 +36,8 @@ function VerifyContent() {
     three_hours: false,
     updates: true,
   });
+  const [transaction, setTransaction] = useState<Transaction | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const handleDownload = () => {
     window.print();

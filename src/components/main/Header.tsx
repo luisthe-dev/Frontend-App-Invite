@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { authService } from "@/api/auth";
+import Logo from "@/assets/svgs/logo.svg";
 
 const Header = () => {
   const pathName = usePathname();

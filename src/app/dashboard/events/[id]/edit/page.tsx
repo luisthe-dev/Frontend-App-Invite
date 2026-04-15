@@ -36,16 +36,20 @@ export default function EditEventPage() {
           title: data.event.title,
           category: data.event.category,
           description: data.event.description,
-          start_date: startDateObj.toISOString().split("T")[0],
-          start_time: startDateObj.toTimeString().slice(0, 5),
+          start_date: data.event.is_date_tbd || !data.event.start_date ? "" : startDateObj.toISOString().split("T")[0],
+          start_time: data.event.is_date_tbd || !data.event.start_date ? "" : startDateObj.toTimeString().slice(0, 5),
           end_date: endDateObj ? endDateObj.toISOString().split("T")[0] : "",
           end_time: endDateObj ? endDateObj.toTimeString().slice(0, 5) : "",
-          location: data.event.location,
+          location: data.event.location || "",
           lat: data.event.lat ? data.event.lat : null,
           lng: data.event.lng ? data.event.lng : null,
           image_url: data.event.image_url || "",
           tags: data.event.tags || [],
           absorb_fees: !!data.event.absorb_fees,
+          is_date_tbd: !!data.event.is_date_tbd,
+          is_location_tbd: !!data.event.is_location_tbd,
+          is_online: !!data.event.is_online,
+          online_link: data.event.online_link || "",
         };
 
         const mediaPreviews = [];
@@ -68,8 +72,9 @@ export default function EditEventPage() {
               price: String(t.price),
               quantity: String(t.quantity || t.available_count),
               description: t.description || "",
+              is_price_tbd: !!t.is_price_tbd,
             }))
-          : [{ type: "", price: "", quantity: "", description: "" }];
+          : [{ type: "", price: "", quantity: "", description: "", is_price_tbd: false }];
 
         const ticketsSold = data.stats?.tickets_sold || 0;
 

@@ -54,32 +54,37 @@ export interface Ticket {
 }
 
 export interface Event {
-    id: number;
-    user_id: number;
-    title: string;
-    slug: string;
-    description: string;
-    start_date: string;
-    end_date?: string;
-    image_url?: string;
-    location: string;
-    status: 'draft' | 'published' | 'cancelled' | 'completed';
-    category: string;
-    payout_status?: string;
-    lat?: number;
-    lng?: number;
-    tags?: string[];
-    created_at: string;
-    updated_at: string;
-    deleted_at?: string;
-    
-    // Relations
-    user?: User;
-    tickets?: Ticket[];
-    media?: EventMedia[];
-    purchased_tickets_count?: number;
-    total_revenue?: number;
-    absorb_fees?: boolean;
+  id: number;
+  user_id: number;
+  title: string;
+  slug: string;
+  description: string;
+  start_date: string;
+  end_date?: string;
+  image_url?: string;
+  location: string;
+  status: "draft" | "published" | "cancelled" | "completed";
+  category: string;
+  payout_status?: string;
+  lat?: number;
+  lng?: number;
+  tags?: string[];
+  created_at: string;
+  updated_at: string;
+  deleted_at?: string;
+
+  // Relations
+  user?: User;
+  tickets?: Ticket[];
+  media?: EventMedia[];
+  purchased_tickets_count?: number;
+  total_revenue?: number;
+  absorb_fees?: boolean;
+
+  is_date_tbd: boolean;
+  is_location_tbd: boolean;
+  is_online: boolean;
+  online_link: string;
 }
 
 export interface PurchasedTicket {
