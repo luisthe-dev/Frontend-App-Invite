@@ -3,11 +3,17 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Search, ShoppingCart, Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { authService } from "@/api/auth";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isAuth, setIsAuth] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    setIsAuth(authService.isAuthenticated());
+  }, []);
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-white/20">
@@ -60,12 +66,20 @@ export default function Navbar() {
               <Search className="w-5 h-5" />
             </button>
             <div className="flex items-center space-x-4">
+              {isAuth === null ? null : isAuth ? (
+                 <Link href="/dashboard" className="px-4 py-2 bg-violet-600 text-white rounded-full text-sm font-medium hover:bg-violet-700 transition-colors shadow-lg shadow-violet-200">
+                    My Dashboard
+                 </Link>
+              ) : (
+                <>
                  <Link href="/signin" className="text-sm font-medium text-gray-600 hover:text-violet-600">
                     Sign In
                  </Link>
                  <Link href="/signup" className="px-4 py-2 bg-violet-600 text-white rounded-full text-sm font-medium hover:bg-violet-700 transition-colors shadow-lg shadow-violet-200">
                     Get Started
                  </Link>
+                </>
+              )}
             </div>
              {/* 
             <button className="text-gray-600 hover:text-violet-600 transition-colors relative">
@@ -146,12 +160,20 @@ export default function Navbar() {
             </Link>
             
             <div className="pt-4 mt-4 border-t border-gray-100 flex flex-col gap-3">
-                <Link href="/signin" className="block w-full text-center px-4 py-3 font-medium text-gray-600 hover:text-violet-600 bg-gray-50 rounded-xl">
-                    Sign In
+              {isAuth === null ? null : isAuth ? (
+                <Link href="/dashboard" onClick={() => setIsOpen(false)} className="block w-full text-center px-4 py-3 bg-violet-600 text-white font-bold rounded-xl hover:bg-violet-700 shadow-lg shadow-violet-200">
+                    My Dashboard
                 </Link>
-                <Link href="/signup" className="block w-full text-center px-4 py-3 bg-violet-600 text-white font-bold rounded-xl hover:bg-violet-700 shadow-lg shadow-violet-200">
-                    Get Started
-                </Link>
+              ) : (
+                <>
+                  <Link href="/signin" onClick={() => setIsOpen(false)} className="block w-full text-center px-4 py-3 font-medium text-gray-600 hover:text-violet-600 bg-gray-50 rounded-xl">
+                      Sign In
+                  </Link>
+                  <Link href="/signup" onClick={() => setIsOpen(false)} className="block w-full text-center px-4 py-3 bg-violet-600 text-white font-bold rounded-xl hover:bg-violet-700 shadow-lg shadow-violet-200">
+                      Get Started
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>

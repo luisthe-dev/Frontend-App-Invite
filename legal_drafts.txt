@@ -1,0 +1,73 @@
+MYINVITE - PRIVACY POLICY & TERMS OF SERVICE DRAFTS
+
+=========================================
+PRIVACY POLICY
+=========================================
+
+Last updated: April 12, 2026
+
+1. INTRODUCTION
+Welcome to MyInvite ("Company," "we," "us," our"). We respect your privacy and are committed to protecting it through our compliance with this privacy policy. This policy describes the types of information we may collect from you or that you may provide when you visit the MyInvite website or mobile application and our practices for collecting, using, maintaining, protecting, and disclosing that information.
+
+2. INFORMATION WE COLLECT
+We collect several types of information from and about users of our platform, including:
+- Personal Data: Name, email address, phone number, payment information, and identity verification data (including KYC data processed via our partners like Dojah).
+- Usage Data: Information about your interaction with our platform, IP address, geographical location, and device details.
+- Event Data: Information regarding events you create, promote, or attend.
+
+3. HOW WE USE YOUR INFORMATION
+We use the information we collect to:
+- Provide, operate, and maintain our platform.
+- Process ticketing transactions and manage user accounts.
+- Perform KYC and identity verification to prevent fraud and ensure platform safety.
+- Improve our website, develop new features, and analyze user behavior.
+- Send you promotional materials or transactional notifications regarding your events and tickets.
+
+4. COOKIES AND TRACKING TECHNOLOGIES
+We use cookies (as indicated in our Cookie Consent popup) to improve your browsing experience. By using our platform, you consent to our use of cookies in accordance with your chosen preferences.
+
+5. DATA SHARING AND DISCLOSURE
+We do not sell your personal data. We may share your information with trusted third-party service providers (e.g., payment processors, KYC providers like Dojah, analytics services like Google Analytics) strictly to operate our platform and fulfill legal obligations.
+
+6. CONTACT US
+If you have any questions or concerns about this privacy policy, please contact us at support@myinvite.ng.
+
+
+=========================================
+TERMS AND CONDITIONS
+=========================================
+
+Last updated: April 12, 2026
+
+1. ACCEPTANCE OF TERMS
+By accessing or using the MyInvite platform (the "Service"), you agree to be bound by these Terms and Conditions. If you disagree with any part of the terms, you may not access the Service.
+
+2. DESCRIPTION OF SERVICE
+MyInvite provides an online platform that allows users to discover, create, manage, promote, and sell tickets to events. We act solely as a facilitator between Event Organizers and Attendees.
+
+3. USER ACCOUNTS AND KYC
+To use certain features, you must register for an account. By registering, you agree to provide accurate and complete information. Event Organizers may be required to undergo Know Your Customer (KYC) verification via our third-party provider (Dojah) before selling tickets. 
+
+4. EVENT ORGANIZER OBLIGATIONS
+Organizers are solely responsible for the events they list, including ensuring the accuracy of event details, managing ticket supply, and handling cancellations or refunds according to our refund policy. You agree not to list illegal, fraudulent, or hazardous events.
+
+5. PAYMENTS AND FEES
+MyInvite may charge service fees for ticket sales, which will be clearly communicated prior to purchase. All payments are processed through secure third-party payment gateways. MyInvite is not responsible for any errors or delays caused by payment processors.
+
+6. INTELLECTUAL PROPERTY
+The Service and its original content (excluding content provided by users), features, and functionality are and will remain the exclusive property of MyInvite and its licensors.
+
+7. LIMITATION OF LIABILITY
+In no event shall MyInvite be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use of the Service, your attendance at any event, or any conduct by third parties on the Service.
+
+8. TERMINATION
+We may terminate or suspend your account immediately, without prior notice or liability, for any reason whatsoever, including without limitation if you breach the Terms.
+
+9. GOVERNING LAW
+These Terms shall be governed and construed in accordance with the laws of Nigeria, without regard to its conflict of law provisions.
+
+10. CHANGES TO TERMS
+We reserve the right to modify these terms at any time. We will notify you of any changes by posting the new Terms on this page.
+
+11. CONTACT US
+If you have any questions about these Terms, please contact us at support@myinvite.ng.

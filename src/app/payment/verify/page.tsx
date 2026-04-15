@@ -31,12 +31,35 @@ function VerifyContent() {
   const reference = searchParams.get("reference");
   const message = searchParams.get("message");
 
-  const [loading, setLoading] = useState(true);
-  const [transaction, setTransaction] = useState<Transaction | null>(null);
-  const [isReminded, setIsReminded] = useState(false); // Added
+  const [reminders, setReminders] = useState<{ [key: string]: boolean }>({
+    one_day: false,
+    three_hours: false,
+    updates: true,
+  });
 
   const handleDownload = () => {
-    toast.info("Downloading ticket...");
+    window.print();
+  };
+
+  const handleShare = async () => {
+    if (!transaction || !transaction.purchased_tickets?.[0]?.event) return;
+    const event = transaction.purchased_tickets[0].event;
+    const shareData = {
+      title: "MyInvite Ticket",
+      text: `I just got my ticket for ${event.title}! Join me there.`,
+      url: window.location.origin + `/events/${event.id}`,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(shareData.url);
+        toast.success("Event link copied to clipboard!");
+      }
+    } catch (err) {
+      console.error("Error sharing", err);
+    }
   };
 
   const handleAddToCalendar = (type: 'google' | 'apple' | 'outlook') => {
@@ -46,7 +69,7 @@ function VerifyContent() {
     }
     const event = transaction.purchased_tickets[0].event;
     const title = encodeURIComponent(event.title);
-    const details = encodeURIComponent(`Your ticket for ${event.title}. Location: ${event.location}`);
+    const details = encodeURIComponent(`Your ticket for ${event.title}. Reference: ${reference}`);
     const location = encodeURIComponent(event.location);
     const startDate = new Date(event.start_date).toISOString().replace(/-|:|\.\d\d\d/g, "");
     const endDate = new Date(event.end_date || event.start_date).toISOString().replace(/-|:|\.\d\d\d/g, "");
@@ -56,23 +79,29 @@ function VerifyContent() {
       url = `https://www.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startDate}/${endDate}&details=${details}&location=${location}`;
       window.open(url, '_blank');
     } else {
-      // Placeholder for Apple/Outlook (.ics generation or generic link)
-      toast.info(`${type.toUpperCase()} calendar integration coming soon. For now, please use Google Calendar.`);
+      toast.info(`${type.toUpperCase()} calendar integration coming soon. Use Google for now.`);
     }
   };
 
-  const handleReminder = async (type: string) => {
+  const handleToggleReminder = async (type: string) => {
     if (!transaction || !transaction.purchased_tickets?.[0]?.event_id) return;
-    try {
-      await userApi.setReminder({
-        event_id: transaction.purchased_tickets[0].event_id,
-        type: type,
-        remind_at: transaction.purchased_tickets[0].event?.start_date
-      });
-      setIsReminded(true);
-      toast.success(`Reminder set via ${type}! We'll notify you before the event.`);
-    } catch (error) {
-      toast.error("Failed to set reminder. Please try again later.");
+    
+    // Toggle state locally first for responsiveness
+    setReminders(prev => ({ ...prev, [type]: !prev[type] }));
+
+    if (!reminders[type]) { // If we are turning it ON
+      try {
+        await userApi.setReminder({
+          event_id: transaction.purchased_tickets[0].event_id,
+          type: type,
+          remind_at: transaction.purchased_tickets[0].event?.start_date
+        });
+        toast.success(`Reminder set! We'll notify you via ${type === 'updates' ? 'email' : 'push'}.`);
+      } catch (error) {
+        // Revert on error
+        setReminders(prev => ({ ...prev, [type]: false }));
+        toast.error("Failed to set reminder.");
+      }
     }
   };
 
@@ -82,8 +111,12 @@ function VerifyContent() {
         .verifyTransaction(reference)
         .then((data) => {
           setTransaction(data);
+          // Trigger a subtle success event if needed
         })
-        .catch((err) => console.error("Failed to fetch transaction", err))
+        .catch((err) => {
+          console.error("Failed to fetch transaction", err);
+          toast.error("Payment verified but failed to load ticket details. Please check your dashboard.");
+        })
         .finally(() => setLoading(false));
     } else {
       setLoading(false);
@@ -92,10 +125,10 @@ function VerifyContent() {
 
   if (!status || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
         <div className="flex flex-col items-center">
-          <Loader2 className="w-10 h-10 text-primary animate-spin mb-4" />
-          <p className="text-muted-foreground">Verifying payment...</p>
+          <Loader2 className="w-12 h-12 text-primary animate-spin mb-4" />
+          <p className="text-muted-foreground animate-pulse">Confirming your experience...</p>
         </div>
       </div>
     );
@@ -106,24 +139,9 @@ function VerifyContent() {
   if (!isSuccess) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="max-w-[480px] w-full bg-card rounded-2xl shadow-sm border border-border p-8 text-center">
-          <div className="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto mb-6">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="32"
-              height="32"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="lucide lucide-alert-circle"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <line x1="12" x2="12" y1="8" y2="12" />
-              <line x1="12" x2="12.01" y1="16" y2="16" />
-            </svg>
+        <div className="max-w-[480px] w-full bg-card rounded-3xl shadow-2xl border border-border p-8 text-center animate-in fade-in zoom-in duration-500">
+          <div className="w-20 h-20 rounded-full bg-red-50 dark:bg-red-900/10 text-red-500 flex items-center justify-center mx-auto mb-6 shadow-inner">
+            <AlertCircle className="w-10 h-10" />
           </div>
           <h1 className="text-2xl font-bold text-foreground mb-2">
             Transaction Unsuccessful
@@ -132,24 +150,9 @@ function VerifyContent() {
             Don't worry, your payment wasn't processed
           </p>
 
-          <div className="bg-muted rounded-xl p-4 mb-8 flex items-start text-left gap-3">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="text-muted-foreground shrink-0 mt-0.5"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <path d="M12 16v-4" />
-              <path d="M12 8h.01" />
-            </svg>
-            <p className="text-sm text-muted-foreground">
+          <div className="bg-muted/50 rounded-2xl p-5 mb-8 flex items-start text-left gap-3 border border-border/50">
+            <AlertCircle className="w-5 h-5 text-muted-foreground shrink-0 mt-0.5" />
+            <p className="text-sm text-muted-foreground leading-relaxed">
               {message
                 ? message
                 : "We encountered an issue while processing your payment. This could be due to insufficient funds, network issues, or card restrictions."}
@@ -159,61 +162,40 @@ function VerifyContent() {
           <div className="space-y-3 mb-8">
             <Link
               href="/payment"
-              className="block w-full py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-xl transition-all flex items-center justify-center gap-2"
+              className="group block w-full py-4 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-2xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/25 active:scale-[0.98]"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
-                <path d="M21 3v5h-5" />
-                <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
-                <path d="M8 16H3v5" />
-              </svg>
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform rotate-180" />
               Retry Payment
             </Link>
             <Link
               href="/"
-              className="block w-full py-3 bg-card border border-border text-foreground font-bold rounded-xl hover:bg-gray-50 transition-all flex items-center justify-center gap-2"
+              className="block w-full py-4 bg-card border border-border text-foreground font-bold rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
             >
-              <Home className="w-4 h-4" />
+              <Home className="w-5 h-5" />
               Return Home
             </Link>
           </div>
 
-          <div className="text-xs text-muted-foreground mb-1">
-            Need help with your transaction?
-          </div>
-          <div className="flex justify-center gap-4 text-xs font-semibold text-primary mb-8">
-            <a href="#" className="hover:underline flex items-center gap-1">
-              Contact Support
-            </a>
-            <a href="#" className="hover:underline flex items-center gap-1">
-              FAQ
-            </a>
-          </div>
-
-          <div className="text-[10px] text-muted-foreground font-mono">
-            <p>Error Reference: {reference || "N/A"}</p>
-            <p>{new Date().toLocaleString()}</p>
+          <div className="pt-6 border-t border-border/50">
+            <div className="text-xs text-muted-foreground mb-3">
+              Need help with your transaction?
+            </div>
+            <div className="flex justify-center gap-6 text-xs font-bold text-primary">
+              <a href="mailto:support@myinvite.ng" className="hover:underline flex items-center gap-1.5">
+                <Mail className="w-3.5 h-3.5" /> Contact Support
+              </a>
+              <Link href="/help" className="hover:underline flex items-center gap-1.5">
+                <Bell className="w-3.5 h-3.5" /> FAQ
+              </Link>
+            </div>
           </div>
         </div>
       </div>
     );
   }
 
-  console.log(transaction);
-
   // Prepare data for display
   const event = transaction?.purchased_tickets?.[0]?.event;
-  // Group tickets by title to show quantity
   const ticketCounts: { [key: string]: { count: number; price: number } } = {};
   transaction?.purchased_tickets?.forEach((t) => {
     const title = t.purchase_info.ticket_title;
@@ -228,233 +210,268 @@ function VerifyContent() {
     transaction?.purchased_tickets?.[0]?.purchase_info?.buyer_email;
 
   return (
-    <div className="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto">
-        {/* Header Section */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 text-primary mb-6">
-            <Check className="w-8 h-8" />
+    <div className="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8 transition-colors print:p-0 print:bg-white">
+      <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
+        {/* Success Banner */}
+        <div className="text-center mb-12 print:hidden">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-50 dark:bg-green-900/10 text-green-500 mb-6 shadow-inner animate-bounce-subtle">
+            <Check className="w-10 h-10" />
           </div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">
-            Purchase Successful!
+          <h1 className="text-4xl font-black text-foreground mb-3 tracking-tight">
+            You're Going To <br className="sm:hidden" /> {event ? event.title : 'The Event'}!
           </h1>
-          <p className="text-sm font-medium text-muted-foreground mb-2">
-            Confirmation #: {reference}
+          <p className="text-base text-muted-foreground max-w-lg mx-auto leading-relaxed">
+            Your payment was successful. We've sent your tickets to{" "}
+            <span className="font-bold text-foreground decoration-primary/30 decoration-2 underline-offset-4 underline">{emailSentTo}</span>
           </p>
-          <p className="text-sm text-muted-foreground">
-            A confirmation email with all event details has been sent to{" "}
-            <span className="font-medium text-foreground">{emailSentTo}</span>
-          </p>
+          <div className="mt-4 inline-flex items-center px-4 py-1.5 rounded-full bg-muted/50 border border-border text-xs font-mono text-muted-foreground">
+            Reference: {reference}
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Main Ticket/Event Details Card */}
-          <div className="md:col-span-2 bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
-            <div className="p-6 md:p-8">
-              <h2 className="text-lg font-bold text-foreground mb-6 border-b border-border pb-4">
-                Event Details
-              </h2>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+          {/* Main Ticket Card */}
+          <div className="lg:col-span-2 space-y-6">
+            <div className="bg-card rounded-[2rem] shadow-xl shadow-shadow/5 border border-border overflow-hidden group hover:border-primary/20 transition-all duration-300">
+              <div className="p-8 md:p-10">
+                <div className="flex justify-between items-start mb-8">
+                  <h2 className="text-xl font-bold text-foreground">
+                    Ticket Summary
+                  </h2>
+                  <TicketIcon className="w-6 h-6 text-primary/40 group-hover:text-primary transition-colors" />
+                </div>
 
-              {event ? (
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="font-bold text-foreground text-base mb-1">
-                      {event.title}
-                    </h3>
-                    <div className="space-y-1 mt-2">
-                      <div className="flex items-start text-sm text-muted-foreground">
-                        <Calendar className="w-4 h-4 mr-2 mt-0.5 text-muted-foreground" />
-                        <span>
-                          {new Date(event.start_date).toLocaleDateString(
-                            undefined,
-                            {
-                              weekday: "long",
-                              year: "numeric",
-                              month: "long",
-                              day: "numeric",
-                            },
-                          )}
+                {event ? (
+                  <div className="space-y-8">
+                    <div className="bg-muted/30 rounded-2xl p-6 border border-border/50">
+                      <h3 className="text-2xl font-extrabold text-foreground mb-4">
+                        {event.title}
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="flex items-center text-sm text-foreground">
+                          <div className="w-8 h-8 rounded-lg bg-white dark:bg-gray-800 flex items-center justify-center mr-3 shadow-sm border border-border/50">
+                            <Calendar className="w-4 h-4 text-primary" />
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Date</span>
+                            <span className="font-semibold">
+                              {new Date(event.start_date).toLocaleDateString(undefined, {
+                                weekday: "short",
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                              })}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex items-center text-sm text-foreground">
+                          <div className="w-8 h-8 rounded-lg bg-white dark:bg-gray-800 flex items-center justify-center mr-3 shadow-sm border border-border/50">
+                            <Clock className="w-4 h-4 text-primary" />
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Time</span>
+                            <span className="font-semibold">{event.start_date.split(' ')[1] || 'TBD'}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-start text-sm text-foreground md:col-span-2">
+                          <div className="w-8 h-8 rounded-lg bg-white dark:bg-gray-800 flex items-center justify-center mr-3 shadow-sm border border-border/50 shrink-0">
+                            <MapPin className="w-4 h-4 text-primary" />
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Location</span>
+                            <span className="font-semibold leading-tight">{event.location}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Breakdown */}
+                    <div className="space-y-3">
+                      {Object.entries(ticketCounts).map(([title, info]) => (
+                        <div key={title} className="flex justify-between items-center text-sm">
+                          <div className="flex items-center gap-2">
+                            <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                            <span className="font-medium text-foreground">{title}</span>
+                          </div>
+                          <div className="font-bold">
+                            {info.count} × ₦{info.price.toLocaleString()}
+                          </div>
+                        </div>
+                      ))}
+                      <div className="flex justify-between items-center text-sm text-muted-foreground pt-1">
+                        <span>Service Fees & TAX</span>
+                        <span className="font-medium">₦{(transaction?.fees || 0).toLocaleString()}</span>
+                      </div>
+                    </div>
+
+                    {/* Total */}
+                    <div className="flex justify-between items-end pt-6 border-t border-border/50">
+                      <div className="flex flex-col">
+                        <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold mb-1">Payment Method</span>
+                        <div className="flex items-center gap-2 px-3 py-1 bg-gray-50 dark:bg-gray-800 rounded-lg border border-border/50 w-fit">
+                          <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                          <span className="text-xs font-bold text-foreground">Paystack</span>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <span className="block text-[10px] uppercase tracking-wider text-muted-foreground font-bold mb-1">Total Amount</span>
+                        <span className="text-3xl font-black text-primary">
+                          ₦{transaction?.total_amount.toLocaleString()}
                         </span>
                       </div>
-                      <div className="flex items-start text-sm text-muted-foreground">
-                        <Clock className="w-4 h-4 mr-2 mt-0.5 text-muted-foreground" />
-                        <span>{event.start_date}</span>
-                      </div>
-                      <div className="flex items-start text-sm text-muted-foreground">
-                        <MapPin className="w-4 h-4 mr-2 mt-0.5 text-muted-foreground" />
-                        <span>{event.location}</span>
-                      </div>
                     </div>
                   </div>
+                ) : (
+                  <div className="flex flex-col items-center py-12">
+                    <Loader2 className="w-8 h-8 text-primary animate-spin mb-4" />
+                    <p className="text-sm text-muted-foreground">Fetching final details...</p>
+                  </div>
+                )}
+              </div>
+            </div>
 
-                  {/* Ticket Breakdown */}
-                  <div className="pt-4 border-t border-border">
-                    {Object.entries(ticketCounts).map(([title, info]) => (
-                      <div
-                        key={title}
-                        className="flex justify-between items-center text-sm py-2"
+            {/* What's Next Card */}
+            <div className="bg-card rounded-3xl p-8 border border-border shadow-sm print:hidden">
+              <h3 className="text-lg font-bold text-foreground mb-6 flex items-center gap-2">
+                <Bell className="w-5 h-5 text-primary" /> Next Steps
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                  <p className="text-sm font-bold text-foreground mb-3">Calendar Invite</p>
+                  <p className="text-xs text-muted-foreground mb-4">Add to your schedule to get notified</p>
+                  <div className="flex flex-wrap gap-2">
+                    {['google', 'apple', 'outlook'].map((cal) => (
+                      <button
+                        key={cal}
+                        onClick={() => handleAddToCalendar(cal as any)}
+                        className="px-4 py-2 bg-muted/50 hover:bg-muted text-[10px] font-bold uppercase tracking-widest text-foreground rounded-xl border border-border transition-colors active:scale-95"
                       >
-                        <div>
-                          <span className="font-medium text-foreground">
-                            {title}
-                          </span>
-                        </div>
-                        <div className="text-foreground">
-                          {info.count} × ₦{info.price.toLocaleString()}
-                        </div>
-                      </div>
+                        {cal}
+                      </button>
                     ))}
-                    <div className="flex justify-between items-center text-sm py-2">
-                      <span className="text-muted-foreground">Service Fee</span>
-                      <span className="text-foreground">
-                        ₦{(transaction?.fees || 0).toLocaleString()}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Total */}
-                  <div className="flex justify-between items-center pt-4 border-t border-border">
-                    <div className="flex flex-col">
-                      <span className="font-bold text-foreground">
-                        Total Paid
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        Paid with Paystack
-                      </span>
-                    </div>
-                    <span className="text-xl font-bold text-foreground">
-                      ₦{transaction?.total_amount.toLocaleString()}
-                    </span>
                   </div>
                 </div>
-              ) : (
-                <p className="text-muted-foreground text-sm">
-                  Loading event details...
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Sidebar / QR Code */}
-          <div className="space-y-6">
-            <div className="bg-card rounded-2xl shadow-sm border border-border p-6 flex flex-col items-center text-center">
-              <div className="mb-4 bg-card p-2 border border-border rounded-lg">
-                <QRCodeSVG value={reference || ""} size={120} />
-              </div>
-              <p className="text-xs text-muted-foreground max-w-[200px] mx-auto mb-6">
-                Show this QR code at each venue entrance. This QR code is valid
-                for all events in this purchase.
-              </p>
-              <div className="flex w-full gap-2">
-                <button className="flex-1 py-2 px-3 bg-primary text-primary-foreground text-xs font-bold rounded-lg hover:bg-primary/90 transition flex items-center justify-center gap-1">
-                  <Download className="w-3 h-3" /> Download
-                </button>
-                <button className="flex-1 py-2 px-3 bg-card border border-border text-foreground text-xs font-bold rounded-lg hover:bg-gray-50 transition flex items-center justify-center gap-1">
-                  <Share2 className="w-3 h-3" /> Share
-                </button>
-              </div>
-            </div>
-
-            <div className="bg-card rounded-2xl shadow-sm border border-border p-6">
-              <h3 className="font-bold text-foreground mb-4">What's Next?</h3>
-
-              <div className="space-y-4">
                 <div>
-                  <p className="text-xs font-medium text-foreground mb-2 flex items-center">
-                    <Calendar className="w-3 h-3 mr-1.5 text-primary" /> Add
-                    to your calendar
-                  </p>
-                  <div className="flex gap-2">
-                    <button className="px-2 py-1 bg-gray-50 border border-input rounded text-[10px] text-muted-foreground hover:bg-gray-100">
-                      Google
-                    </button>
-                    <button className="px-2 py-1 bg-gray-50 border border-input rounded text-[10px] text-muted-foreground hover:bg-gray-100">
-                      Apple
-                    </button>
-                    <button className="px-2 py-1 bg-gray-50 border border-input rounded text-[10px] text-muted-foreground hover:bg-gray-100">
-                      Outlook
-                    </button>
-                  </div>
-                </div>
-
-                <div>
-                  <p className="text-xs font-medium text-foreground mb-1 flex items-center">
-                    <MapPin className="w-3 h-3 mr-1.5 text-primary" /> Get
-                    directions to the venue
-                  </p>
-                  <p className="text-[10px] text-muted-foreground mb-2">
-                    Plan your route in advance to arrive on time
-                  </p>
+                  <p className="text-sm font-bold text-foreground mb-3">Directions</p>
+                  <p className="text-xs text-muted-foreground mb-4">Plan your route to arrive easily</p>
                   <a
-                    href="#"
-                    className="text-[10px] font-medium text-primary flex items-center gap-1 hover:underline"
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event?.location || 'The Venue')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-primary/90 transition-all active:scale-95"
                   >
-                    View on map <span className="text-xs">→</span>
+                    Open In Maps <ArrowRight className="w-3 h-3 ml-2" />
                   </a>
                 </div>
               </div>
             </div>
+          </div>
 
-            <div className="bg-card rounded-2xl shadow-sm border border-border p-6">
-              <h3 className="font-bold text-foreground mb-4">Reminders</h3>
-              <div className="space-y-3">
-                <label className="flex items-start gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="mt-0.5 rounded border-input text-primary focus:ring-primary"
-                  />
-                  <span className="text-xs text-muted-foreground">
-                    Remind me 1 day before the event
-                  </span>
-                </label>
-                <label className="flex items-start gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="mt-0.5 rounded border-input text-primary focus:ring-primary"
-                  />
-                  <span className="text-xs text-muted-foreground">
-                    Remind me 3 hours before the event
-                  </span>
-                </label>
-                <label className="flex items-start gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    defaultChecked
-                    className="mt-0.5 rounded border-input text-primary focus:ring-primary"
-                  />
-                  <span className="text-xs text-muted-foreground">
-                    Send me updates about this event
-                  </span>
-                </label>
+          {/* Sidebar Action Column */}
+          <div className="space-y-6">
+            {/* QR/Check-in Card */}
+            <div className="bg-card rounded-[2.5rem] p-8 border border-border shadow-xl text-center flex flex-col items-center group relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
+              <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-primary/10 via-primary to-primary/10" />
+              <div className="mb-6 p-4 bg-white rounded-3xl shadow-inner border border-gray-100 dark:border-gray-800 transition-transform duration-500 group-hover:scale-105">
+                <QRCodeSVG value={reference || ""} size={160} />
               </div>
+              <h3 className="font-bold text-foreground mb-2">Check-in QR Code</h3>
+              <p className="text-xs text-muted-foreground leading-relaxed mb-8">
+                Present this code at the entrance for quick entry. This covers all {transaction?.purchased_tickets?.length || ''} tickets.
+              </p>
+              
+              <div className="w-full space-y-3 print:hidden">
+                <button 
+                  onClick={handleDownload}
+                  className="w-full py-4 bg-primary text-primary-foreground font-bold rounded-2xl hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2 active:scale-[0.98]"
+                >
+                  <Download className="w-5 h-5" /> Save To Device
+                </button>
+                <button 
+                  onClick={handleShare}
+                  className="w-full py-4 bg-card border border-border text-foreground font-bold rounded-2xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
+                >
+                  <Share2 className="w-4 h-4" /> Share Experience
+                </button>
+              </div>
+            </div>
+
+            {/* Reminders Card */}
+            <div className="bg-card rounded-3xl p-8 border border-border shadow-sm print:hidden">
+              <h3 className="text-lg font-bold text-foreground mb-6">Smart Reminders</h3>
+              <div className="space-y-4">
+                {[
+                  { id: 'one_day', label: '1 Day Before' },
+                  { id: 'three_hours', label: '3 Hours Before' },
+                  { id: 'updates', label: 'Event Updates' }
+                ].map((item) => (
+                  <label key={item.id} className="flex items-center p-3 rounded-2xl border border-transparent hover:border-border hover:bg-muted/30 transition-all cursor-pointer group">
+                    <div className="relative flex items-center justify-center mr-4">
+                      <input
+                        type="checkbox"
+                        checked={reminders[item.id]}
+                        onChange={() => handleToggleReminder(item.id)}
+                        className="peer h-6 w-6 opacity-0 absolute cursor-pointer"
+                      />
+                      <div className={`h-6 w-6 rounded-lg border-2 border-border transition-all flex items-center justify-center ${reminders[item.id] ? 'bg-primary border-primary' : 'bg-transparent'}`}>
+                        {reminders[item.id] && <Check className="w-4 h-4 text-primary-foreground" />}
+                      </div>
+                    </div>
+                    <span className={`text-sm font-medium transition-colors ${reminders[item.id] ? 'text-foreground' : 'text-muted-foreground'}`}>
+                      {item.label}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Community/Support */}
+            <div className="bg-primary/5 rounded-3xl p-8 border border-primary/10 text-center print:hidden">
+              <p className="text-sm font-bold text-foreground mb-2">Need Assistance?</p>
+              <p className="text-xs text-muted-foreground mb-6">Our team is available 24/7 for you.</p>
+              <a href="mailto:support@myinvite.ng" className="text-sm font-black text-primary hover:underline flex items-center justify-center gap-2">
+                Open Chat <ArrowRight className="w-4 h-4" />
+              </a>
             </div>
           </div>
         </div>
 
-        {/* Footer Actions */}
-        <div className="mt-8 flex flex-col items-center gap-4">
-          <div className="flex w-full max-w-md gap-3">
+        {/* Bottom Actions */}
+        <div className="mt-12 flex flex-col items-center gap-6 print:hidden">
+          <div className="flex w-full max-w-xl gap-4">
             <Link
               href="/dashboard/tickets"
-              className="flex-1 py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-xl transition-all text-center text-sm"
+              className="flex-1 py-5 bg-card border-2 border-border text-foreground font-black rounded-[1.5rem] hover:border-primary/50 hover:bg-primary/5 transition-all text-center text-sm active:scale-[0.98] shadow-sm"
             >
-              View My Tickets
+              My Ticket Wallet
             </Link>
             <Link
               href="/"
-              className="flex-1 py-3 bg-card border border-border text-foreground font-bold rounded-xl hover:bg-gray-50 transition-all text-center text-sm"
+              className="flex-1 py-5 bg-card border-2 border-border text-foreground font-black rounded-[1.5rem] hover:border-primary/50 hover:bg-primary/5 transition-all text-center text-sm active:scale-[0.98] shadow-sm"
             >
-              Return to Home
+              Explore More
             </Link>
           </div>
-          <p className="text-xs text-muted-foreground">
-            Need help?{" "}
-            <a href="#" className="text-primary hover:underline">
-              Contact Support
-            </a>
-          </p>
+          <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground/60 uppercase tracking-[0.2em]">
+            <QrCode className="w-3 h-3" /> Encrypted & Verified by MyInvite
+          </div>
         </div>
       </div>
+      
+      {/* Styles for bounce animation and print */}
+      <style jsx global>{`
+        @keyframes bounce-subtle {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-5px); }
+        }
+        .animate-bounce-subtle {
+          animation: bounce-subtle 3s ease-in-out infinite;
+        }
+        @media print {
+          .print\\:hidden { display: none !important; }
+          body { background: white !important; }
+        }
+      `}</style>
     </div>
   );
 }

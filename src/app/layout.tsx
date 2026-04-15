@@ -4,6 +4,7 @@ import "./globals.css";
 import ToastProvider from "./components/ToastProvider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import { CookiePopup } from "@/components/ui/CookiePopup";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -77,6 +78,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             {children}
+            <CookiePopup />
           </ThemeProvider>
         </ToastProvider>
       </body>

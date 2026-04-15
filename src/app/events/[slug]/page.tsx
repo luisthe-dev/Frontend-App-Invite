@@ -213,13 +213,24 @@ export default function EventDetailsPage() {
                 <div className="flex items-center gap-1.5">
                   <Calendar className="w-4 h-4 text-primary" />
                   <span>
-                    {new Date(event.start_date).toLocaleDateString()} -{" "}
-                    {new Date(event.end_date).toLocaleDateString()}
+                    {event.is_date_tbd || !event.start_date
+                      ? "Date TBD"
+                      : `${new Date(event.start_date).toLocaleDateString()} ${
+                          event.end_date
+                            ? `- ${new Date(event.end_date).toLocaleDateString()}`
+                            : ""
+                        }`}
                   </span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <MapPin className="w-4 h-4 text-primary" />
-                  <span>{event.location || "Online"}</span>
+                  <span>
+                    {event.is_location_tbd
+                      ? "Location TBD"
+                      : event.is_online
+                      ? "Online Event"
+                      : event.location || "Address not provided"}
+                  </span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Users className="w-4 h-4 text-primary" />
@@ -334,13 +345,19 @@ export default function EventDetailsPage() {
                 Date & Time
               </h3>
               <div className="mb-4">
-                <p className="font-semibold text-foreground">
-                  {new Date(event.start_date).toLocaleDateString()}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {new Date(event.start_date).toLocaleTimeString()} -{" "}
-                  {new Date(event.end_date).toLocaleDateString()}
-                </p>
+                {event.is_date_tbd || !event.start_date ? (
+                  <p className="font-semibold text-foreground">Date TBD</p>
+                ) : (
+                  <>
+                    <p className="font-semibold text-foreground">
+                      {new Date(event.start_date).toLocaleDateString()}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {new Date(event.start_date).toLocaleTimeString()}
+                      {event.end_date ? ` - ${new Date(event.end_date).toLocaleDateString()}` : ""}
+                    </p>
+                  </>
+                )}
               </div>
               <button className="text-primary text-sm font-medium hover:underline flex items-center gap-1.5">
                 <Calendar className="w-4 h-4" /> Add to Calendar
@@ -361,7 +378,11 @@ export default function EventDetailsPage() {
                 </div>
               </div>
               <p className="font-semibold text-foreground text-sm mb-4">
-                {event.location || "Online"}
+                {event.is_location_tbd
+                  ? "Location TBD"
+                  : event.is_online
+                  ? "Online Event"
+                  : event.location || "Address not provided"}
               </p>
               <div className="flex gap-4">
                 <button className="text-primary text-sm font-medium hover:underline flex items-center gap-1.5">
@@ -388,7 +409,11 @@ export default function EventDetailsPage() {
                           {ticket.title}
                         </span>
                         <span className="font-bold text-foreground">
-                          {formatCurrency(ticket.price)}
+                          {ticket.is_price_tbd
+                            ? "TBD"
+                            : parseFloat(ticket.price) === 0
+                            ? "Free"
+                            : formatCurrency(ticket.price)}
                         </span>
                       </div>
                       <p className="text-xs text-muted-foreground mb-3">

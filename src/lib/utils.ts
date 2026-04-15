@@ -26,7 +26,12 @@ export function getPriceRange(event: any): string {
     // Check if event has a pre-formatted price range
     if (event.price_range) return event.price_range;
     
-    if (event.free || (event.tickets && event.tickets.length > 0 && event.tickets.every((t: any) => parseFloat(t.price) === 0))) {
+    // If all tickets are strictly TBD, return TBD
+    if (event.tickets && event.tickets.length > 0 && event.tickets.every((t: any) => t.is_price_tbd)) {
+        return 'TBD';
+    }
+
+    if (event.free || (event.tickets && event.tickets.length > 0 && event.tickets.every((t: any) => parseFloat(t.price) === 0 && !t.is_price_tbd))) {
         return 'Free';
     }
   
@@ -42,14 +47,17 @@ export function getPriceRange(event: any): string {
   
     // Fallback to searching tickets
     if (event.tickets && event.tickets.length > 0) {
-        const prices = event.tickets.map((t: any) => parseFloat(t.price)).filter((p: number) => !isNaN(p));
-        if (prices.length > 0) {
-            const min = Math.min(...prices);
-            const max = Math.max(...prices);
-            if (min === max) {
-                return min === 0 ? 'Free' : formatCurrency(min);
+        const validTickets = event.tickets.filter((t: any) => !t.is_price_tbd);
+        if (validTickets.length > 0) {
+            const prices = validTickets.map((t: any) => parseFloat(t.price)).filter((p: number) => !isNaN(p));
+            if (prices.length > 0) {
+                const min = Math.min(...prices);
+                const max = Math.max(...prices);
+                if (min === max) {
+                    return min === 0 ? 'Free' : formatCurrency(min);
+                }
+                return `${formatCurrency(min)} - ${formatCurrency(max)}`;
             }
-            return `${formatCurrency(min)} - ${formatCurrency(max)}`;
         }
     }
   

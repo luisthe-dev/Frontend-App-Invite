@@ -42,11 +42,15 @@ export default function EventWizard({
       image_url: "",
       tags: [],
       absorb_fees: false,
+      is_date_tbd: false,
+      is_location_tbd: false,
+      is_online: false,
+      online_link: "",
     }
   );
 
   const [tickets, setTickets] = useState<Ticket[]>(
-    initialData?.tickets || [{ type: "", price: "", quantity: "", description: "" }]
+    initialData?.tickets || [{ type: "", price: "", quantity: "", description: "", is_price_tbd: false }]
   );
 
   const [mediaPreviews, setMediaPreviews] = useState<MediaPreview[]>(
@@ -109,7 +113,7 @@ export default function EventWizard({
   };
 
   const addTicket = () => {
-    setTickets([...tickets, { type: "", price: "", quantity: "", description: "" }]);
+    setTickets([...tickets, { type: "", price: "", quantity: "", description: "", is_price_tbd: false }]);
   };
 
   const removeTicket = (index: number) => {
@@ -166,9 +170,9 @@ export default function EventWizard({
     formData.description.trim() !== "";
 
   const validateStep2 = () =>
-    formData.start_date !== "" &&
-    formData.start_time !== "" &&
-    formData.location.trim() !== "";
+    (formData.is_date_tbd || (formData.start_date !== "" && formData.start_time !== "")) &&
+    (formData.is_location_tbd || formData.is_online || formData.location.trim() !== "") &&
+    (!formData.is_online || formData.online_link.trim() !== "");
 
   const validateStep3 = () =>
     tickets.length > 0 &&
@@ -208,6 +212,10 @@ export default function EventWizard({
     if (formData.lat) submissionData.append("lat", String(formData.lat));
     if (formData.lng) submissionData.append("lng", String(formData.lng));
     submissionData.append("absorb_fees", formData.absorb_fees ? "1" : "0");
+    submissionData.append("is_date_tbd", formData.is_date_tbd ? "1" : "0");
+    submissionData.append("is_location_tbd", formData.is_location_tbd ? "1" : "0");
+    submissionData.append("is_online", formData.is_online ? "1" : "0");
+    if (formData.online_link) submissionData.append("online_link", formData.online_link);
 
     formData.tags.forEach((tag) => {
       submissionData.append("tags[]", tag);
@@ -221,6 +229,7 @@ export default function EventWizard({
       tickets.forEach((ticket, index) => {
         submissionData.append(`tickets[${index}][type]`, ticket.type);
         submissionData.append(`tickets[${index}][price]`, ticket.price);
+        submissionData.append(`tickets[${index}][is_price_tbd]`, ticket.is_price_tbd ? "1" : "0");
         submissionData.append(`tickets[${index}][quantity]`, ticket.quantity);
       });
     } else {
@@ -229,6 +238,7 @@ export default function EventWizard({
         if (t.id) submissionData.append(`tickets[${index}][id]`, String(t.id));
         submissionData.append(`tickets[${index}][type]`, t.type);
         submissionData.append(`tickets[${index}][price]`, String(t.price));
+        submissionData.append(`tickets[${index}][is_price_tbd]`, t.is_price_tbd ? "1" : "0");
         submissionData.append(`tickets[${index}][quantity]`, String(t.quantity));
         if (t.description)
           submissionData.append(`tickets[${index}][description]`, t.description);

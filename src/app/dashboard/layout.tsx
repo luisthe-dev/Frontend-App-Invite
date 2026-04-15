@@ -1,16 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import Sidebar from "./components/Sidebar";
 import { Menu, X } from "lucide-react";
+import { authService } from "@/api/auth";
 
 export default function DashboardLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
+    const router = useRouter();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+    useEffect(() => {
+        const user = authService.getCurrentUser();
+        const isAuthenticated = authService.isAuthenticated();
+
+        if (!isAuthenticated) {
+            router.push("/signin");
+            return;
+        }
+
+        if (user?.status === "Unverified") {
+            router.push(`/verify-otp?email=${encodeURIComponent(user.email_address || user.email)}&flow=login`);
+        }
+    }, [router]);
 
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex transition-colors">

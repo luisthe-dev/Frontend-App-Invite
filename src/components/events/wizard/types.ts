@@ -4,6 +4,7 @@ export interface Ticket {
   price: string;
   quantity: string;
   description?: string;
+  is_price_tbd?: boolean;
 }
 
 export interface MediaPreview {
@@ -27,6 +28,10 @@ export interface EventFormData {
   image_url: string;
   tags: string[];
   absorb_fees: boolean;
+  is_date_tbd: boolean;
+  is_location_tbd: boolean;
+  is_online: boolean;
+  online_link: string;
 }
 
 export interface WizardState {

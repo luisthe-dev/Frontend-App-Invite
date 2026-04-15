@@ -9,9 +9,12 @@ import { authService } from '@/api/auth';
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
+import { useTheme } from 'next-themes';
+import { useEffect } from 'react';
 
 export default function SignUpPage() {
   const router = useRouter();
+  const { resolvedTheme } = useTheme();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -19,6 +22,17 @@ export default function SignUpPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [agreed, setAgreed] = useState(false);
+
+  useEffect(() => {
+    const user = authService.getCurrentUser();
+    if (authService.isAuthenticated()) {
+      if (user?.status === "Unverified") {
+        router.push(`/verify-otp?email=${encodeURIComponent(user.email_address || user.email)}&flow=login`);
+      } else {
+        router.push("/dashboard");
+      }
+    }
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,10 +73,12 @@ export default function SignUpPage() {
           <div className="flex flex-col items-center mb-8">
             <div className="mb-4">
               <Image
-                src="/Logos/myinvite_55x49.png"
+                src={resolvedTheme === 'dark' ? '/Logos/web_logo_dark_mode.png' : '/Logos/web_logo_light_mode.png'}
                 alt="MyInvite"
-                width={55}
-                height={49}
+                width={200}
+                height={60}
+                className="h-10 w-auto object-contain"
+                priority
               />
             </div>
             <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
@@ -202,7 +218,7 @@ export default function SignUpPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid gap-3">
               <button
                 type="button"
                 onClick={() => authService.socialLogin("google")}
@@ -227,29 +243,6 @@ export default function SignUpPage() {
                   />
                 </svg>
                 Google
-              </button>
-              <button
-                type="button"
-                onClick={() => authService.socialLogin("apple")}
-                className="flex items-center justify-center px-4 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm bg-white dark:bg-slate-800 text-sm font-medium text-slate-600 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-              >
-                <span className="sr-only">Sign up with Apple</span>
-                <svg
-                  className="h-5 w-5 mr-1 dark:text-white"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M12 2C6.477 2 2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.879V14.89h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.989C18.343 21.128 22 16.991 22 12c0-5.523-4.477-10-10-10z"
-                    fillRule="evenodd"
-                    clipRule="evenodd"
-                    display="none"
-                  />
-                  {/* Apple Icon */}
-                  <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.48C2.7 15.25 3.68 7.79 9.85 7.63c.95-.03 1.94.39 2.65.65.7.27 1.52.19 2.53-.24 1.45-.62 3-.15 3.73.95-3.3 1.63-2.67 5.75.52 7.23-.48 1.41-1.2 2.76-2.23 4.06M12.03 7.25c-.27-2.14 1.54-3.85 3.4-4.09.28 2.29-2.02 4.1-3.4 4.09" />
-                </svg>
-                Apple
               </button>
             </div>
           </form>

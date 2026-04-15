@@ -9,7 +9,7 @@ interface Props {
   tickets: Ticket[];
   addTicket: () => void;
   removeTicket: (index: number) => void;
-  updateTicket: (index: number, field: string, value: string) => void;
+  updateTicket: (index: number, field: string, value: string | boolean) => void;
   fees: { service: number; tax: number };
   ticketsSold?: number;
 }
@@ -60,15 +60,30 @@ export default function TicketsStep({
                 />
               </div>
               <div className="md:col-span-2 lg:col-span-1">
-                <label className="block text-xs font-semibold text-muted-foreground mb-1">
-                  Price (₦)
+                <label className="flex items-center justify-between text-xs font-semibold text-muted-foreground mb-1">
+                  <span>Price (₦)</span>
+                  <label className="flex items-center gap-1 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={ticket.is_price_tbd || false}
+                      onChange={(e) => {
+                        updateTicket(index, "is_price_tbd", e.target.checked);
+                        if (e.target.checked) {
+                          updateTicket(index, "price", "0");
+                        }
+                      }}
+                      className="rounded border-input text-primary focus:ring-primary h-3 w-3"
+                    />
+                    <span className="text-[10px] font-normal uppercase">TBD</span>
+                  </label>
                 </label>
                 <input
                   type="number"
                   placeholder="0.00"
                   value={ticket.price}
                   onChange={(e) => updateTicket(index, "price", e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-input bg-background focus:outline-none focus:border-primary text-sm text-foreground"
+                  disabled={ticket.is_price_tbd}
+                  className="w-full px-3 py-2 rounded-lg border border-input bg-background focus:outline-none focus:border-primary text-sm text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
               <div className="md:col-span-2 lg:col-span-1">
