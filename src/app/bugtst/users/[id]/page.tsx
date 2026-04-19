@@ -24,7 +24,7 @@ export default function AdminUserDetailsPage({ params }: { params: Promise<{ id:
       try {
         const token = Cookies.get("admin_token");
         if (!token) {
-          router.push("/_bugtst/login");
+          router.push("/bugtst/login");
           return;
         }
 
@@ -50,7 +50,7 @@ export default function AdminUserDetailsPage({ params }: { params: Promise<{ id:
 
       } catch (error) {
         console.error("Failed to load user", error);
-        router.push("/_bugtst/users");
+        router.push("/bugtst/users");
       } finally {
         setLoading(false);
       }
@@ -73,7 +73,7 @@ export default function AdminUserDetailsPage({ params }: { params: Promise<{ id:
     <div className="p-8 max-w-[1600px] mx-auto w-full">
         {/* Back Button */}
         <Link 
-            href="/_bugtst/users" 
+            href="/bugtst/users" 
             className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-6 font-medium text-sm"
         >
             <ArrowLeft className="w-4 h-4" />

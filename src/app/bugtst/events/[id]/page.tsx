@@ -33,7 +33,7 @@ export default function AdminEventDetailsPage() {
       setEvent(data);
     } catch (error) {
       console.error("Failed to fetch event", error);
-      // router.push("/_bugtst/events");
+      // router.push("/bugtst/events");
     } finally {
       setLoading(false);
     }
@@ -52,7 +52,7 @@ export default function AdminEventDetailsPage() {
           if (action === 'reject') await adminApi.rejectEvent(id);
           if (action === 'delete') {
               await adminApi.deleteEvent(id);
-              router.push("/_bugtst/events");
+              router.push("/bugtst/events");
               return;
           }
           await fetchEvent(); // Refresh state
@@ -79,7 +79,7 @@ export default function AdminEventDetailsPage() {
         <div className="min-h-screen flex flex-col items-center justify-center text-muted-foreground">
             <p className="mb-4">Event not found</p>
             <button 
-                onClick={() => router.push("/_bugtst/events")}
+                onClick={() => router.push("/bugtst/events")}
                 className="px-4 py-2 bg-muted rounded-lg hover:bg-muted/80 text-foreground"
             >
                 Back to Events

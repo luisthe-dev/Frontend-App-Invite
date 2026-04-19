@@ -13,6 +13,11 @@ export const eventsApi = {
         return response.data.data;
     },
 
+    async getPublicSettings(): Promise<any> {
+        const response = await client.get<ApiResponse<any>>('/meta/settings');
+        return response.data.data;
+    },
+
     async getAll(params?: any): Promise<PaginatedResponse<Event>> {
         const response = await client.get<ApiResponse<PaginatedResponse<Event>>>('/events', { params });
         return response.data.data;

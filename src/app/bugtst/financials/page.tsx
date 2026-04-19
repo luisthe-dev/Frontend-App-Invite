@@ -92,7 +92,7 @@ export default function AdminFinancePage() {
     try {
       const token = Cookies.get("admin_token");
       if (!token) {
-        router.push("/_bugtst/login");
+        router.push("/bugtst/login");
         return;
       }
 

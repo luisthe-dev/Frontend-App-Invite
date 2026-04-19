@@ -31,7 +31,7 @@ export default function AdminLoginPage() {
       Cookies.set("admin_token", response.token, { expires: 1 }); 
       
       toast.success("Admin logged in successfully");
-      router.push("/_bugtst/dashboard");
+      router.push("/bugtst/dashboard");
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Login failed");
     } finally {

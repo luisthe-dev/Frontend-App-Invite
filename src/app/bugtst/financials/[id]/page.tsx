@@ -45,7 +45,7 @@ export default function TransactionDetailsPage() {
   if (error || !transaction) {
     return (
       <div className="p-8 max-w-4xl mx-auto">
-        <Link href="/_bugtst/financials" className="text-muted-foreground hover:text-foreground flex items-center mb-4">
+        <Link href="/bugtst/financials" className="text-muted-foreground hover:text-foreground flex items-center mb-4">
             <ArrowLeft className="w-4 h-4 mr-1" /> Back to Financials
         </Link>
         <div className="p-8 bg-card border border-border rounded-xl text-center">
@@ -76,7 +76,7 @@ export default function TransactionDetailsPage() {
     <div className="p-8 max-w-5xl mx-auto w-full">
         {/* Header */}
         <div className="mb-6">
-            <Link href="/_bugtst/financials" className="text-muted-foreground hover:text-foreground flex items-center mb-4 text-sm font-medium transition-colors">
+            <Link href="/bugtst/financials" className="text-muted-foreground hover:text-foreground flex items-center mb-4 text-sm font-medium transition-colors">
                 <ArrowLeft className="w-4 h-4 mr-1" /> Back to Financials
             </Link>
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

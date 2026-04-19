@@ -19,7 +19,7 @@ export default function AdminDashboardPage() {
     const checkAuthAndFetchStats = async () => {
       const token = Cookies.get("admin_token");
       if (!token) {
-        router.push("/_bugtst/login");
+        router.push("/bugtst/login");
         return;
       }
 
@@ -34,7 +34,7 @@ export default function AdminDashboardPage() {
       } catch (error) {
         console.error("Admin Load Failed", error);
         Cookies.remove("admin_token");
-        router.push("/_bugtst/login");
+        router.push("/bugtst/login");
       } finally {
         setLoading(false);
       }
@@ -50,7 +50,7 @@ export default function AdminDashboardPage() {
       console.error(e);
     }
     Cookies.remove("admin_token");
-    router.push("/_bugtst/login");
+    router.push("/bugtst/login");
   };
 
 // ... inside component ...

@@ -11,7 +11,7 @@ export default function AdminLayoutClient({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const isLoginPage = pathname === "/_bugtst/login";
+  const isLoginPage = pathname === "/bugtst/login";
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
 

@@ -130,7 +130,8 @@ export default function ConfigPage() {
         'general': 'General Settings',
         'financial': 'Financial Configuration',
         'feature': 'Feature Flags',
-        'email': 'Email Setup'
+        'email': 'Email Setup',
+        'payment': 'Payment Gateways'
     };
 
     return (

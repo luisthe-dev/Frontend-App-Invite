@@ -29,26 +29,26 @@ interface SidebarProps {
 }
 
 const links = [
-  { href: "/_bugtst/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/_bugtst/events", label: "Events", icon: Calendar },
-  { href: "/_bugtst/tickets", label: "Tickets", icon: Ticket },
-  { href: "/_bugtst/users", label: "Users", icon: Users },
-  { href: "/_bugtst/financials", label: "Financials", icon: CreditCard },
-  { href: "/_bugtst/reports", label: "Reports", icon: PieChart },
+  { href: "/bugtst/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/bugtst/events", label: "Events", icon: Calendar },
+  { href: "/bugtst/tickets", label: "Tickets", icon: Ticket },
+  { href: "/bugtst/users", label: "Users", icon: Users },
+  { href: "/bugtst/financials", label: "Financials", icon: CreditCard },
+  { href: "/bugtst/reports", label: "Reports", icon: PieChart },
   { 
-    href: "/_bugtst/settings", 
+    href: "/bugtst/settings", 
     label: "Settings", 
     icon: Settings,
     submenu: [
-      { href: "/_bugtst/settings/config", label: "General", icon: Settings },
-      { href: "/_bugtst/settings/categories", label: "Categories", icon: LayoutDashboard },
-      { href: "/_bugtst/settings/security", label: "Security", icon: ShieldCheck },
-      { href: "/_bugtst/settings/trust", label: "Trust & Safety", icon: HelpCircle },
+      { href: "/bugtst/settings/config", label: "General", icon: Settings },
+      { href: "/bugtst/settings/categories", label: "Categories", icon: LayoutDashboard },
+      { href: "/bugtst/settings/security", label: "Security", icon: ShieldCheck },
+      { href: "/bugtst/settings/trust", label: "Trust & Safety", icon: HelpCircle },
     ]
   },
-  { href: "/_bugtst/support", label: "Help & Support", icon: HelpCircle },
-  { href: "/_bugtst/contact", label: "Contact Inquiries", icon: Mail },
-  { href: "/_bugtst/logout", label: "Logout", icon: LogOut },
+  { href: "/bugtst/support", label: "Help & Support", icon: HelpCircle },
+  { href: "/bugtst/contact", label: "Contact Inquiries", icon: Mail },
+  { href: "/bugtst/logout", label: "Logout", icon: LogOut },
 ];
 
 export default function AdminSidebar({ isOpen, onClose }: SidebarProps) {

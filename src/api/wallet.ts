@@ -16,8 +16,11 @@ export const walletApi = {
         return response.data.data;
     },
 
-    async deposit(amount: number): Promise<{ payment_url: string; reference: string }> {
-        const response = await client.post<ApiResponse<{ payment_url: string; reference: string }>>('/user/wallet/deposit', { amount });
+    async deposit(amount: number, paymentMethod?: string): Promise<{ payment_url: string; reference: string }> {
+        const response = await client.post<ApiResponse<{ payment_url: string; reference: string }>>('/user/wallet/deposit', { 
+            amount,
+            payment_method: paymentMethod 
+        });
         return response.data.data;
     },
 

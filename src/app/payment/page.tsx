@@ -36,6 +36,7 @@ function PaymentContent() {
   const [ticketDetails, setTicketDetails] = useState<any[]>([]);
   const [guestDetails, setGuestDetails] = useState({ name: "", email: "" });
   const [user, setUser] = useState<any>(null);
+  const [publicSettings, setPublicSettings] = useState<any>(null);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -51,6 +52,18 @@ function PaymentContent() {
       }
     };
     fetchUser();
+  }, []);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const settings = await eventsApi.getPublicSettings();
+        setPublicSettings(settings);
+      } catch (err) {
+        console.error("Failed to fetch public settings", err);
+      }
+    };
+    fetchSettings();
   }, []);
 
   const eventSlug = searchParams.get("event");
@@ -302,32 +315,84 @@ function PaymentContent() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
             {/* Paystack */}
-            <button
-              onClick={() => setSelectedMethod("paystack")}
-              className={`text-left p-4 rounded-xl border transition-all ${selectedMethod === "paystack" ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-border hover:border-primary/50 hover:bg-accent"}`}
-            >
-              <div className="flex justify-between items-start mb-2">
-                <span className="font-bold text-foreground">Paystack</span>
-                <CreditCard className="w-5 h-5 text-muted-foreground" />
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Credit/Debit Card, Bank Transfer
-              </p>
-            </button>
+            {(!publicSettings || publicSettings.payment_paystack_enabled) && (
+              <button
+                onClick={() => setSelectedMethod("paystack")}
+                className={`text-left p-4 rounded-xl border transition-all ${selectedMethod === "paystack" ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-border hover:border-primary/50 hover:bg-accent"}`}
+              >
+                <div className="flex justify-between items-start mb-2">
+                  <span className="font-bold text-foreground">Paystack</span>
+                  <CreditCard className="w-5 h-5 text-muted-foreground" />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Credit/Debit Card, Bank Transfer
+                </p>
+              </button>
+            )}
 
             {/* Flutterwave */}
-            <button
-              onClick={() => setSelectedMethod("flutterwave")}
-              className={`text-left p-4 rounded-xl border transition-all ${selectedMethod === "flutterwave" ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-border hover:border-primary/50 hover:bg-accent"}`}
-            >
-              <div className="flex justify-between items-start mb-2">
-                <span className="font-bold text-foreground">Flutterwave</span>
-                <Globe className="w-5 h-5 text-muted-foreground" />
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Credit/Debit Card, USSD, QR Code
-              </p>
-            </button>
+            {(!publicSettings || publicSettings.payment_flutterwave_enabled) && (
+              <button
+                onClick={() => setSelectedMethod("flutterwave")}
+                className={`text-left p-4 rounded-xl border transition-all ${selectedMethod === "flutterwave" ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-border hover:border-primary/50 hover:bg-accent"}`}
+              >
+                <div className="flex justify-between items-start mb-2">
+                  <span className="font-bold text-foreground">Flutterwave</span>
+                  <Globe className="w-5 h-5 text-muted-foreground" />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Card, USSD, QR Code
+                </p>
+              </button>
+            )}
+
+            {/* Korapay */}
+            {(!publicSettings || publicSettings.payment_korapay_enabled) && (
+              <button
+                onClick={() => setSelectedMethod("korapay")}
+                className={`text-left p-4 rounded-xl border transition-all ${selectedMethod === "korapay" ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-border hover:border-primary/50 hover:bg-accent"}`}
+              >
+                <div className="flex justify-between items-start mb-2">
+                  <span className="font-bold text-foreground">Korapay</span>
+                  <CreditCard className="w-5 h-5 text-muted-foreground" />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Card, Bank Transfer
+                </p>
+              </button>
+            )}
+
+            {/* Monnify */}
+            {(!publicSettings || publicSettings.payment_monnify_enabled) && (
+              <button
+                onClick={() => setSelectedMethod("monnify")}
+                className={`text-left p-4 rounded-xl border transition-all ${selectedMethod === "monnify" ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-border hover:border-primary/50 hover:bg-accent"}`}
+              >
+                <div className="flex justify-between items-start mb-2">
+                  <span className="font-bold text-foreground">Monnify</span>
+                  <Building2 className="w-5 h-5 text-muted-foreground" />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Account Transfer, Card
+                </p>
+              </button>
+            )}
+
+            {/* Opay */}
+            {(!publicSettings || publicSettings.payment_opay_enabled) && (
+              <button
+                onClick={() => setSelectedMethod("opay")}
+                className={`text-left p-4 rounded-xl border transition-all ${selectedMethod === "opay" ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-border hover:border-primary/50 hover:bg-accent"}`}
+              >
+                <div className="flex justify-between items-start mb-2">
+                  <span className="font-bold text-foreground">Opay Cashier</span>
+                  <ShieldCheck className="w-5 h-5 text-muted-foreground" />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Opay Wallet, Card
+                </p>
+              </button>
+            )}
 
             {/* Wallet Payment */}
             {user && (

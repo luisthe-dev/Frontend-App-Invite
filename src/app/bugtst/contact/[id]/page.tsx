@@ -60,7 +60,7 @@ export default function AdminContactDetailsPage() {
         try {
             await adminApi.deleteContactMessage(id as string);
             toast.success("Message deleted");
-            router.push("/_bugtst/contact");
+            router.push("/bugtst/contact");
         } catch (error) {
             toast.error("Failed to delete message");
         }
@@ -79,7 +79,7 @@ export default function AdminContactDetailsPage() {
             <div className="min-h-screen bg-background p-8 text-center mt-20">
                 <h2 className="text-xl font-bold">Message not found</h2>
                 <button 
-                    onClick={() => router.push("/_bugtst/contact")}
+                    onClick={() => router.push("/bugtst/contact")}
                     className="mt-4 text-primary hover:underline"
                 >
                     Back to all messages

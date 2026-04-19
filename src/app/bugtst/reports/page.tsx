@@ -196,7 +196,7 @@ export default function AdminReportsPage() {
           <div className="bg-card p-6 rounded-2xl border border-border">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-bold">Top Events</h2>
-              <Link href="/_bugtst/events" className="text-sm text-primary hover:underline flex items-center">
+              <Link href="/bugtst/events" className="text-sm text-primary hover:underline flex items-center">
                 View All <ArrowRight className="w-4 h-4 ml-1" />
               </Link>
             </div>
@@ -227,7 +227,7 @@ export default function AdminReportsPage() {
           <div className="bg-card p-6 rounded-2xl border border-border">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-bold">Top Hosts</h2>
-              <Link href="/_bugtst/users" className="text-sm text-primary hover:underline flex items-center">
+              <Link href="/bugtst/users" className="text-sm text-primary hover:underline flex items-center">
                 View All <ArrowRight className="w-4 h-4 ml-1" />
               </Link>
             </div>
