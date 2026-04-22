@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { walletApi } from "@/api/wallet";
 import { eventsApi } from "@/api/events";
-import { ArrowDownLeft, X, Loader2 } from "lucide-react";
+import { ArrowDownLeft, X, Loader2, CreditCard, Globe, Building2, ShieldCheck } from "lucide-react";
 
 import { useToast } from "@/context/ToastContext";
 
@@ -22,6 +22,22 @@ export default function DepositModal({ isOpen, onClose }: DepositModalProps) {
             try {
                 const settings = await eventsApi.getPublicSettings();
                 setPublicSettings(settings);
+                
+                // If current selected method is disabled, pick the first enabled one
+                const methods = [
+                    { id: "paystack", enabled: settings.payment_paystack_enabled },
+                    { id: "flutterwave", enabled: settings.payment_flutterwave_enabled },
+                    { id: "korapay", enabled: settings.payment_korapay_enabled },
+                    { id: "monnify", enabled: settings.payment_monnify_enabled },
+                    { id: "opay", enabled: settings.payment_opay_enabled },
+                ];
+                
+                if (!settings[`payment_${selectedMethod}_enabled`]) {
+                    const firstEnabled = methods.find(m => m.enabled);
+                    if (firstEnabled) {
+                        setSelectedMethod(firstEnabled.id);
+                    }
+                }
             } catch (err) {
                 console.error("Failed to fetch public settings", err);
             }
@@ -83,28 +99,72 @@ export default function DepositModal({ isOpen, onClose }: DepositModalProps) {
             </div>
 
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+              <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">
                 Select Payment Method
               </label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 max-h-[250px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-slate-800">
                 {[
-                  { id: "paystack", name: "Paystack", enabled: !publicSettings || publicSettings.payment_paystack_enabled },
-                  { id: "flutterwave", name: "Flutterwave", enabled: !publicSettings || publicSettings.payment_flutterwave_enabled },
-                  { id: "korapay", name: "Korapay", enabled: !publicSettings || publicSettings.payment_korapay_enabled },
-                  { id: "monnify", name: "Monnify", enabled: !publicSettings || publicSettings.payment_monnify_enabled },
-                  { id: "opay", name: "Opay", enabled: !publicSettings || publicSettings.payment_opay_enabled },
+                  { 
+                    id: "paystack", 
+                    name: "Paystack", 
+                    icon: <CreditCard className="w-5 h-5" />, 
+                    desc: "Card, Bank Transfer",
+                    enabled: !publicSettings || publicSettings.payment_paystack_enabled 
+                  },
+                  { 
+                    id: "flutterwave", 
+                    name: "Flutterwave", 
+                    icon: <Globe className="w-5 h-5" />, 
+                    desc: "Card, USSD, QR Code",
+                    enabled: !publicSettings || publicSettings.payment_flutterwave_enabled 
+                  },
+                  { 
+                    id: "korapay", 
+                    name: "Korapay", 
+                    icon: <CreditCard className="w-5 h-5" />, 
+                    desc: "Card, Bank Transfer",
+                    enabled: !publicSettings || publicSettings.payment_korapay_enabled 
+                  },
+                  { 
+                    id: "monnify", 
+                    name: "Monnify", 
+                    icon: <Building2 className="w-5 h-5" />, 
+                    desc: "Account Transfer, Card",
+                    enabled: !publicSettings || publicSettings.payment_monnify_enabled 
+                  },
+                  { 
+                    id: "opay", 
+                    name: "Opay Cashier", 
+                    icon: <ShieldCheck className="w-5 h-5" />, 
+                    desc: "Opay Wallet, Card",
+                    enabled: !publicSettings || publicSettings.payment_opay_enabled 
+                  },
                 ].filter(m => m.enabled).map((method) => (
                   <button
                     key={method.id}
                     type="button"
                     onClick={() => setSelectedMethod(method.id)}
-                    className={`px-3 py-2 text-xs font-bold rounded-lg border transition-all ${
+                    className={`flex items-center gap-4 p-4 text-left rounded-xl border transition-all ${
                       selectedMethod === method.id
-                        ? "border-violet-600 bg-violet-50 dark:bg-violet-900/20 text-violet-600 dark:text-violet-400"
-                        : "border-gray-200 dark:border-slate-700 text-gray-500 hover:border-violet-300"
+                        ? "border-violet-600 bg-violet-50 dark:bg-violet-900/10 ring-1 ring-violet-600"
+                        : "border-gray-200 dark:border-slate-800 hover:border-violet-300 dark:hover:border-violet-700 hover:bg-gray-50 dark:hover:bg-slate-800/50"
                     }`}
                   >
-                    {method.name}
+                    <div className={`${
+                      selectedMethod === method.id ? "text-violet-600 dark:text-violet-400" : "text-gray-400 dark:text-gray-500"
+                    }`}>
+                      {method.icon}
+                    </div>
+                    <div>
+                      <p className={`text-sm font-bold ${
+                        selectedMethod === method.id ? "text-violet-600 dark:text-violet-400" : "text-gray-900 dark:text-gray-100"
+                      }`}>
+                        {method.name}
+                      </p>
+                      <p className="text-[10px] text-gray-500 dark:text-gray-400 font-medium">
+                        {method.desc}
+                      </p>
+                    </div>
                   </button>
                 ))}
               </div>
