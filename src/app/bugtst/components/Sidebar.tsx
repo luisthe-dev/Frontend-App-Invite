@@ -19,6 +19,7 @@ import {
   CreditCard,
   PieChart,
   Mail,
+  ClipboardList,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -34,6 +35,7 @@ const links = [
   { href: "/bugtst/users", label: "Users", icon: Users },
   { href: "/bugtst/financials", label: "Financials", icon: CreditCard },
   { href: "/bugtst/reports", label: "Reports", icon: PieChart },
+  { href: "/bugtst/audit-logs", label: "Audit Logs", icon: ClipboardList },
   { 
     href: "/bugtst/settings", 
     label: "Settings", 
@@ -73,7 +75,7 @@ export default function AdminSidebar({ isOpen, onClose }: SidebarProps) {
       <div className={`
         fixed inset-y-0 left-0 z-50 w-72 bg-card text-card-foreground border-r border-border flex flex-col h-dvh transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
-        md:translate-x-0 md:static md:flex shrink-0
+        md:translate-x-0 md:sticky md:top-0 md:flex shrink-0
       `}>
         <div className="p-6 border-b border-border flex items-center justify-between">
           <Link href="/bugtst" className="flex flex-col gap-1">

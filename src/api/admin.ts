@@ -245,4 +245,15 @@ export const adminApi = {
     const response = await adminClient.post<ApiResponse<{ message: string }>>("/admin/settings/config", data);
     return response.data.data;
   },
+  // Audit Logs
+  getAuditLogs: async (page = 1, filters = {}) => {
+    const params = new URLSearchParams({ page: page.toString(), ...filters });
+    const response = await adminClient.get(`/admin/audit-logs?${params}`);
+    return response.data;
+  },
+
+  getAuditLogDetails: async (id: string | number) => {
+    const response = await adminClient.get(`/admin/audit-logs/${id}`);
+    return response.data;
+  },
 };

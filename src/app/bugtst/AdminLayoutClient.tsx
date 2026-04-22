@@ -36,7 +36,7 @@ export default function AdminLayoutClient({
   }
 
   return (
-    <div className="min-h-screen bg-muted/20 flex font-sans overflow-hidden">
+    <div className="h-screen bg-muted/20 flex font-sans overflow-hidden">
       {!isLoginPage && (
         <>
             <AdminSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
@@ -56,7 +56,7 @@ export default function AdminLayoutClient({
             </div>
         </>
       )}
-      <div className={`flex-1 flex flex-col min-w-0 overflow-hidden ${!isLoginPage ? 'pt-16 md:pt-0' : ''}`}>
+      <div className={`flex-1 flex flex-col min-w-0 overflow-y-auto ${!isLoginPage ? 'pt-16 md:pt-0' : ''}`}>
         {children}
       </div>
     </div>
