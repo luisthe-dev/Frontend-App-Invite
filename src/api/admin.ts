@@ -3,8 +3,8 @@ import { ApiResponse, PaginatedResponse } from '@/types/api';
 import { User, Event, Ticket, Transaction, Category, TrustTier, TrustScoreSetting, AdminStats, AdminFinanceStats, SupportTicket, SupportMessage, ContactMessage } from '@/types/models';
 
 export const adminApi = {
-  async login(credentials: any): Promise<{ token: string; user: User }> {
-    const response = await adminClient.post<ApiResponse<{ token: string; user: User }>>("/admin/login", credentials);
+  async login(credentials: any): Promise<{ token: string; user: any }> {
+    const response = await adminClient.post<ApiResponse<{ token: string; user: any }>>("/admin/login", credentials);
     return response.data.data;
   },
 
@@ -13,8 +13,8 @@ export const adminApi = {
     return response.data.data;
   },
 
-  async getProfile(): Promise<User> {
-    const response = await adminClient.get<ApiResponse<User>>("/admin/me");
+  async getProfile(): Promise<any> {
+    const response = await adminClient.get<ApiResponse<any>>("/admin/me");
     return response.data.data;
   },
 

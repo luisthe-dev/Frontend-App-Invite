@@ -30,6 +30,12 @@ export default function AdminLoginPage() {
       // Access token directly as login returns unwrapped data
       Cookies.set("admin_token", response.token, { expires: 1 }); 
       
+      // Store admin metadata for the sidebar
+      if (response.user) {
+        localStorage.setItem("admin_name", response.user.name || "Administrator");
+        localStorage.setItem("admin_email", response.user.email || "admin@myinvite.app");
+      }
+      
       toast.success("Admin logged in successfully");
       router.push("/bugtst/dashboard");
     } catch (error: any) {

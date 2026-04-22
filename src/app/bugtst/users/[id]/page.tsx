@@ -23,6 +23,8 @@ import {
 } from "lucide-react";
 import { adminApi } from "@/api/admin";
 import { formatCurrency } from "@/lib/utils";
+import ConfirmModal from "../../components/ConfirmModal";
+import { toast } from "sonner";
 
 export default function AdminUserDetailsPage({
   params,
@@ -35,21 +37,33 @@ export default function AdminUserDetailsPage({
   const [user, setUser] = useState<any>(null);
   const [stats, setStats] = useState<any>(null);
   const [updating, setUpdating] = useState(false);
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    newStatus: string;
+  }>({
+    isOpen: false,
+    newStatus: "",
+  });
 
-  const handleStatusUpdate = async (newStatus: string) => {
-    if (!confirm(`Are you sure you want to change user status to ${newStatus}?`)) return;
+  const handleStatusUpdate = (newStatus: string) => {
+    setConfirmModal({
+      isOpen: true,
+      newStatus,
+    });
+  };
 
+  const executeStatusUpdate = async () => {
+    const { newStatus } = confirmModal;
+    setConfirmModal(prev => ({ ...prev, isOpen: false }));
+    
     setUpdating(true);
     try {
       const response = await adminApi.updateUserStatus(id, newStatus);
-      // Backend returns sendSuccess which wrapping standard response
-      // UserResource is in data object usually.
-      // Looking at AdminUserController: return $this->sendSuccess(..., new UserResource($user));
-      // UserResource toArray has "id", "first_name", etc.
+      toast.success(`User status updated to ${newStatus}`);
       setUser(response); 
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to update status", error);
-      alert("Failed to update user status");
+      toast.error(error.response?.data?.message || "Failed to update user status");
     } finally {
       setUpdating(false);
     }
@@ -331,6 +345,16 @@ export default function AdminUserDetailsPage({
           </div>
         </div>
       </div>
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+        onConfirm={executeStatusUpdate}
+        title="Update User Status"
+        message={`Are you sure you want to change this user's status to ${confirmModal.newStatus}?`}
+        confirmText="Update Status"
+        type={confirmModal.newStatus === "Blocked" ? "danger" : "warning"}
+        isLoading={updating}
+      />
     </div>
   );
 }

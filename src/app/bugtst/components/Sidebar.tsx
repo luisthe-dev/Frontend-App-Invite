@@ -27,6 +27,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 interface SidebarProps {
   isOpen?: boolean;
   onClose?: () => void;
+  onNavigate?: () => void;
 }
 
 const links = [
@@ -52,7 +53,7 @@ const links = [
   { href: "/bugtst/logout", label: "Logout", icon: LogOut },
 ];
 
-export default function AdminSidebar({ isOpen, onClose }: SidebarProps) {
+export default function AdminSidebar({ isOpen, onClose, onNavigate }: SidebarProps) {
   const pathname = usePathname();
   const [openSubmenus, setOpenSubmenus] = useState<Record<string, boolean>>({
     Settings: true,
@@ -157,6 +158,7 @@ export default function AdminSidebar({ isOpen, onClose }: SidebarProps) {
                           <Link
                             key={sub.href}
                             href={sub.href}
+                            onClick={() => onNavigate?.()}
                             className={cn(
                               "flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-colors",
                               isSubActive
@@ -186,6 +188,7 @@ export default function AdminSidebar({ isOpen, onClose }: SidebarProps) {
               <Link
                 key={link.href}
                 href={link.href}
+                onClick={() => onNavigate?.()}
                 className={cn(
                   "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group relative",
                   isActive
@@ -219,14 +222,14 @@ export default function AdminSidebar({ isOpen, onClose }: SidebarProps) {
         </div>
         <div className="flex items-center gap-3 px-2">
           <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
-            A
+            {localStorage.getItem("admin_name")?.[0] || "A"}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-foreground truncate">
-              Administrator
+              {localStorage.getItem("admin_name") || "Administrator"}
             </p>
             <p className="text-xs text-muted-foreground truncate">
-              admin@myinvite.app
+              {localStorage.getItem("admin_email") || "admin@myinvite.app"}
             </p>
           </div>
         </div>

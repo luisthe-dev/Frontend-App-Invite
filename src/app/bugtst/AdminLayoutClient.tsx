@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { usePathname, notFound } from "next/navigation";
+import { usePathname, useSearchParams, notFound } from "next/navigation";
 import AdminSidebar from "./components/Sidebar";
+import LoadingBar from "./components/LoadingBar";
 import { Menu, X } from "lucide-react";
 
 export default function AdminLayoutClient({
@@ -11,9 +12,16 @@ export default function AdminLayoutClient({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const isLoginPage = pathname === "/bugtst/login";
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+  const [isNavigating, setIsNavigating] = useState(false);
+
+  useEffect(() => {
+    // Stop navigation loader when route changes
+    setIsNavigating(false);
+  }, [pathname, searchParams]);
 
   // console.log('wdmwmdk');.
 
@@ -37,9 +45,14 @@ export default function AdminLayoutClient({
 
   return (
     <div className="h-screen bg-muted/20 flex font-sans overflow-hidden">
+      <LoadingBar isLoading={isNavigating} />
       {!isLoginPage && (
         <>
-            <AdminSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+            <AdminSidebar 
+              isOpen={isSidebarOpen} 
+              onClose={() => setIsSidebarOpen(false)} 
+              onNavigate={() => setIsNavigating(true)}
+            />
             
             {/* Mobile Header */}
             <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-card text-card-foreground border-b border-border z-30 flex items-center px-4 justify-between">

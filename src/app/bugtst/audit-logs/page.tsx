@@ -15,7 +15,8 @@ import {
   ChevronRight,
   Info,
   Clock,
-  Globe
+  Globe,
+  X
 } from "lucide-react";
 import { adminApi } from "@/api/admin";
 import { TableSkeleton } from "../components/Skeletons";
@@ -32,6 +33,20 @@ export default function AuditLogsPage() {
   // Filters
   const [actionFilter, setActionFilter] = useState(searchParams.get("action") || "");
   const [dateFilter, setDateFilter] = useState(searchParams.get("date") || "");
+
+  const getTargetLink = (type: string, id: string) => {
+    if (!type || !id) return null;
+    
+    switch (type.toLowerCase()) {
+      case "user":
+        return `/bugtst/users/${id}`;
+      case "event":
+        return `/bugtst/events/${id}`;
+      // Add more mappings as they are implemented
+      default:
+        return null;
+    }
+  };
 
   const fetchLogs = async (page = 1) => {
     setLoading(true);
@@ -137,13 +152,13 @@ export default function AuditLogsPage() {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary">
-                            {log.admin.first_name[0]}{log.admin.last_name[0]}
+                            {log.admin?.name?.[0] || "?"}
                           </div>
                           <div>
                             <p className="font-semibold text-foreground text-sm">
-                              {log.admin.first_name} {log.admin.last_name}
+                              {log.admin ? `${log.admin.name}` : "System / Unknown"}
                             </p>
-                            <p className="text-xs text-muted-foreground">Admin</p>
+                            <p className="text-xs text-muted-foreground">{log.admin ? "Admin" : "Action"}</p>
                           </div>
                         </div>
                       </td>
@@ -154,12 +169,26 @@ export default function AuditLogsPage() {
                       </td>
                       <td className="px-6 py-4">
                         <div className="text-sm text-foreground">
-                          {log.target_type ? (
-                            <span className="flex items-center gap-1.5 capitalize">
-                              <span className="text-xs text-muted-foreground">{log.target_type}:</span>
-                              {log.target_id}
-                            </span>
-                          ) : (
+                          {log.target_type ? (() => {
+                            const link = getTargetLink(log.target_type, log.target_id);
+                            const content = (
+                              <span className="flex items-center gap-1.5 capitalize">
+                                <span className="text-xs text-muted-foreground">{log.target_type}:</span>
+                                {log.target_id}
+                              </span>
+                            );
+                            
+                            return link ? (
+                              <Link 
+                                href={link} 
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-primary hover:underline hover:text-primary/80 transition-colors inline-flex items-center gap-1"
+                              >
+                                {content}
+                              </Link>
+                            ) : content;
+                          })() : (
                             <span className="text-muted-foreground italic">System</span>
                           )}
                         </div>
@@ -201,26 +230,26 @@ export default function AuditLogsPage() {
         )}
 
         {/* Pagination */}
-        {pagination && pagination.meta.last_page > 1 && (
+        {pagination && (pagination.last_page || pagination.meta?.last_page) > 1 && (
           <div className="p-6 border-t border-border bg-muted/20 flex items-center justify-between gap-4">
             <p className="text-sm text-muted-foreground">
-              Showing <span className="font-semibold text-foreground">{pagination.meta.from}</span> to <span className="font-semibold text-foreground">{pagination.meta.to}</span> of <span className="font-semibold text-foreground">{pagination.meta.total}</span> logs
+              Showing <span className="font-semibold text-foreground">{pagination.from || pagination.meta?.from}</span> to <span className="font-semibold text-foreground">{pagination.to || pagination.meta?.to}</span> of <span className="font-semibold text-foreground">{pagination.total || pagination.meta?.total}</span> logs
             </p>
             <div className="flex items-center gap-2">
               <button
-                disabled={pagination.meta.current_page === 1}
-                onClick={() => fetchLogs(pagination.meta.current_page - 1)}
+                disabled={(pagination.current_page || pagination.meta?.current_page) === 1}
+                onClick={() => fetchLogs((pagination.current_page || pagination.meta?.current_page) - 1)}
                 className="p-2 rounded-lg border border-border bg-card hover:bg-muted disabled:opacity-50 transition-all"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
               <div className="flex items-center gap-1">
-                {Array.from({ length: pagination.meta.last_page }, (_, i) => i + 1).map((p) => (
+                {Array.from({ length: (pagination.last_page || pagination.meta?.last_page) }, (_, i) => i + 1).map((p) => (
                   <button
                     key={p}
                     onClick={() => fetchLogs(p)}
                     className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${
-                      pagination.meta.current_page === p
+                      (pagination.current_page || pagination.meta?.current_page) === p
                         ? "bg-primary text-primary-foreground"
                         : "hover:bg-muted"
                     }`}
@@ -230,8 +259,8 @@ export default function AuditLogsPage() {
                 ))}
               </div>
               <button
-                disabled={pagination.meta.current_page === pagination.meta.last_page}
-                onClick={() => fetchLogs(pagination.meta.current_page + 1)}
+                disabled={(pagination.current_page || pagination.meta?.current_page) === (pagination.last_page || pagination.meta?.last_page)}
+                onClick={() => fetchLogs((pagination.current_page || pagination.meta?.current_page) + 1)}
                 className="p-2 rounded-lg border border-border bg-card hover:bg-muted disabled:opacity-50 transition-all"
               >
                 <ChevronRight className="w-4 h-4" />
@@ -268,7 +297,9 @@ export default function AuditLogsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div className="p-4 rounded-xl bg-muted/50 border border-border">
                   <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mb-1">Admin</p>
-                  <p className="text-sm font-semibold">{selectedLog.admin.first_name} {selectedLog.admin.last_name}</p>
+                  <p className="text-sm font-semibold">
+                    {selectedLog.admin ? `${selectedLog.admin.name}` : "System / Unknown"}
+                  </p>
                 </div>
                 <div className="p-4 rounded-xl bg-muted/50 border border-border">
                   <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mb-1">IP Address</p>
@@ -277,7 +308,21 @@ export default function AuditLogsPage() {
                 <div className="p-4 rounded-xl bg-muted/50 border border-border">
                   <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mb-1">Target</p>
                   <p className="text-sm font-semibold">
-                    {selectedLog.target_type ? `${selectedLog.target_type} (${selectedLog.target_id})` : "System"}
+                    {(() => {
+                      const link = getTargetLink(selectedLog.target_type, selectedLog.target_id);
+                      const text = selectedLog.target_type ? `${selectedLog.target_type} (${selectedLog.target_id})` : "System";
+                      
+                      return link ? (
+                        <Link 
+                          href={link} 
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline transition-all"
+                        >
+                          {text}
+                        </Link>
+                      ) : text;
+                    })()}
                   </p>
                 </div>
                 <div className="p-4 rounded-xl bg-muted/50 border border-border">

@@ -5,8 +5,10 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Cookies from "js-cookie";
 import { TableSkeleton } from "../components/Skeletons";
+import ConfirmModal from "../components/ConfirmModal";
 import { Search, Filter, Eye, User, ShieldCheck, Mail, Phone, Calendar, Lock, Unlock, Ban } from "lucide-react";
 import { adminApi } from "@/api/admin";
+import { toast } from "sonner";
 
 export default function AdminUsersPage() {
   const router = useRouter();
@@ -18,18 +20,36 @@ export default function AdminUsersPage() {
   const [roleFilter, setRoleFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [updatingUser, setUpdatingUser] = useState<string | null>(null);
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    userId: string;
+    newStatus: string;
+  }>({
+    isOpen: false,
+    userId: "",
+    newStatus: "",
+  });
 
-  const handleStatusUpdate = async (userId: string, newStatus: string) => {
-    if (!confirm(`Are you sure you want to change this user's status to ${newStatus}?`)) return;
+  const handleStatusUpdate = (userId: string, newStatus: string) => {
+    setConfirmModal({
+      isOpen: true,
+      userId,
+      newStatus,
+    });
+  };
 
+  const executeStatusUpdate = async () => {
+    const { userId, newStatus } = confirmModal;
+    setConfirmModal(prev => ({ ...prev, isOpen: false }));
+    
     setUpdatingUser(userId);
     try {
       await adminApi.updateUserStatus(userId, newStatus);
-      // Refresh the list to show updated status
+      toast.success(`User status updated to ${newStatus}`);
       fetchUsers(pagination?.meta?.current_page || 1);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to update status", error);
-      alert("Failed to update user status");
+      toast.error(error.response?.data?.message || "Failed to update user status");
     } finally {
       setUpdatingUser(null);
     }
@@ -283,6 +303,17 @@ export default function AdminUsersPage() {
           </button>
         </div>
       )}
+      {/* Confirm Modal */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+        onConfirm={executeStatusUpdate}
+        title="Update User Status"
+        message={`Are you sure you want to change this user's status to ${confirmModal.newStatus}?`}
+        confirmText="Update Status"
+        type={confirmModal.newStatus === "Blocked" ? "danger" : "warning"}
+        isLoading={!!updatingUser}
+      />
     </div>
   );
 }
