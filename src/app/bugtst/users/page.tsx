@@ -192,7 +192,7 @@ export default function AdminUsersPage() {
                 </td>
                 <td className="px-6 py-4 text-right">
                   <Link
-                    href={`/admin/users/${user.id}`}
+                    href={`/bugtst/users/${user.id}`}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-primary bg-primary/10 rounded-lg hover:bg-primary/20 transition-all border border-primary/20 hover:border-primary/40 hover:-translate-y-0.5"
                   >
                     <Eye className="w-3.5 h-3.5" />

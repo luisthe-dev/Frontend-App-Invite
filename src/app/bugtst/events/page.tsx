@@ -123,7 +123,7 @@ export default function AdminEventsPage() {
             {events.map((event) => (
               <tr
                 key={event.id}
-                onClick={() => router.push(`/admin/events/${event.id}`)}
+                onClick={() => router.push(`/bugtst/events/${event.id}`)}
                 className="hover:bg-accent/50 transition-colors group cursor-pointer"
               >
                 <td className="px-6 py-4">
@@ -154,7 +154,7 @@ export default function AdminEventsPage() {
                 <td className="px-6 py-4">
                   {event.user ? (
                     <Link
-                      href={`/admin/users/${event.user.id}`}
+                      href={`/bugtst/users/${event.user.id}`}
                       onClick={(e) => e.stopPropagation()}
                       className="group/host"
                     >
@@ -201,7 +201,7 @@ export default function AdminEventsPage() {
                 </td>
                 <td className="px-6 py-4 text-right">
                   <Link
-                    href={`/admin/events/${event.id}`}
+                    href={`/bugtst/events/${event.id}`}
                     onClick={(e) => e.stopPropagation()}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-primary bg-primary/10 rounded-lg hover:bg-primary/20 transition-all border border-primary/20 hover:border-primary/40 hover:-translate-y-0.5"
                   >

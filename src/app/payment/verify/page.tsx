@@ -49,7 +49,7 @@ function VerifyContent() {
     const shareData = {
       title: "MyInvite Ticket",
       text: `I just got my ticket for ${event.title}! Join me there.`,
-      url: window.location.origin + `/events/${event.id}`,
+      url: window.location.origin + `/events/${event.slug}`,
     };
 
     try {

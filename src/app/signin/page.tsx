@@ -3,31 +3,49 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
-import { Eye, EyeOff } from "lucide-react";
-import { useRouter } from 'next/navigation';
+import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { useRouter, useSearchParams } from 'next/navigation';
 import { authService } from '@/api/auth';
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
 import { useTheme } from 'next-themes';
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 
-export default function SignInPage() {
+function SignInContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { resolvedTheme } = useTheme();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [infoMessage, setInfoMessage] = useState('');
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
 
+
+  useEffect(() => {
+    const errorParam = searchParams.get('error');
+    const msgParam = searchParams.get('message');
+    
+    if (errorParam) {
+      let displayError = msgParam ? decodeURIComponent(msgParam) : errorParam.replace(/[_]/g, ' ');
+      // Capitalize first letter
+      displayError = displayError.charAt(0).toUpperCase() + displayError.slice(1);
+      setError(displayError);
+    } else if (msgParam) {
+      setInfoMessage(decodeURIComponent(msgParam));
+    }
+  }, [searchParams]);
+
+  //make async, and add api call to request otp token for user
   useEffect(() => {
     const user = authService.getCurrentUser();
     if (authService.isAuthenticated()) {
       if (user?.status === "Unverified") {
-        router.push(`/verify-otp?email=${encodeURIComponent(user.email_address || user.email)}&flow=login`);
+        router.push(`/verify-otp?flow=login`);
       } else {
         router.push("/dashboard");
       }
@@ -43,7 +61,7 @@ export default function SignInPage() {
       const response = await authService.login(formData.email, formData.password);
       
       if (response.UserDetails?.status === 'Unverified') {
-        router.push(`/verify-otp?email=${encodeURIComponent(formData.email)}&flow=login`);
+        router.push(`/verify-otp?flow=login`);
         return;
       }
 
@@ -92,12 +110,35 @@ export default function SignInPage() {
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
+                  className="shrink-0"
                 >
                   <circle cx="12" cy="12" r="10" />
                   <line x1="12" x2="12" y1="8" y2="12" />
                   <line x1="12" x2="12.01" y1="16" y2="16" />
                 </svg>
-                {error}
+                <span>{error}</span>
+              </div>
+            )}
+
+            {infoMessage && (
+              <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-sm p-3 rounded-lg border border-blue-100 dark:border-blue-900/30 flex items-center gap-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="shrink-0"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" x2="12" y1="16" y2="12" />
+                  <line x1="12" x2="12.01" y1="8" y2="8" />
+                </svg>
+                <span>{infoMessage}</span>
               </div>
             )}
 
@@ -232,5 +273,13 @@ export default function SignInPage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-violet-600" /></div>}>
+      <SignInContent />
+    </Suspense>
   );
 }

@@ -41,133 +41,108 @@ export default function CookiesPage() {
 
             <div className="p-8 md:p-12">
               <div className="prose prose-lg prose-violet max-w-none text-gray-600 prose-headings:font-bold prose-headings:text-gray-900 prose-p:leading-relaxed prose-a:text-violet-600 prose-a:no-underline hover:prose-a:text-violet-700">
-                <p className="text-xl text-gray-700 leading-relaxed font-medium mb-8">
+                <p className="text-xl text-gray-700 leading-relaxed font-medium mb-6 mt-0">
                   MyInvite uses cookies and similar technologies to improve your
                   experience on our Platform. This Cookie Policy explains what
                   cookies are, how we use them, and your choices regarding their
                   use.
                 </p>
 
+                <div className="bg-violet-50 border-l-4 border-violet-500 p-6 rounded-r-xl mb-10">
+                  <p className="m-0 text-gray-700 leading-relaxed text-base">
+                    By continuing to use MyInvite, you agree to the placement of cookies on your device as described in this policy. You can manage your preferences at any time through your browser settings or our cookie consent manager.
+                  </p>
+                </div>
+
                 <div className="my-10 grid gap-4 sm:grid-cols-2">
-                  <div className="p-5 bg-violet-50 rounded-xl border border-violet-100 flex items-start gap-4">
+                  <div className="p-5 bg-violet-50 rounded-xl border border-transparent hover:border-violet-200 transition-colors flex items-start gap-4">
                     <ShieldCheck className="w-6 h-6 text-violet-600 shrink-0 mt-1" />
                     <div>
-                      <h4 className="text-violet-900 font-bold m-0 mb-1">
-                        Essential
-                      </h4>
-                      <p className="text-sm text-violet-800 m-0">
-                        Required for login and shopping cart.
-                      </p>
+                      <h4 className="text-violet-900 font-bold m-0 mb-1">Essential</h4>
+                      <p className="text-sm text-violet-800 m-0">Required for login, authentication, and core platform functionality.</p>
                     </div>
                   </div>
-                  <div className="p-5 bg-violet-50 rounded-xl border border-violet-100 flex items-start gap-4">
+                  <div className="p-5 bg-violet-50 rounded-xl border border-transparent hover:border-violet-200 transition-colors flex items-start gap-4">
                     <MousePointer2 className="w-6 h-6 text-violet-600 shrink-0 mt-1" />
                     <div>
-                      <h4 className="text-violet-900 font-bold m-0 mb-1">
-                        Functionality
-                      </h4>
-                      <p className="text-sm text-violet-800 m-0">
-                        Remembers your preferences.
-                      </p>
+                      <h4 className="text-violet-900 font-bold m-0 mb-1">Functionality</h4>
+                      <p className="text-sm text-violet-800 m-0">Remembers your preferences like language, theme, and region settings.</p>
                     </div>
                   </div>
-                  <div className="p-5 bg-violet-50 rounded-xl border border-violet-100 flex items-start gap-4">
+                  <div className="p-5 bg-violet-50 rounded-xl border border-transparent hover:border-violet-200 transition-colors flex items-start gap-4">
                     <BarChart3 className="w-6 h-6 text-violet-600 shrink-0 mt-1" />
                     <div>
-                      <h4 className="text-violet-900 font-bold m-0 mb-1">
-                        Analytics
-                      </h4>
-                      <p className="text-sm text-violet-800 m-0">
-                        Helps us improve our features.
-                      </p>
+                      <h4 className="text-violet-900 font-bold m-0 mb-1">Analytics</h4>
+                      <p className="text-sm text-violet-800 m-0">Helps us understand usage patterns and continuously improve our features.</p>
                     </div>
                   </div>
-                  <div className="p-5 bg-violet-50 rounded-xl border border-violet-100 flex items-start gap-4">
+                  <div className="p-5 bg-violet-50 rounded-xl border border-transparent hover:border-violet-200 transition-colors flex items-start gap-4">
                     <Cookie className="w-6 h-6 text-violet-600 shrink-0 mt-1" />
                     <div>
-                      <h4 className="text-violet-900 font-bold m-0 mb-1">
-                        Targeting
-                      </h4>
-                      <p className="text-sm text-violet-800 m-0">
-                        Relevant ads and content.
-                      </p>
+                      <h4 className="text-violet-900 font-bold m-0 mb-1">Targeting</h4>
+                      <p className="text-sm text-violet-800 m-0">Used to deliver relevant advertisements and personalised content.</p>
                     </div>
                   </div>
                 </div>
 
-                <h3>1. What are Cookies?</h3>
-                <p>
-                  Cookies are small text files that are placed on your device
-                  (computer, smartphone, or tablet) when you visit a website.
-                  They are widely used to make websites work more efficiently
-                  and to provide information to the site owners.
-                </p>
+                <div className="space-y-12 mt-12">
+                  <section>
+                    <h3 className="text-2xl font-bold text-gray-900 border-b border-gray-100 pb-3 mb-6 mt-0">1. What are Cookies?</h3>
+                    <p className="text-gray-600 m-0">Cookies are small text files that are placed on your device (computer, smartphone, or tablet) when you visit a website. They are widely used to make websites work more efficiently and to provide information to the site owners. They do not contain personally identifying information, but they may link back to a database record about you.</p>
+                  </section>
 
-                <h3>2. How We Use Cookies</h3>
-                <p>We use cookies for the following purposes:</p>
-                <ul>
-                  <li>
-                    <strong>Essential Cookies:</strong> These are necessary for
-                    the Platform to function correctly. They include cookies
-                    that allow you to log in to secure areas, use the shopping
-                    cart, or make e-billing services available.
-                  </li>
-                  <li>
-                    <strong>Functionality Cookies:</strong> These allow the
-                    Platform to remember choices you make (such as your
-                    username, language, or region) and provide enhanced, more
-                    personal features.
-                  </li>
-                  <li>
-                    <strong>Performance and Analytics Cookies:</strong> These
-                    cookies collect information about how visitors use our
-                    Platform, such as which pages are visited most often. We use
-                    this information to improve the performance of our website.
-                  </li>
-                  <li>
-                    <strong>Targeting Cookies:</strong> These cookies report on
-                    your browsing habits and may be used to deliver advertising
-                    that is relevant to your interests.
-                  </li>
-                </ul>
+                  <section>
+                    <h3 className="text-2xl font-bold text-gray-900 border-b border-gray-100 pb-3 mb-6 mt-0">2. How We Use Cookies</h3>
+                    <div className="space-y-4">
+                      <div className="bg-gray-50 p-5 rounded-xl border border-gray-100">
+                        <strong className="block text-gray-900 mb-2">Essential Cookies</strong>
+                        <p className="text-sm text-gray-600 m-0">These are necessary for the Platform to function correctly — enabling you to log in to secure areas, process transactions, and use core features. These cookies cannot be disabled.</p>
+                      </div>
+                      <div className="bg-gray-50 p-5 rounded-xl border border-gray-100">
+                        <strong className="block text-gray-900 mb-2">Functionality Cookies</strong>
+                        <p className="text-sm text-gray-600 m-0">These allow the Platform to remember choices you make (such as your username, language, or region) and provide enhanced, more personalised features like saved preferences or dark mode.</p>
+                      </div>
+                      <div className="bg-gray-50 p-5 rounded-xl border border-gray-100">
+                        <strong className="block text-gray-900 mb-2">Performance & Analytics Cookies</strong>
+                        <p className="text-sm text-gray-600 m-0">These cookies collect aggregated information about how visitors use our Platform, e.g. which pages are visited most often. We use this data to improve our service. The information is anonymised and does not identify individuals.</p>
+                      </div>
+                      <div className="bg-gray-50 p-5 rounded-xl border border-gray-100">
+                        <strong className="block text-gray-900 mb-2">Targeting Cookies</strong>
+                        <p className="text-sm text-gray-600 m-0">These cookies report on your browsing habits and may be used to deliver advertising that is relevant to your interests. They also limit the number of times you see an ad and help measure the effectiveness of advertising campaigns.</p>
+                      </div>
+                    </div>
+                  </section>
 
-                <h3>3. Third-Party Cookies</h3>
-                <p>
-                  In addition to our own cookies, we may also use various
-                  third-party cookies to report usage statistics of the
-                  Platform, deliver advertisements on and through the Platform,
-                  and so on. For example, we use Google Analytics to help us
-                  understand how our website is used.
-                </p>
+                  <section>
+                    <h3 className="text-2xl font-bold text-gray-900 border-b border-gray-100 pb-3 mb-6 mt-0">3. Third-Party Cookies</h3>
+                    <p className="text-gray-600 m-0">In addition to our own cookies, we may also use various third-party cookies to report usage statistics of the Platform and deliver relevant advertisements. For example:</p>
+                    <ul className="mt-4 space-y-2 text-sm text-gray-600 pl-4 list-disc marker:text-violet-500">
+                      <li><strong>Google Analytics</strong> — helps us understand how our website is used and what content is most valuable.</li>
+                      <li><strong>Paystack</strong> — may set cookies to ensure secure and seamless payment processing.</li>
+                      <li><strong>Meta Pixel / Ad networks</strong> — used for retargeting and measuring ad campaign performance.</li>
+                    </ul>
+                    <p className="mt-4 text-gray-600 mb-0">Each third party has its own privacy and cookie policies. We encourage you to review them directly.</p>
+                  </section>
 
-                <h3>4. Managing Cookies</h3>
-                <p>
-                  Most web browsers allow you to control cookies through their
-                  settings preferences. However, if you limit the ability of
-                  websites to set cookies, you may worsen your overall user
-                  experience, since it will no longer be personalized to you. It
-                  may also stop you from saving customized settings like login
-                  information.
-                </p>
-                <p>
-                  To learn more about cookies, including how to see what cookies
-                  have been set and how to manage and delete them, visit{" "}
-                  <a
-                    href="https://www.allaboutcookies.org"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    www.allaboutcookies.org
-                  </a>
-                  .
-                </p>
+                  <section>
+                    <h3 className="text-2xl font-bold text-gray-900 border-b border-gray-100 pb-3 mb-6 mt-0">4. Managing Cookies</h3>
+                    <p className="text-gray-600 m-0">Most web browsers allow you to control cookies through their settings. However, restricting cookies may impact some features of the platform — such as saved login sessions or theme preferences.</p>
+                    <div className="mt-4 p-4 bg-gray-50 rounded-xl border border-gray-100 text-sm text-gray-600">
+                      To learn more about cookies, including how to see what cookies have been set and how to manage and delete them, visit{" "}
+                      <a href="https://www.allaboutcookies.org" target="_blank" rel="noopener noreferrer" className="text-violet-600 font-medium hover:underline">
+                        www.allaboutcookies.org
+                      </a>.
+                    </div>
+                  </section>
 
-                <h3>5. Contact Us</h3>
-                <p>
-                  If you have any questions about our use of cookies, please
-                  contact us at{" "}
-                  <a href="mailto:support@myinvite.ng">support@myinvite.ng</a>.
-                </p>
+                  <section>
+                    <h3 className="text-2xl font-bold text-gray-900 border-b border-gray-100 pb-3 mb-6 mt-0">5. Contact Us</h3>
+                    <p className="text-gray-600 m-0">
+                      If you have any questions about our use of cookies or this Cookie Policy, please contact us at{" "}
+                      <a href="mailto:support@myinvite.ng" className="font-semibold text-violet-600">support@myinvite.ng</a>.
+                    </p>
+                  </section>
+                </div>
               </div>
             </div>
           </div>

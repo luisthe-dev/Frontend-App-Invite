@@ -322,7 +322,7 @@ export default function AdminEventDetailsPage() {
               Host Details
             </h3>
             <Link
-              href={`/admin/users/${event.user?.id}`}
+              href={`/bugtst/users/${event.user?.id}`}
               className="flex items-start gap-4 group hover:bg-accent/50 -m-2 p-2 rounded-lg transition-colors"
             >
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg border-2 border-background shadow-sm group-hover:bg-background transition-colors">

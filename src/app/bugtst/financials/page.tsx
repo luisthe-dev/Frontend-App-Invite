@@ -489,7 +489,7 @@ export default function AdminFinancePage() {
                 {transactions.map((tx) => (
                   <tr
                     key={tx.id}
-                    onClick={() => router.push(`/admin/financials/${tx.id}`)}
+                    onClick={() => router.push(`/bugtst/financials/${tx.id}`)}
                     className="hover:bg-accent/50 transition-colors cursor-pointer"
                   >
                     <td className="px-6 py-4">
@@ -644,7 +644,7 @@ export default function AdminFinancePage() {
                     {recentTransactions.map((tx) => (
                       <tr
                         key={tx.id}
-                        onClick={() => router.push(`/admin/financials/${tx.id}`)}
+                        onClick={() => router.push(`/bugtst/financials/${tx.id}`)}
                         className="hover:bg-accent/50 transition-colors cursor-pointer"
                       >
                         <td className="px-6 py-3 text-sm font-medium text-foreground">

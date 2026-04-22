@@ -17,8 +17,6 @@ export default function PinSettings() {
             const userData = await userApi.getUser();
             if (userData && userData.has_password !== undefined) {
                  setHasPassword(userData.has_password);
-            } else if (userData.has_password !== undefined) {
-                 setHasPassword(userData.has_password);
             }
         } catch (e) {
             console.error("Failed to check user password status", e);

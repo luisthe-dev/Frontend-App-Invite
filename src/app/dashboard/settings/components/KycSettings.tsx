@@ -77,7 +77,8 @@ export default function KycSettings({ user, onUserUpdate }: KycSettingsProps) {
       <p className="text-green-700 dark:text-green-400 text-sm">
         {user?.kyc_status === "tier2"
           ? "Your business identity has been verified."
-          : "Your basic identity has been verified. You can now upgrade to Business Verification."}
+          : "Your basic identity has been verified. You can now host events and request withdrawals."}
+          {/* : "Your basic identity has been verified. You can now upgrade to Business Verification."} */}
       </p>
     </div>
   );
@@ -108,7 +109,7 @@ export default function KycSettings({ user, onUserUpdate }: KycSettingsProps) {
         <StatusBadge full />
       )}
 
-      {!started && !config && (
+      {user?.kyc_status !== 'tier1' && !started && !config && (
         <div className="flex justify-end bg-gray-50 dark:bg-slate-800/50 p-4 rounded-lg">
           <button
             onClick={fetchConfig}

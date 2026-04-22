@@ -173,7 +173,7 @@ export default function AdminSupportPage() {
                         key={ticket.id}
                         className="hover:bg-accent/50 transition-colors group cursor-pointer"
                         onClick={() =>
-                          (window.location.href = `/admin/support/${ticket.id}`)
+                          (window.location.href = `/bugtst/support/${ticket.id}`)
                         }
                       >
                         <td className="px-6 py-4">
@@ -219,7 +219,7 @@ export default function AdminSupportPage() {
                         </td>
                         <td className="px-6 py-4 text-right">
                           <Link
-                            href={`/admin/support/${ticket.id}`}
+                            href={`/bugtst/support/${ticket.id}`}
                             className="inline-flex items-center justify-center w-8 h-8 rounded-full hover:bg-background hover:shadow-sm hover:ring-1 hover:ring-border transition-all text-muted-foreground hover:text-primary"
                           >
                             <ChevronRight className="w-5 h-5" />

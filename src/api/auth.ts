@@ -61,8 +61,8 @@ export const authService = {
     return response.data.data;
   },
 
-  async verifyToken(token: string, email: string | null): Promise<{ message: string; access_token?: string; user?: any }> {
-    const response = await client.post<ApiResponse<{ message: string; access_token?: string; user?: any }>>("/user/token", { one_time_token: token, email });
+  async verifyToken(token: string): Promise<{ message: string; access_token?: string; user?: any }> {
+    const response = await client.post<ApiResponse<{ message: string; access_token?: string; user?: any }>>("/user/token", { one_time_token: token });
     return response.data.data;
   },
 

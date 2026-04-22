@@ -31,7 +31,6 @@ interface SidebarProps {
 const links = [
   { href: "/bugtst/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/bugtst/events", label: "Events", icon: Calendar },
-  { href: "/bugtst/tickets", label: "Tickets", icon: Ticket },
   { href: "/bugtst/users", label: "Users", icon: Users },
   { href: "/bugtst/financials", label: "Financials", icon: CreditCard },
   { href: "/bugtst/reports", label: "Reports", icon: PieChart },
@@ -77,7 +76,7 @@ export default function AdminSidebar({ isOpen, onClose }: SidebarProps) {
         md:translate-x-0 md:static md:flex shrink-0
       `}>
         <div className="p-6 border-b border-border flex items-center justify-between">
-          <Link href="/admin" className="flex flex-col gap-1">
+          <Link href="/bugtst" className="flex flex-col gap-1">
             <Image
               src="/Logos/web_logo_light_mode.png"
               alt="MyInvite"

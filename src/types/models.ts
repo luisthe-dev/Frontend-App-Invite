@@ -1,24 +1,24 @@
 export interface User {
-    id: number;
-    first_name: string;
-    last_name: string;
-    user_name: string;
-    email: string;
-    phone: string;
-    role: string;
-    avatar?: string;
-    email_verified_at?: string;
-    kyc_status: 'verified' | 'pending' | 'unverified' | 'tier1' | 'tier2';
-    kyc_data?: any;
-    trust_score: number;
-    highest_historical_payout: number;
-    created_at: string;
-    updated_at: string;
-    deleted_at?: string;
-    events_count?: number;
-    purchased_tickets_count?: number;
-    has_password?: boolean;
-    has_pin?: boolean;
+  id: number;
+  first_name: string;
+  last_name: string;
+  user_name: string;
+  email: string;
+  phone: string;
+  role: string;
+  avatar?: string;
+  email_verified_at?: string;
+  kyc_status: "verified" | "pending" | "unverified" | "tier1" | "tier2";
+  is_bvn_verified: boolean;
+  trust_score: number;
+  highest_historical_payout: number;
+  created_at: string;
+  updated_at: string;
+  deleted_at?: string;
+  events_count?: number;
+  purchased_tickets_count?: number;
+  has_password?: boolean;
+  has_pin?: boolean;
 }
 
 export interface Wallet {

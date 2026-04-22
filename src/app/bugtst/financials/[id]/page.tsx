@@ -208,7 +208,7 @@ export default function TransactionDetailsPage() {
                                 </p>
                                 <p className="text-xs text-muted-foreground truncate mb-2">{transaction.wallet.user.email}</p>
                                 <Link 
-                                    href={`/admin/users/${transaction.wallet.user.id}`}
+                                    href={`/bugtst/users/${transaction.wallet.user.id}`}
                                     className="inline-flex items-center text-xs font-semibold text-primary hover:underline"
                                 >
                                     View User Profile <ExternalLink className="w-3 h-3 ml-1" />
@@ -239,7 +239,7 @@ export default function TransactionDetailsPage() {
                                 {new Date(transaction.event.start_date).toLocaleDateString()}
                             </div>
                             <Link 
-                                href={`/admin/events/${transaction.event.id}`}
+                                href={`/bugtst/events/${transaction.event.id}`}
                                 className="inline-flex items-center text-xs font-semibold text-primary hover:underline"
                             >
                                 View Event Details <ExternalLink className="w-3 h-3 ml-1" />
@@ -250,7 +250,7 @@ export default function TransactionDetailsPage() {
                          <div>
                             <p className="text-sm text-muted-foreground mb-2">Event ID: <span className="font-mono">{transaction.event_id}</span></p>
                              <Link 
-                                href={`/admin/events/${transaction.event_id}`}
+                                href={`/bugtst/events/${transaction.event_id}`}
                                 className="inline-flex items-center text-xs font-semibold text-primary hover:underline"
                             >
                                 View Event <ExternalLink className="w-3 h-3 ml-1" />

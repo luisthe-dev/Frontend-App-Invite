@@ -164,7 +164,7 @@ export default function AdminContactMessagesPage() {
                         key={item.id}
                         className={`hover:bg-accent/50 transition-colors group cursor-pointer ${item.status === 'unread' ? 'bg-blue-50/30' : ''}`}
                         onClick={() =>
-                          (window.location.href = `/admin/contact/${item.id}`)
+                          (window.location.href = `/bugtst/contact/${item.id}`)
                         }
                       >
                         <td className="px-6 py-4">
@@ -197,7 +197,7 @@ export default function AdminContactMessagesPage() {
                                 <Trash2 className="w-4 h-4" />
                             </button>
                             <Link
-                                href={`/admin/contact/${item.id}`}
+                                href={`/bugtst/contact/${item.id}`}
                                 className="inline-flex items-center justify-center w-8 h-8 rounded-full hover:bg-background hover:shadow-sm hover:ring-1 hover:ring-border transition-all text-muted-foreground hover:text-primary"
                             >
                                 <ChevronRight className="w-5 h-5" />
