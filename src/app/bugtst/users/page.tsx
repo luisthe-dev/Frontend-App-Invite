@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Cookies from "js-cookie";
 import { TableSkeleton } from "../components/Skeletons";
-import { Search, Filter, Eye, User, ShieldCheck, Mail, Phone, Calendar } from "lucide-react";
+import { Search, Filter, Eye, User, ShieldCheck, Mail, Phone, Calendar, Lock, Unlock, Ban } from "lucide-react";
 import { adminApi } from "@/api/admin";
 
 export default function AdminUsersPage() {
@@ -17,6 +17,23 @@ export default function AdminUsersPage() {
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [updatingUser, setUpdatingUser] = useState<string | null>(null);
+
+  const handleStatusUpdate = async (userId: string, newStatus: string) => {
+    if (!confirm(`Are you sure you want to change this user's status to ${newStatus}?`)) return;
+
+    setUpdatingUser(userId);
+    try {
+      await adminApi.updateUserStatus(userId, newStatus);
+      // Refresh the list to show updated status
+      fetchUsers(pagination?.meta?.current_page || 1);
+    } catch (error) {
+      console.error("Failed to update status", error);
+      alert("Failed to update user status");
+    } finally {
+      setUpdatingUser(null);
+    }
+  };
   
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
@@ -191,13 +208,37 @@ export default function AdminUsersPage() {
                   </div>
                 </td>
                 <td className="px-6 py-4 text-right">
-                  <Link
-                    href={`/bugtst/users/${user.id}`}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-primary bg-primary/10 rounded-lg hover:bg-primary/20 transition-all border border-primary/20 hover:border-primary/40 hover:-translate-y-0.5"
-                  >
-                    <Eye className="w-3.5 h-3.5" />
-                    Profile
-                  </Link>
+                  <div className="flex items-center justify-end gap-2">
+                    <button
+                      disabled={updatingUser === user.id}
+                      onClick={() => handleStatusUpdate(user.id, user.status === "Locked" || user.status === "Blocked" ? "Verified" : "Locked")}
+                      className={`p-1.5 rounded-lg border transition-all ${
+                        user.status === "Locked" || user.status === "Blocked"
+                          ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/20"
+                          : "bg-amber-500/10 text-amber-600 border-amber-500/20 hover:bg-amber-500/20"
+                      }`}
+                      title={user.status === "Locked" || user.status === "Blocked" ? "Unlock/Verify" : "Lock Account"}
+                    >
+                      {user.status === "Locked" || user.status === "Blocked" ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
+                    </button>
+                    {!["Blocked"].includes(user.status) && (
+                      <button
+                        disabled={updatingUser === user.id}
+                        onClick={() => handleStatusUpdate(user.id, "Blocked")}
+                        className="p-1.5 bg-destructive/10 text-destructive border border-destructive/20 rounded-lg hover:bg-destructive/20 transition-all"
+                        title="Block User"
+                      >
+                        <Ban className="w-4 h-4" />
+                      </button>
+                    )}
+                    <Link
+                      href={`/bugtst/users/${user.id}`}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-primary bg-primary/10 rounded-lg hover:bg-primary/20 transition-all border border-primary/20 hover:border-primary/40"
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                      Profile
+                    </Link>
+                  </div>
                 </td>
               </tr>
             ))}

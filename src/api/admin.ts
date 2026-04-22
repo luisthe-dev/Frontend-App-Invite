@@ -83,6 +83,12 @@ export const adminApi = {
     });
     return response.data.data;
   },
+  async updateUserStatus(id: string, status: string): Promise<User> {
+    const response = await adminClient.put<ApiResponse<User>>(`/admin/users/${id}/status`, {
+      status,
+    });
+    return response.data.data;
+  },
 
   // Finance
   // Finance

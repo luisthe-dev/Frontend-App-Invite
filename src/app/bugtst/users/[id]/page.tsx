@@ -17,6 +17,9 @@ import {
   CheckCircle,
   Check,
   X,
+  Lock,
+  Unlock,
+  Ban,
 } from "lucide-react";
 import { adminApi } from "@/api/admin";
 import { formatCurrency } from "@/lib/utils";
@@ -31,6 +34,26 @@ export default function AdminUserDetailsPage({
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
   const [stats, setStats] = useState<any>(null);
+  const [updating, setUpdating] = useState(false);
+
+  const handleStatusUpdate = async (newStatus: string) => {
+    if (!confirm(`Are you sure you want to change user status to ${newStatus}?`)) return;
+
+    setUpdating(true);
+    try {
+      const response = await adminApi.updateUserStatus(id, newStatus);
+      // Backend returns sendSuccess which wrapping standard response
+      // UserResource is in data object usually.
+      // Looking at AdminUserController: return $this->sendSuccess(..., new UserResource($user));
+      // UserResource toArray has "id", "first_name", etc.
+      setUser(response); 
+    } catch (error) {
+      console.error("Failed to update status", error);
+      alert("Failed to update user status");
+    } finally {
+      setUpdating(false);
+    }
+  };
 
   // Events Tables State
   const [activeEvents, setActiveEvents] = useState<any[]>([]);
@@ -192,7 +215,7 @@ export default function AdminUserDetailsPage({
       {/* Content Tabs/Sections */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
         {/* Active Events */}
-        <div className="xl:col-span-2 space-y-8">
+        <div className="xl:col-span-2 space-y-8 order-first xl:order-none">
           <section>
             <h2 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
               <Calendar className="w-5 h-5 text-primary" />
@@ -230,6 +253,56 @@ export default function AdminUserDetailsPage({
 
         {/* Side Column: Other Info (KYC, etc) */}
         <div className="space-y-6">
+          {/* Account Status Management - QUICK ACTIONS */}
+          <div className="bg-card rounded-xl shadow-sm border border-border p-6">
+            <h3 className="font-bold text-foreground mb-4 flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-primary" />
+              Manage Account
+            </h3>
+            
+            <div className="space-y-3">
+              <button
+                disabled={updating || user.account_status === "Verified"}
+                onClick={() => handleStatusUpdate("Verified")}
+                className="w-full flex items-center justify-between p-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5 text-emerald-600 hover:bg-emerald-500/10 disabled:opacity-50 disabled:grayscale transition-all text-sm font-semibold"
+              >
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4" />
+                  Verify / Unlock
+                </div>
+                {user.account_status === "Verified" && <Check className="w-4 h-4" />}
+              </button>
+
+              <button
+                disabled={updating || user.account_status === "Locked"}
+                onClick={() => handleStatusUpdate("Locked")}
+                className="w-full flex items-center justify-between p-3 rounded-lg border border-amber-500/20 bg-amber-500/5 text-amber-600 hover:bg-amber-500/10 disabled:opacity-50 disabled:grayscale transition-all text-sm font-semibold"
+              >
+                <div className="flex items-center gap-2">
+                  <Lock className="w-4 h-4" />
+                  Lock Account
+                </div>
+                {user.account_status === "Locked" && <Check className="w-4 h-4" />}
+              </button>
+
+              <button
+                disabled={updating || user.account_status === "Blocked"}
+                onClick={() => handleStatusUpdate("Blocked")}
+                className="w-full flex items-center justify-between p-3 rounded-lg border border-destructive/20 bg-destructive/5 text-destructive hover:bg-destructive/10 disabled:opacity-50 disabled:grayscale transition-all text-sm font-semibold"
+              >
+                <div className="flex items-center gap-2">
+                  <Ban className="w-4 h-4" />
+                  Block User
+                </div>
+                {user.account_status === "Blocked" && <Check className="w-4 h-4" />}
+              </button>
+            </div>
+            
+            <p className="text-[10px] text-muted-foreground mt-4 leading-relaxed">
+              * Verified users have full access. Locked users are temporarily restricted (e.g. during password resets). Blocked users are banned from the platform.
+            </p>
+          </div>
+
           {/* KYC Info */}
           <div className="bg-card rounded-xl shadow-sm border border-border p-6">
             <h3 className="font-bold text-foreground mb-4">KYC Verification</h3>
