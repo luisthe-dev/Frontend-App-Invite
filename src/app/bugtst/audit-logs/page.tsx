@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { 
@@ -8,9 +8,7 @@ import {
   Search, 
   Filter, 
   Calendar, 
-  User, 
   Eye, 
-  ArrowLeft,
   ChevronLeft,
   ChevronRight,
   Info,
@@ -21,7 +19,7 @@ import {
 import { adminApi } from "@/api/admin";
 import { TableSkeleton } from "../components/Skeletons";
 
-export default function AuditLogsPage() {
+function AuditLogsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
@@ -42,7 +40,6 @@ export default function AuditLogsPage() {
         return `/bugtst/users/${id}`;
       case "event":
         return `/bugtst/events/${id}`;
-      // Add more mappings as they are implemented
       default:
         return null;
     }
@@ -390,5 +387,13 @@ export default function AuditLogsPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function AuditLogsPage() {
+  return (
+    <Suspense fallback={<TableSkeleton />}>
+      <AuditLogsContent />
+    </Suspense>
   );
 }

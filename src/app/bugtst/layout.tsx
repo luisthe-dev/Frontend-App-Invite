@@ -1,15 +1,14 @@
-import type { Metadata } from "next";
+import { Suspense } from "react";
 import AdminLayoutClient from "./AdminLayoutClient";
-
-export const metadata: Metadata = {
-  title: "MyInvite : Find Your Next Experience",
-  description: "Administrative Dashboard",
-};
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <AdminLayoutClient>{children}</AdminLayoutClient>;
+  return (
+    <Suspense fallback={null}>
+      <AdminLayoutClient>{children}</AdminLayoutClient>
+    </Suspense>
+  );
 }
